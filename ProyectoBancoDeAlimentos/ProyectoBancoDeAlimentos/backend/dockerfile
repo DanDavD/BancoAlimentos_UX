@@ -1,0 +1,15 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# First copy ONLY package files for clean install
+COPY package*.json ./
+
+# Install dependencies (including bcrypt rebuild)
+RUN npm install --build-from-source
+
+# Copy all other files
+COPY . .
+
+EXPOSE 3001
+CMD ["node", "src/server.js"]
