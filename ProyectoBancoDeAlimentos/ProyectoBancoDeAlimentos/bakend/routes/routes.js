@@ -1,9 +1,8 @@
-const { Router } = require('express');
+const express = require('express');
+const router = express.Router();
 
-const router =Router();
+const authRoutes = require('./routesLogin');
 
+router.use('/auth', authRoutes);
 
-//Luego se mandam a llamar los otros archivos de rutas 
-
-
-module.exports= router;
+module.exports = router;
