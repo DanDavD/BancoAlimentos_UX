@@ -1,34 +1,39 @@
-require("dotenv").config();
+const { Sequelize } = require('sequelize');
 
-const { Sequelize } = require("sequelize");
+require('dotenv').config();
 
-// Convertir string 'true'/'false' a booleano
-const useSSL = process.env.DB_USE_SSL === "true";
+const isDocker = process.env.IS_DOCKER === 'true'; // usa esta variable para saber si estás en Docker
 
-const dialectOptions = useSSL
-  ? {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-      },
-    }
-  : {};
-  
-console.log("DB_USER:", process.env.DB_USER, typeof process.env.DB_USER);
-console.log("DB_PASSWORD:", process.env.DB_PASSWORD, typeof process.env.DB_PASSWORD);
-console.log("DB_NAME:", process.env.DB_NAME, typeof process.env.DB_NAME);
+const host = isDocker ? process.env.DB_HOST_DOCKER : process.env.DB_HOST_LOCAL;
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
   process.env.DB_PASSWORD,
   {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: "postgres",
-    logging: console.log,
-    dialectOptions,
+    host: host,
+    port: Number(process.env.DB_PORT),
+    dialect: 'postgres',
+    logging: false,
   }
 );
 
 module.exports = sequelize;
+
+/*const { Sequelize } = require('sequelize');
+require('dotenv').config();
+
+const sequelize = new Sequelize(
+  String(process.env.DB_NAME || 'postgres'),
+  String(process.env.DB_USER || 'postgres'),
+  String(process.env.DB_PASSWORD || 'clave123'),
+  {
+    host: process.env.DB_HOST || 'database',
+    dialect: 'postgres',
+    port: Number(process.env.DB_PORT || 5432),
+    logging: false
+  }
+);
+
+module.exports = sequelize;
+*/
