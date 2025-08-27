@@ -28,10 +28,13 @@ app.use((req, res, next) => {
 // Importación de rutas
 const routes = require('./routes/routes');
 const authRoutes = require('./routes/routesLogin');
+const prueba_rutas = require('./routes/prueba');
 
 // Montaje de rutas
 app.use('/api', routes);
 app.use('/api', authRoutes);
+app.use('/prueba', prueba_rutas);
+
 
 // Manejador de errores
 app.use((err, req, res, next) => {
@@ -60,3 +63,5 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
+
+
