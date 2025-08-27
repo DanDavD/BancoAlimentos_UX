@@ -38,5 +38,21 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false
   });
 
+    producto.associate = (models) => {
+    // Para traer detalles de factura desde producto
+    producto.hasMany(models.factura_detalle, {
+      foreignKey: 'id_producto',
+      as: 'facturas_detalle',
+    });
+
+    // Para traer promociones directamente sin pasar por el puente en el include
+    producto.belongsToMany(models.promocion, {
+      through: models.promocion_producto,
+      foreignKey: 'id_producto',
+      otherKey: 'id_promocion',
+      as: 'promociones',
+    });
+  };
+
   return producto;
 };
