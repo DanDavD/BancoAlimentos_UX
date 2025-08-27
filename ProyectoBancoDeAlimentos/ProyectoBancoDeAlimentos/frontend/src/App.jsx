@@ -5,6 +5,7 @@ import "./App.css";
 //<Route path="/" element={<Menu />} />
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./dashboard.jsx";
+<<<<<<< Updated upstream
 import Login from "./login.jsx";
 import Crear_cuenta from "./crear_cuenta.jsx";
 import Forgot_password from "./forgot_password.jsx";
@@ -22,6 +23,17 @@ function App() {
         element={<Cambiar_contraseña />}
       ></Route>
     </Routes>
+=======
+import Header from "./components/Header";
+import InicioUsuario from "./components/inicioUsuario.jsx";
+
+function App() {
+  return (
+    <div className="App">
+      <Header />
+      <InicioUsuario />
+    </div>
+>>>>>>> Stashed changes
   );
 }
 
