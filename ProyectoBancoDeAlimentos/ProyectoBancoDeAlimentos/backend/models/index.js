@@ -28,6 +28,7 @@ const subcategoria = require("./subcategoria")(sequelize, Sequelize.DataTypes);
 const sucursal = require("./sucursal")(sequelize, Sequelize.DataTypes);
 const sucursal_producto = require("./sucursal_producto")(sequelize, Sequelize.DataTypes);
 const valoracion_producto = require("./valoracion_producto")(sequelize, Sequelize.DataTypes);
+const metodo_pago = require("./metodo_pago")(sequelize, Sequelize.DataTypes);
 
 //categoria - subcategoria
 categoria.hasMany(subcategoria, { foreignKey: "id_categoria_padre" });//Padre
@@ -77,7 +78,11 @@ direccion.belongsTo(municipio, { foreignKey: "id_municipio" });
 marca_producto.hasMany(producto, { foreignKey: "id_marca" });
 producto.belongsTo(marca_producto, { foreignKey: "id_marca" });
 
+//direccion - metodo_pago
+direccion.hasMany(metodo_pago, {foreignKey: "id_direccion_facturacion"});
+metodo_pago.belongsTo(direccion, {foreignKey: "id_direccion_facturacion"});
+
 
 module.exports = {carrito_detalle,carrito,categoria,departamento,direccion,imagen_producto,
-marca_producto,municipio,producto,subcategoria,sucursal_producto,sucursal,valoracion_producto,
+marca_producto,municipio,producto,subcategoria,sucursal_producto,sucursal,valoracion_producto,metodo_pago,
 sequelize,Sequelize, ...models};

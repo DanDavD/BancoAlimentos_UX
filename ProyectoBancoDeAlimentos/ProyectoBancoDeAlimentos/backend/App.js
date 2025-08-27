@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const { sequelize } = require('./models');
 const authRoutes = require('./routes/authRoutes');
 const testRoutes = require('./routes/prueba');
+const carrito_detalle = require('./routes/carrito_detalle');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,7 +25,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 
-
+app.use("/carrito-detalle", carrito_detalle);
 app.use('/api', testRoutes);
 
 // Rutas

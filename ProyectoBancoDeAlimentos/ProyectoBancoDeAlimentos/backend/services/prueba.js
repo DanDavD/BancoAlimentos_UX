@@ -1,3 +1,4 @@
+/* 
 const express = require('express');
 const router = express.Router();
 const {
@@ -14,11 +15,11 @@ const {
   departamento,
   direccion,
   marca_producto
-} = require('../models'); // Ajusta la ruta si es necesario
+} = require('../models');
 
 router.get('/test-relaciones', async (req, res) => {
   try {
-    // Tomamos un carrito cualquiera (puedes filtrar por id si quieres)
+    //Se agarra un carrito
     const carritos = await carrito.findAll({
       include: [
         {
@@ -38,9 +39,6 @@ router.get('/test-relaciones', async (req, res) => {
         }
       ]
     });
-
-    // También podemos incluir las direcciones de los usuarios del carrito
-    // (si implementas la relación carrito -> usuario -> direccion)
     
     res.json(carritos);
   } catch (err) {
@@ -50,3 +48,4 @@ router.get('/test-relaciones', async (req, res) => {
 });
 
 module.exports = router;
+*/
