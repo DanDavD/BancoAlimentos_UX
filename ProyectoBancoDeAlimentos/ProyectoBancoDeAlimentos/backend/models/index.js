@@ -13,10 +13,6 @@ Object.values(models).forEach(model => {
 });
 
 
-
-
-// index.js  (relaciones con los modelos **que ya existen** en tu carpeta)
-
 // 1) Cargar todos los modelos que **sí** están en la carpeta
 const carrito               = require('./carrito.js')(sequelize, Sequelize.DataTypes);
 const carrito_detalle       = require('./carrito_detalle.js')(sequelize, Sequelize.DataTypes);
@@ -44,7 +40,6 @@ const sucursal_producto     = require('./sucursal_producto.js')(sequelize, Seque
 const usuario               = require('./Usuario.js')(sequelize, Sequelize.DataTypes);
 const valoracion_producto   = require('./valoracion_producto.js')(sequelize, Sequelize.DataTypes);
 
-// 2) Definir relaciones **solo entre los modelos anteriores**
 
 // --- Identity ---
 rol.hasMany(usuario, { foreignKey: 'id_rol' });
