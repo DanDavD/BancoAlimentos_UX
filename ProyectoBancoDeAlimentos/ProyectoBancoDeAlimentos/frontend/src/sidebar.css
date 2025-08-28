@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 .sidebar {
-  @apply w-60 h-full bg-[#2b6daf] text-white p-2 rounded absolute;
+  @apply w-60 bg-[#2b6daf] text-white rounded absolute;
 }
 .sidebar_item {
-  @apply block hover:bg-orange-500 px-2 py-2 rounded-md transition flex text-[18px] text-center items-center;
+  @apply block hover:bg-[#f0833e] pl-6 py-2 rounded-tl-full rounded-bl-full rounded-tr-none rounded-br-none transition flex flex-row text-[18px]  items-center gap-6;
+}
+.perfil {
+  @apply block bg-[#2ca9e3] pl-6 py-2 flex flex-row text-[18px]  items-center gap-6;
 }

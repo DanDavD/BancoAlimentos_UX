@@ -1,14 +1,6 @@
 import React from "react";
 import "./sidebar.css";
-import logo from "./logo_sidebar.png";
-import dashboard from "./Iconos_sidebar/Dashboard.png";
-import bodega from "./Iconos_sidebar/Bodega.png";
-import reportes from "./Iconos_sidebar/Reportes.png";
-import mensajeria from "./Iconos_sidebar/Mensajeria.png";
-import cerrar from "./Iconos_sidebar/Cerrar sesion.png";
-import ingresarProducto from "./Iconos_sidebar/Ingresar Producto.png";
-import ab_bodega from "./Iconos_sidebar/Abastecer Bodega.png";
-import perfil from "./Iconos_sidebar/Vector.png";
+import logo from "./images/logo_sidebar.png";
 import { useState } from "react";
 
 const Sidebar = () => {
@@ -18,70 +10,79 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar flex flex-col h-screen">
-      <ul className="space-y-8 relative flex-1">
-        <li className="pr-14">
-          <img src={logo}></img>
-        </li>
-        <li>
-          <a href="/user" className="sidebar_item gap-4">
-            <img src={perfil} className="w-10 h-13 object-cover ml-2"></img>
-            Mi Perfil
-          </a>
-        </li>
+    <div className="sidebar flex flex-col h-screen ">
+      <img src={logo} className="w-40 h-16 object-cover ml-4  mt-4"></img>
+      <hr className="bg-white h-[2px] mt-1"></hr>
+      <a href="/user" className="perfil">
+        <span className="material-symbols-outlined text-[42px] text-white">
+          person
+        </span>
+        Mi Perfil
+      </a>
+      <hr className="bg-white h-[2px] mb-2"></hr>
+      <ul className="space-y-5 relative flex flex-col pt-1">
         <li>
           <a href="/dashboard" className="sidebar_item">
-            <img src={dashboard} className="w-14 h-10 object-cover p-1"></img>
+            <span className="material-symbols-outlined text-[42px] text-white">
+              finance_mode
+            </span>
             Dashboard
           </a>
         </li>
         <li>
-          <button onClick={handleClick} className="sidebar_item w-full">
-            <img src={bodega} className="w-14 h-11 object-cover p-1"></img>
-            Bodega
-          </button>
-          {show && (
-            <ul className="px-2">
-              <li className="sidebar_item ">
-                <a href="/ingresar_producto" className="sidebar_item">
-                  <img
-                    src={ingresarProducto}
-                    className="w-12 h-12 object-cover p-1"
-                  ></img>
-                  Ingresar producto
-                </a>
-              </li>
-              <li className="sidebar_item ">
-                <a href="/abastecer_bodega" className="sidebar_item">
-                  <img
-                    src={ab_bodega}
-                    className="w-12 h-16 object-cover p-1"
-                  ></img>
-                  Abastecer Bodega
-                </a>
-              </li>
-            </ul>
-          )}
+          <a href="/gestion_producto" className="sidebar_item">
+            <span className="material-symbols-outlined text-[42px] text-white">
+              package_2
+            </span>
+            Gestion de
+            <br />
+            Inventario
+          </a>
         </li>
         <li>
           <a href="/reportes" className="sidebar_item">
-            <img src={reportes} className="w-14 h-9 object-cover p-1"></img>
+            <span className="material-symbols-outlined text-[42px] text-white">
+              assignment
+            </span>
+            Gestion de
+            <br />
+            pedidos
+          </a>
+        </li>
+        <li>
+          <a href="/mensajeria" className="sidebar_item">
+            <span className="material-symbols-outlined text-[42px] text-white">
+              percent_discount
+            </span>
+            Promociones y descuentos
+          </a>
+        </li>
+        <li>
+          <a href="/mensajeria" className="sidebar_item">
+            <span className="material-symbols-outlined text-[42px] text-white">
+              groups
+            </span>
+            Gestion de <br />
+            Usuarios
+          </a>
+        </li>
+        <li>
+          <a href="/mensajeria" className="sidebar_item">
+            <span className="material-symbols-outlined text-[42px] text-white">
+              clinical_notes
+            </span>
             Reportes
           </a>
         </li>
         <li>
           <a href="/mensajeria" className="sidebar_item">
-            <img src={mensajeria} className="w-14 h-8 object-cover p-1"></img>
-            Mensajeria
+            <span className="material-symbols-outlined text-[42px] text-white">
+              settings
+            </span>
+            Configuracion
           </a>
         </li>
       </ul>
-      <footer className="mt-auto">
-        <a href="/" className="sidebar_item ">
-          <img src={cerrar} className="w-14 h-12 object-cover p-1"></img>
-          Cerrar Sesion
-        </a>
-      </footer>
     </div>
   );
 };
