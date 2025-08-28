@@ -76,11 +76,11 @@ function GestionProductos() {
     addSubCategory(newSub);
   };
   return (
-    <div className="bg-gray-100 h-screen">
+    <div className="bg-gray-100 h-screen w-screen">
       {showSidebar && <Sidebar />}
       <button
         onClick={handleClick}
-        className={`btn_sidebar ${moveButton ? "left-[180px]" : "left-2"}`}
+        className={`btn_sidebar ${moveButton ? "left-[186px]" : "left-2"}`}
       >
         <span className="material-symbols-outlined text-[42px] text-white">
           menu
@@ -92,14 +92,14 @@ function GestionProductos() {
           moveButton ? "ml-[270px] mr-[70px]" : "ml-[70px] mr-[70px]"
         }`}
       >
-        <h1 className="font-roboto text-[#f0833e] text-5xl justify-center pb-1">
+        <h1 className="font-roboto text-[#f0833e] text-5xl justify-center pb-1 text-left">
           Gestion de Productos
         </h1>
         <hr className="bg-[#f0833e] h-[2px]"></hr>
         <div className="">
           <div className=" pt-5 grid grid-cols-2 grid-rows-2 h-[620px] items-stretch gap-4">
             <div className=" col-span-1 row-span-2 bg-white w-full rounded-md items-center text-xl overflow-y-auto p-2">
-              <h1 className="relative px-2 font-roboto text-gray-500 text-4xl pb-1">
+              <h1 className="relative px-2 font-roboto text-gray-500 text-4xl pb-1 text-left">
                 Categorias
                 <button
                   onClick={() => setShowCat(true)}
@@ -143,7 +143,7 @@ function GestionProductos() {
 
             <div className="grid grid-cols-1 grid-rows-2 h-[600px] items-stretch gap-8">
               <div className=" col-span-1 row-span-1 bg-white w-full rounded-md items-center text-xl overflow-y-auto p-2">
-                <h1 className="relative px-2 font-roboto text-gray-500 text-4xl pb-1">
+                <h1 className="relative px-2 font-roboto text-gray-500 text-4xl pb-1 text-left">
                   Subcategorias
                   <button
                     onClick={() => setShowSub(true)}
@@ -188,7 +188,7 @@ function GestionProductos() {
               </div>
               <div className=" flex flex-col col-span-1 row-span-1 bg-white w-full rounded-md items-center  text-xl p-2">
                 <div className="w-full">
-                  <h1 className="px-2 font-roboto text-gray-500 text-4xl pb-1">
+                  <h1 className="px-2 font-roboto text-gray-500 text-4xl pb-1 text-left">
                     Producto
                   </h1>
                   <hr className="bg-gray-500 h-[2px]"></hr>{" "}
