@@ -21,6 +21,7 @@ import milk from "../images/milk.png";
 import arrowL from "../images/arrowL.png";
 import arrowR from "../images/arrowR.png";
 import appleImage from "../images/appleImage.png";
+import coffee from "../images/coffee.png";
 import banner1 from "../images/banner1.png";
 import banner2 from "../images/banner2.png";
 import banner3 from "../images/banner3.png";
@@ -31,13 +32,14 @@ const categories = [
   { name: "Electrónico", icon: phone },
   { name: "Deportes", icon: soccer },
   { name: "Limpieza", icon: clean },
-  { name: "Jugos", icon: juice },
+  { name: "Bebidas", icon: juice },
   { name: "Panadería", icon: bread },
   { name: "Repostería", icon: cake },
   { name: "Embutidos", icon: ham },
   { name: "Mascotas", icon: pet },
   { name: "Frutas", icon: apple },
   { name: "Verduras", icon: carrot },
+  { name: "Granos", icon: coffee },
 ];
 
 const products = [
@@ -56,7 +58,12 @@ const banners = [banner1, banner3, banner2];
 
 const InicioUsuario = () => {
   const catRef = useRef(null);
-  const prodRef = useRef(null);
+  const prodRefDestacados = useRef(null);
+  const prodRefTendencias = useRef(null);
+
+  const [hoveredIndex, setHoveredIndex] = React.useState(null);
+  const [hoveredProductDest, setHoveredProductDest] = React.useState(null);
+  const [hoveredProductTrend, setHoveredProductTrend] = React.useState(null);
 
   const scroll = (direction, ref, itemWidth) => {
     if (ref.current) {
@@ -68,7 +75,10 @@ const InicioUsuario = () => {
   };
 
   return (
-    <div className="p-4" style={{ backgroundColor: "#F5F5F5" }}>
+    <div
+      className="p-4"
+      style={{ ...styles.fixedShell, backgroundColor: "#F5F5F5" }}
+    >
       {/* Categories */}
       <div style={styles.scrollWrapper}>
         <button
@@ -85,7 +95,20 @@ const InicioUsuario = () => {
         <div style={styles.divCat} ref={catRef}>
           {categories.map((cat, index) => (
             <div key={index} style={styles.catItem}>
-              <div style={styles.CategoriesBox}>
+              <div
+                style={{
+                  ...styles.CategoriesBox,
+                  border:
+                    hoveredIndex === index
+                      ? "2px solid #2b6daf"
+                      : "2px solid transparent",
+                  transform:
+                    hoveredIndex === index ? "scale(1.05)" : "scale(1)",
+                  transition: "all 0.2s ease-in-out",
+                }}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
                 <img src={cat.icon} alt={cat.name} />
               </div>
               <span style={styles.catTitle}>{cat.name}</span>
@@ -130,7 +153,7 @@ const InicioUsuario = () => {
                 alt={`banner-${index}`}
                 style={{
                   width: "100%",
-                  height: "270px",
+                  height: "300px",
                   borderRadius: "16px",
                   objectFit: "cover",
                 }}
@@ -141,21 +164,12 @@ const InicioUsuario = () => {
       </div>
 
       {/* Productos Destacados */}
-      <h2
-        style={{
-          textAlign: "left",
-          padding: "0px 170px",
-          marginBottom: "10px",
-          fontWeight: "650",
-        }}
-      >
-        Productos Destacados
-      </h2>
+      <h2 style={styles.sectionTitle}>Productos Destacados</h2>
 
       <div style={styles.scrollWrapper}>
         <button
           style={styles.arrow}
-          onClick={() => scroll("left", prodRef, 140)}
+          onClick={() => scroll("left", prodRefDestacados, 140)}
         >
           <img
             src={arrowL}
@@ -164,9 +178,23 @@ const InicioUsuario = () => {
           />
         </button>
 
-        <div style={styles.divProducts} ref={prodRef}>
+        <div style={styles.divProducts} ref={prodRefDestacados}>
           {products.map((p, i) => (
-            <div key={i} style={styles.productBox}>
+            <div
+              key={i}
+              style={{
+                ...styles.productBox,
+                border:
+                  hoveredProductDest === i
+                    ? "2px solid #2b6daf"
+                    : "2px solid transparent",
+                transform:
+                  hoveredProductDest === i ? "scale(1.05)" : "scale(1)",
+                transition: "all 0.2s ease-in-out",
+              }}
+              onMouseEnter={() => setHoveredProductDest(i)}
+              onMouseLeave={() => setHoveredProductDest(null)}
+            >
               <div style={styles.topRow}>
                 <span style={styles.badge}>Oferta</span>
                 <div style={styles.stars}>
@@ -179,14 +207,22 @@ const InicioUsuario = () => {
               <img src={p.img} alt={p.name} style={styles.productImg} />
               <p style={styles.productName}>{p.name}</p>
               <p style={styles.productPrice}>{p.price}</p>
-              <button style={styles.addButton}>Agregar</button>
+              <button
+                style={{
+                  ...styles.addButton,
+                  backgroundColor:
+                    hoveredProductDest === i ? "#2b6daf" : "#F0833E",
+                }}
+              >
+                Agregar
+              </button>
             </div>
           ))}
         </div>
 
         <button
           style={styles.arrow}
-          onClick={() => scroll("right", prodRef, 140)}
+          onClick={() => scroll("right", prodRefDestacados, 140)}
         >
           <img
             src={arrowR}
@@ -197,21 +233,12 @@ const InicioUsuario = () => {
       </div>
 
       {/* Tendencias del mes */}
-      <h2
-        style={{
-          textAlign: "left",
-          padding: "0px 170px",
-          marginBottom: "10px",
-          fontWeight: "650",
-        }}
-      >
-        Tendencias del mes
-      </h2>
+      <h2 style={styles.sectionTitle}>Tendencias del mes</h2>
 
       <div style={styles.scrollWrapper}>
         <button
           style={styles.arrow}
-          onClick={() => scroll("left", prodRef, 140)}
+          onClick={() => scroll("left", prodRefTendencias, 140)}
         >
           <img
             src={arrowL}
@@ -220,9 +247,23 @@ const InicioUsuario = () => {
           />
         </button>
 
-        <div style={styles.divProducts} ref={prodRef}>
+        <div style={styles.divProducts} ref={prodRefTendencias}>
           {products.map((p, i) => (
-            <div key={i} style={styles.productBox}>
+            <div
+              key={i}
+              style={{
+                ...styles.productBox,
+                border:
+                  hoveredProductTrend === i
+                    ? "2px solid #2b6daf"
+                    : "2px solid transparent",
+                transform:
+                  hoveredProductTrend === i ? "scale(1.05)" : "scale(1)",
+                transition: "all 0.2s ease-in-out",
+              }}
+              onMouseEnter={() => setHoveredProductTrend(i)}
+              onMouseLeave={() => setHoveredProductTrend(null)}
+            >
               <div style={styles.topRow}>
                 <span style={styles.badge}>Oferta</span>
                 <div style={styles.stars}>
@@ -235,14 +276,22 @@ const InicioUsuario = () => {
               <img src={p.img} alt={p.name} style={styles.productImg} />
               <p style={styles.productName}>{p.name}</p>
               <p style={styles.productPrice}>{p.price}</p>
-              <button style={styles.addButton}>Agregar</button>
+              <button
+                style={{
+                  ...styles.addButton,
+                  backgroundColor:
+                    hoveredProductTrend === i ? "#2b6daf" : "#F0833E",
+                }}
+              >
+                Agregar
+              </button>
             </div>
           ))}
         </div>
 
         <button
           style={styles.arrow}
-          onClick={() => scroll("right", prodRef, 140)}
+          onClick={() => scroll("right", prodRefTendencias, 140)}
         >
           <img
             src={arrowR}
@@ -256,15 +305,24 @@ const InicioUsuario = () => {
 };
 
 const styles = {
+  fixedShell: {
+    position: "absolute",
+    top: "145px",
+    left: 0,
+    right: 0,
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+  },
   scrollWrapper: {
     display: "flex",
     alignItems: "center",
-    marginBottom: "20px",
-    padding: "10px 80px",
+    width: "100%",
+    padding: "0 20px",
   },
   divCat: {
     display: "flex",
-    gap: "60px",
+    gap: "10px",
     overflowX: "auto",
     scrollBehavior: "smooth",
     width: "100%",
@@ -276,18 +334,19 @@ const styles = {
     flexDirection: "column",
     alignItems: "center",
     minWidth: "80px",
+    flexShrink: 0,
   },
   CategoriesBox: {
     backgroundColor: "white",
-    border: "1px solid #FFAC77",
     borderRadius: "25px",
-    width: "80px",
-    height: "80px",
+    width: "90px",
+    height: "90px",
     flexShrink: 0,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
+    boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.15)",
   },
   catTitle: {
     marginTop: "8px",
@@ -296,73 +355,72 @@ const styles = {
     fontWeight: "400",
   },
   arrow: {
-    background: "white",
-    width: "24px",
-    height: "24px",
+    background: "transparent",
+    width: "35px",
+    height: "35px",
     cursor: "pointer",
     margin: "0 10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
-
   divProducts: {
     display: "flex",
-    gap: "60px",
+    gap: "13px",
     overflowX: "auto",
     scrollBehavior: "smooth",
-    width: "calc(7 *150px + 5 * 50px)",
-    padding: "10px 60px",
+    width: "100%",
     scrollbarWidth: "none",
+    padding: "10px 10px",
   },
   productBox: {
     flexShrink: 0,
-    width: "180px",
-    height: "195px",
-    border: "1px solid #D8572F",
+    width: "249px",
+    height: "265px",
     borderRadius: "25px",
     padding: "10px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     backgroundColor: "#fff",
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)",
   },
   topRow: {
     width: "100%",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "8px",
+    marginBottom: "3px",
   },
   badge: {
     backgroundColor: "#2b6daf",
     color: "white",
-    fontSize: "12px",
-    padding: "2px 6px",
-    borderRadius: "12px",
+    fontSize: "16px",
+    padding: "1px 15px",
+    borderRadius: "25px",
   },
   stars: {
     color: "#2b6daf",
-    fontSize: "14px",
+    fontSize: "25px",
   },
   productImg: {
-    width: "60px",
-    height: "60px",
+    width: "90px",
+    height: "90px",
     objectFit: "contain",
     marginTop: "8px",
   },
   productName: {
     width: "100%",
     textAlign: "left",
-    fontSize: "14px",
+    fontSize: "18px",
     marginTop: "auto",
   },
   productPrice: {
     width: "100%",
     textAlign: "left",
-    fontSize: "12px",
+    fontSize: "17px",
     color: "#999",
-    marginTop: "4px",
+    marginTop: "auto",
   },
   addButton: {
     marginTop: "auto",
@@ -373,6 +431,14 @@ const styles = {
     borderRadius: "25px",
     padding: "6px 0",
     cursor: "pointer",
+    fontSize: "18px",
+  },
+  sectionTitle: {
+    textAlign: "left",
+    padding: "5px 85px",
+    marginBottom: "10px",
+    fontWeight: "650",
+    fontSize: "22px",
   },
 };
 
