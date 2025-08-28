@@ -6,7 +6,10 @@ import Login from "./login.jsx";
 import Crear_cuenta from "./crear_cuenta.jsx";
 import Forgot_password from "./forgot_password.jsx";
 import Cambiar_contraseña from "./cambiar_contraseña.jsx";
-import InicioUsuario from "./components/inicioUsuario.jsx"
+import InicioUsuario from "./components/inicioUsuario.jsx";
+import InicioAdmin from "./components/inicioAdmin.jsx";
+import GestionProductos from "./gestionProductos.jsx";
+
 function App() {
   return (
     <div className="App">
@@ -18,6 +21,9 @@ function App() {
         <Route path="/forgot_password" element={<Forgot_password />} />
         <Route path="/cambiar_contraseña" element={<Cambiar_contraseña />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/inicioUsuario" element={<InicioUsuario />} />
+        <Route path="/inicioAdmin" element={<InicioAdmin />} />
+        <Route path="/gestionProductos" element={<GestionProductos />} />
       </Routes>
     </div>
   );
