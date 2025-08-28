@@ -25,6 +25,7 @@ const factura              = require('./factura')(sequelize, Sequelize.DataTypes
 const factura_detalle = require('./factura_detalle.js')(sequelize, Sequelize.DataTypes);
 const imagen_producto       = require('./imagen_producto.js')(sequelize, Sequelize.DataTypes);
 const marca_producto        = require('./marca_producto.js')(sequelize, Sequelize.DataTypes);
+const metodo_pago = require('./metodo_pago.js')(sequelize,Sequelize.DataTypes);
 const municipio             = require('./municipio.js')(sequelize, Sequelize.DataTypes);
 const pedido                = require('./pedido.js')(sequelize, Sequelize.DataTypes);
 const privilegio            = require('./privilegio.js')(sequelize, Sequelize.DataTypes);
@@ -131,6 +132,10 @@ historial_cupon.belongsTo(usuario, { foreignKey: 'id_usuario' });
 pedido.hasMany(historial_cupon, { foreignKey: 'id_pedido' });
 historial_cupon.belongsTo(pedido, { foreignKey: 'id_pedido' });
 
+//direccion - metodo_pago
+direccion.hasMany(metodo_pago, { foreignKey: 'id_direccion_facturacion' });
+metodo_pago.belongsTo(direccion, { foreignKey: 'id_direccion_facturacion' });
+
 // 3) Exportar todo
 module.exports = {
   carrito,
@@ -142,6 +147,7 @@ module.exports = {
   historial_cupon,
   imagen_producto,
   marca_producto,
+  metodo_pago,
   municipio,
   pedido,
   factura,

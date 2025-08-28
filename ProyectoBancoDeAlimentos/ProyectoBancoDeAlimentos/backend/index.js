@@ -64,4 +64,7 @@ app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
 
+//prueba enviar codigo de confirmacion al correo
+const forgetPassword = require('./routes/forgetPassword');
+app.use('/', forgetPassword);
 
