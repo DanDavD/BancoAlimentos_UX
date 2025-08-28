@@ -88,7 +88,7 @@ function GestionProductos() {
       </button>
 
       <div
-        className={`pt-5 transition-all duration-300 ${
+        className={` transition-all duration-300 pt-4 ${
           moveButton ? "ml-[270px] mr-[70px]" : "ml-[70px] mr-[70px]"
         }`}
       >

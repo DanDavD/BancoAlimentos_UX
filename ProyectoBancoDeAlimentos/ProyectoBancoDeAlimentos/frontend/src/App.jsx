@@ -10,7 +10,7 @@ import InicioAdmin from "./components/inicioAdmin.jsx";
 import GestionProductos from "./gestionProductos.jsx";
 import Headerr from "./components/Headerr";
 
-const HEADER_HEIGHT = 160; // px
+const HEADER_HEIGHT = 144; // px
 
 function App() {
   return (
@@ -25,6 +25,8 @@ function App() {
           <Route path="/forgot_password" element={<Forgot_password />} />
           <Route path="/cambiar_contraseña" element={<Cambiar_contraseña />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/gestionProductos" element={<GestionProductos />} />
+          <Route path="/inicioAdmin" element={<InicioAdmin />} />
         </Routes>
       </div>
     </div>

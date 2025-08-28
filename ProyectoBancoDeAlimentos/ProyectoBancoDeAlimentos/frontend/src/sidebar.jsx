@@ -11,7 +11,7 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar flex flex-col h-screen">
-      <img src={logo} className="w-40 h-16 object-cover ml-4 mt-4"></img>
+      <img src={logo} className="w-40 h-12 object-cover ml-4 my-4"></img>
       <hr className="bg-white h-[2px] mt-1"></hr>
       <a href="/user" className="perfil">
         <span className="material-symbols-outlined text-[42px] text-white">
