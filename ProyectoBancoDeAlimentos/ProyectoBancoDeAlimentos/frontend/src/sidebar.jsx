@@ -30,7 +30,7 @@ const Sidebar = () => {
           </a>
         </li>
         <li>
-          <a href="/gestion_producto" className="sidebar_item">
+          <a href="/Inventario" className="sidebar_item">
             <span className="material-symbols-outlined text-[42px] text-white">
               package_2
             </span>
