@@ -28,13 +28,17 @@ app.listen(PORT, () => console.log(`🚀 Server on http://localhost:${PORT}/api/
 // login 
 
 app.use(cors({ origin: 'http://localhost:3001', credentials: true }));
-
-
 const authRoutes = require('../routes/routesLogin.js');
-app.use('/api/auth', authRoutes);   // or app.use(...)
+// get user and roll based on the actual user 
+
+
+
+
+app.use('/api/auth', authRoutes);   
 
 
 //Cargar todos los modelos 
+const verify                = require('../middleware/verificarToken'); // o authenticateJWT
 const carrito               = require('./carrito.js')(sequelize, Sequelize.DataTypes);
 const carrito_detalle       = require('./carrito_detalle.js')(sequelize, Sequelize.DataTypes);
 const categoria             = require('./categoria.js')(sequelize, Sequelize.DataTypes);

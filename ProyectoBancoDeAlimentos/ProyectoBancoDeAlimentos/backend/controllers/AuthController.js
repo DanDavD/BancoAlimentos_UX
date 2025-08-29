@@ -26,7 +26,7 @@ const login = async (req, res) => {
 
     //  Crear token
     const token = jwt.sign(
-      { id: usuario.id_usuario, nombre: usuario.nombre },
+      { id: usuario.id_usuario, nombre: usuario.nombre , rol: usuario.id_rol}, // 👈 id_usuario
       process.env.JWT_SECRET || 'secreto',
       { expiresIn: '2h' }
     );
