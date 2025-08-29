@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-
-const authRoutes = require('../routes/routesLogin');
-const prueba_rutas = require('./prueba');
-const verify = require('../middleware/verificarToken'); // o authenticateJWT
-
-router.use('/auth', authRoutes);
-router.use('/prueba',prueba_rutas);
-
+router.use('/auth', require('./routesLogin'));          // /api/auth/...
+router.use('/prueba', require('./prueba'));             // /api/prueba/...
+router.use('/dashboard', require('./routesInicioUsuario')); // /api/dashboard/...
 module.exports = router;

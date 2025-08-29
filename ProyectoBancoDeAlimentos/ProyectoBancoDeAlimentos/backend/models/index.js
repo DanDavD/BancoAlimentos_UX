@@ -64,8 +64,7 @@ const sucursal              = require('./sucursal.js')(sequelize, Sequelize.Data
 const sucursal_producto     = require('./sucursal_producto.js')(sequelize, Sequelize.DataTypes);
 const Usuario               = require('./Usuario.js')(sequelize, Sequelize.DataTypes);
 const valoracion_producto   = require('./valoracion_producto.js')(sequelize, Sequelize.DataTypes);
-
-
+const metodo_pago           = require('./metodo_pago.js')(sequelize,Sequelize.DataTypes);
 // --- Identity ---
 rol.hasMany(Usuario, { foreignKey: 'id_rol' });
 Usuario.belongsTo(rol, { foreignKey: 'id_rol' });
@@ -156,6 +155,14 @@ historial_cupon.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 pedido.hasMany(historial_cupon, { foreignKey: 'id_pedido' });
 historial_cupon.belongsTo(pedido, { foreignKey: 'id_pedido' });
 
+//direccion - metodo_pago
+direccion.hasMany(metodo_pago, { foreignKey: 'id_direccion_facturacion' });
+metodo_pago.belongsTo(direccion, { foreignKey: 'id_direccion_facturacion' });
+
+// ---Metodos Pago---
+metodo_pago.belongsTo(Usuario,{foreigKey:'id_usuario'});
+Usuario.hasOne(metodo_pago,  { foreignKey: 'id_usuario' });
+
 // 3) Exportar todo
 module.exports = {
   carrito,
@@ -184,5 +191,6 @@ module.exports = {
   Usuario,
   valoracion_producto,
   sequelize,
-  Sequelize
+  Sequelize,
+  metodo_pago
 };

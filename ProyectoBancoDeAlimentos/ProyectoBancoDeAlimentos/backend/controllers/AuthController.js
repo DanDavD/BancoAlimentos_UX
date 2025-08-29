@@ -5,6 +5,7 @@ const Usuario = require('../models/Usuario')(sequelize, DataTypes);
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+
 const login = async (req, res) => {
   try {
     const { correo, contraseña } = req.body;
