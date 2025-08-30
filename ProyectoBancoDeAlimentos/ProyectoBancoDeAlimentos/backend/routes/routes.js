@@ -8,5 +8,7 @@ router.use('/Inventario', require('./routesInventario'));
 router.use('/MiPerfil', require('./routesMiPerfil'));
 router.use('/categorias', require('./routesCategoria'));
 router.use('/test', require('./test'));
+router.use('/forget-password', require('./forgetPassword'));
+router.use('/validar-codigo', require('./validarCodigo'));
 
 module.exports = router;

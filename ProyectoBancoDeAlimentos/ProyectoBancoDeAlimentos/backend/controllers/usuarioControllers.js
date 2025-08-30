@@ -1,6 +1,8 @@
 const { Usuario } = require('../models');
 const nodemailer = require('nodemailer');
 
+const codes = {};
+
 exports.forgetPassword = async (req, res) => {
     //correo solicitante
     const { correo } = req.body;
@@ -16,8 +18,7 @@ exports.forgetPassword = async (req, res) => {
     const codigo = Math.floor(100000 + Math.random() * 900000);
 
     //codigo guardado en usuario(temporal)
-    user.codigo_confirmacion = codigo; 
-    await user.save();
+    codes[correo] = codigo;
 
     //configurar nodemailer
     const transporter = nodemailer.createTransport({
@@ -42,5 +43,28 @@ exports.forgetPassword = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Error al enviar el código');
+  }
+};
+
+exports.validarCodigo = async (req, res) => {
+  const { correo, codigo } = req.body;
+
+  const codigo_verificar = codes[correo];
+
+  try {
+    const user = await Usuario.findOne({ where: { correo } });
+
+    if (!user) {
+      return res.status(404).send('Usuario no encontrado!');
+    }
+
+    if (codigo_verificar === parseInt(codigo)) {
+      return res.send('Codigo valido!');
+    } else {
+      return res.status(400).send('Codigo incorrecto!');
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error, no se pudo validar el codigo');
   }
 };
