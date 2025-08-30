@@ -7,6 +7,6 @@ router.use('/dashboard', require('./routesInicioUsuario')); // /api/dashboard/..
 router.use('/Inventario', require('./routesInventario'));
 router.use('/MiPerfil', require('./routesMiPerfil'));
 router.use('/categorias', require('./routesCategoria'));
-
+router.use('/test', require('./test'));
 
 module.exports = router;
