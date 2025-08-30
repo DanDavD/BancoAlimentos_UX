@@ -4,9 +4,6 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
 const cors = require('cors');
-
-
-
 app.use(express.json());
 app.use(cookieParser());
 
@@ -22,23 +19,7 @@ Object.values(models).forEach(model => {
   }
 });
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`🚀 Server on http://localhost:${PORT}/api/auth/login`));
-
-// login 
-
-app.use(cors({ origin: 'http://localhost:3001', credentials: true }));
-const authRoutes = require('../routes/routesLogin.js');
-// get user and roll based on the actual user 
-
-
-
-
-app.use('/api/auth', authRoutes);   
-
-
 //Cargar todos los modelos 
-const verify                = require('../middleware/verificarToken'); // o authenticateJWT
 const carrito               = require('./carrito.js')(sequelize, Sequelize.DataTypes);
 const carrito_detalle       = require('./carrito_detalle.js')(sequelize, Sequelize.DataTypes);
 const categoria             = require('./categoria.js')(sequelize, Sequelize.DataTypes);
@@ -65,6 +46,8 @@ const sucursal_producto     = require('./sucursal_producto.js')(sequelize, Seque
 const Usuario               = require('./Usuario.js')(sequelize, Sequelize.DataTypes);
 const valoracion_producto   = require('./valoracion_producto.js')(sequelize, Sequelize.DataTypes);
 const metodo_pago           = require('./metodo_pago.js')(sequelize,Sequelize.DataTypes);
+
+
 // --- Identity ---
 rol.hasMany(Usuario, { foreignKey: 'id_rol' });
 Usuario.belongsTo(rol, { foreignKey: 'id_rol' });
