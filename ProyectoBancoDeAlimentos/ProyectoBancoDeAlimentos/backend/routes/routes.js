@@ -8,7 +8,8 @@ router.use('/Inventario', require('./routesInventario'));
 router.use('/MiPerfil', require('./routesMiPerfil'));
 router.use('/categorias', require('./routesCategoria'));
 router.use('/test', require('./test'));
-router.use('/forget-password', require('./forgetPassword'));
+router.use('/forget-password', require('./forgetPassword'));// /api/forget-password , /api/forget-password/cambiar
 router.use('/validar-codigo', require('./validarCodigo'));
+router.use('/registrarse', require('./routesRegistro')); // /api/registrarse
 
 module.exports = router;

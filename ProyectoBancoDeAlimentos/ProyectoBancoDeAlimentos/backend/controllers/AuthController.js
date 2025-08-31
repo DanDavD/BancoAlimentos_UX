@@ -47,4 +47,39 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { login };
+ const registrarse = async(req,res) =>{
+  try{
+    const {/*id_usuario,*/nombre, correo, contraseña, telefono, id_rol } = req.body;
+
+    const user_existence = await Usuario.findOne({where : {correo}});
+
+    if(user_existence){
+      return res.status(400).json({ msg: 'El correo ya está registrado' });
+    }
+
+    const hashedPassword = await bcrypt.hash(contraseña, 10);
+
+    const new_user = await Usuario.create({
+      //id_usuario,
+      nombre,
+      correo,
+      contraseña: hashedPassword,
+      id_rol,
+      telefono,
+    });
+
+    res.status(201).json({
+      msg: 'Usuario registrado correctamente',
+        nombre: new_user.nombre,
+        correo: new_user.correo,
+        telefono: new_user.telefono,
+        rol: new_user.id_rol
+    });
+
+  }catch (error){
+    console.error('No se pudo registrar el usuario!', error);
+    res.status(500).json({ msg: 'Error interno del servidor' });
+  }
+}
+
+module.exports = { login, registrarse };

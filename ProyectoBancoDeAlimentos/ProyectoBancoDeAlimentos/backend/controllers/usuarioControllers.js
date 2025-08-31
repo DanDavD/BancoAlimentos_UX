@@ -1,5 +1,7 @@
 const { Usuario } = require('../models');
 const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
+
 
 const codes = {};
 
@@ -59,6 +61,7 @@ exports.validarCodigo = async (req, res) => {
     }
 
     if (codigo_verificar === parseInt(codigo)) {
+      delete codes[correo];
       return res.send('Codigo valido!');
     } else {
       return res.status(400).send('Codigo incorrecto!');
@@ -68,3 +71,26 @@ exports.validarCodigo = async (req, res) => {
     res.status(500).send('Error, no se pudo validar el codigo');
   }
 };
+
+exports.changePassword = async (req,res) => {
+  try{
+    const {mail,new_password} = req.body;
+
+    const user = await Usuario.findOne({where : { correo: mail }});
+
+    if(!user){
+      return res.status(404).send('Usuario no encontrado!');
+    }
+
+    const hashPass = await bcrypt.hash(new_password,10);
+
+    user.contraseña = hashPass;
+
+    await user.save();
+
+    return res.status(200).json({ message: 'Contraseña actualizada!' });
+  }catch(error){
+    console.error(error);
+    return res.status(500).json({ message: 'Error, no se pudo cambiar contraseña.' });
+  }
+}
