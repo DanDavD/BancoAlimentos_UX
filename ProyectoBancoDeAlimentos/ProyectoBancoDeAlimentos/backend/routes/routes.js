@@ -12,4 +12,9 @@ router.use('/forget-password', require('./forgetPassword'));// /api/forget-passw
 router.use('/validar-codigo', require('./validarCodigo'));
 router.use('/registrarse', require('./routesRegistro')); // /api/registrarse
 
+router.use('/promocion',  require('./routesPromocion'));
+router.use('/producto',    require('./routesProducto'));
+router.use('/carrito',      require('./routesCarrito'));
+router.use('/subcategorias', require('./routesSubcategoria'));
+
 module.exports = router;
