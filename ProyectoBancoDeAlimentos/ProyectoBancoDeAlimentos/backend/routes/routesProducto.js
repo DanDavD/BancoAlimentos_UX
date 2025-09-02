@@ -15,9 +15,9 @@ router.get('/destacados', async (req, res) => {
         'precio_base',
         'unidad_medida'
       ],
-      include: [
+      /*include: [
         { model: Imagenproducto, attributes: ['url_imagen'], limit: 1 }
-      ],
+      ],*/
       order: [['id_producto', 'DESC']],
       limit: 10
     });
@@ -38,10 +38,10 @@ router.get('/tendencias', async (req, res) => {
         'descripcion',
         'precio_base'
       ],
-      include: [
+      /*include: [
         { model: imagen_producto, attributes: ['url_imagen'], limit: 1 }
-      ],
-      order: [['precio_base', 'DESC']],  // ← usa campo que SÍ existe
+      ],*/
+      order: [['precio_base', 'DESC']],  
       limit: 10
     });
     res.json(products);
