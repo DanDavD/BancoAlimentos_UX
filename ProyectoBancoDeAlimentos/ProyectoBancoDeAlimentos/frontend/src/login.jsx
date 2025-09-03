@@ -20,6 +20,7 @@ const Login = () => {
       setLoading(true);
       // tu backend acepta 'contraseña' o 'contrasena'
       const res = await LoginUser({ correo, contraseña }); // 👈 ahora coincide
+      if (res.data?.token) localStorage.setItem('token', res.data.token);
       console.log("LOGIN OK:", res.data);
       // si usas cookie httpOnly, ya quedó guardada automáticamente (withCredentials: true)
       navigate("/"); // redirige a inicio (ajusta ruta si quieres)
