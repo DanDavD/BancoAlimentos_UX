@@ -216,9 +216,19 @@ const InicioAdmin = () => {
               <div style={styles.topRow}>
                 <span style={styles.badge}>Oferta</span>
                 <div style={styles.stars}>
-                  <span>★</span>
-                  <span>★</span>
-                  <span>☆</span>
+                  <span style={styles.stars}>
+                    {Array.from({ length: 3 }, (_, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          color: i < p.valoracion ? "#2b6daf" : "#ddd",
+                          fontSize: "25px",
+                        }}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </span>
                 </div>
               </div>
 
@@ -285,9 +295,19 @@ const InicioAdmin = () => {
               <div style={styles.topRow}>
                 <span style={styles.badge}>Oferta</span>
                 <div style={styles.stars}>
-                  <span>★</span>
-                  <span>★</span>
-                  <span>☆</span>
+                  <span style={styles.stars}>
+                    {Array.from({ length: 3 }, (_, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          color: i < p.valoracion ? "#2b6daf" : "#ddd",
+                          fontSize: "25px",
+                        }}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </span>
                 </div>
               </div>
 

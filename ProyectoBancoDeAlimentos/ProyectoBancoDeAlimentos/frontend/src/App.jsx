@@ -13,6 +13,8 @@ import Inventario from "./pages/Inventario.jsx";
 import EditarPerfilAdmin from "./pages/EditMiPerfil.jsx";
 import TestAuth from "./pages/PruebaDeRoutes.jsx";
 //import Histo from "./pages/HistorialPedido.jsx";
+import AgregarCarrito from "./components/agregarCarrito.jsx";
+import CompararProducto from "./components/compararProducto.jsx";
 const HEADER_HEIGHT = 144; // px
 
 function App() {
@@ -33,6 +35,11 @@ function App() {
           <Route path="/inventario" element={<Inventario />} />
           <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
           <Route path="/Prueba" element={<TestAuth />} />
+          <Route path="/producto/:id" element={<AgregarCarrito />} />
+          <Route
+            path="/compararProductos/:id1/:id2"
+            element={<CompararProducto />}
+          />
         </Routes>
       </div>
     </div>
