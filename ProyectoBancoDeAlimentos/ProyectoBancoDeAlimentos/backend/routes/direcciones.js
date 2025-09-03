@@ -3,6 +3,7 @@ const router = express.Router();
 
 const direccionController = require('../controllers/direccionController');
 
+router.post('/',direccionController.addDirection);
 router.get('/', direccionController.allDirections);
 router.patch('/', direccionController.direccionDefault);
 router.put('/', direccionController.actualizarDireccion);

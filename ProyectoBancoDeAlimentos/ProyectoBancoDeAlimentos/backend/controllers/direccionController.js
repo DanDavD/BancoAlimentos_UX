@@ -1,6 +1,46 @@
 const sequelize = require('../config/db');
 const { DataTypes } = require('sequelize');
 const direccion = require('../models/direccion')(sequelize, DataTypes);
+const Usuario = require('../models/Usuario')(sequelize, DataTypes);
+
+//esta funcion tiene un sequel interno, no crea si la pk ya existe
+exports.addDirection = async (req,res) => {
+
+    try{
+        const {id_usuario,calle,ciudad,codigo_postal,predeterminada,id_municipio} = req.body;
+
+        const user = await Usuario.findByPk(id_usuario);
+        if (!user){
+            return res.status(404).json({message : "Usuario no existe!"});
+        }
+
+        if (predeterminada === true) {
+            await direccion.update(
+                { predeterminada: false },
+                { where: { id_usuario } }
+            );
+        }
+
+        direccion.create({
+            id_usuario,
+            calle,
+            ciudad,
+            codigo_postal,
+            predeterminada,
+            id_municipio
+        });
+
+        return res.status(201).json({
+            message: "Dirección agregada correctamente",
+        });
+
+    }catch(error){
+        console.error(error);
+        return res.status(400);
+    }
+    
+}
+
 
 exports.allDirections = async (req,res) => {
     try{
@@ -16,7 +56,7 @@ exports.allDirections = async (req,res) => {
 
 
     }catch(error){
-        console.error("Error en allDirections:", error);
+        console.error(error);
         return res.status(500).json({message : 'Error al pedir direcciones!'});
     }
 }

@@ -1,4 +1,5 @@
 const express = require('express');
+const { route } = require('./direcciones');
 const router = express.Router();
 
 router.use('/auth', require('./routesLogin'));          // /api/auth/...
@@ -17,6 +18,7 @@ router.use('/producto',    require('./routesProducto'));
 router.use('/carrito',      require('./routesCarrito'));
 router.use('/subcategorias', require('./routesSubcategoria'));
 
+router.use('/agregar-direccion', require('./direcciones'));
 router.use('/direcciones' , require('./direcciones'));
 router.use('/direccion-default', require('./direcciones'));
 router.use('/actualizar-direccion', require('./direcciones'));

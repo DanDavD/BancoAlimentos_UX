@@ -39,3 +39,7 @@ exports.allCupones = async (req, res) => {
         return res.status(500).json({ message: 'Error al obtener los cupones del usuario' });
     }
 };
+
+exports.addCupon = async (req,res) => {
+    const {} = req.body;
+}
