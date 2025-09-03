@@ -11,7 +11,7 @@ import GestionProductos from "./gestionProductos.jsx";
 import Headerr from "./components/Headerr";
 import Inventario from "./pages/Inventario.jsx";
 import EditarPerfilAdmin from "./pages/EditMiPerfil.jsx";
-
+//import Histo from "./pages/HistorialPedido.jsx";
 const HEADER_HEIGHT = 144; // px
 
 function App() {
@@ -31,10 +31,11 @@ function App() {
           <Route path="/inicioAdmin" element={<InicioAdmin />} />
           <Route path="/inventario" element={<Inventario />} />
           <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
+          
         </Routes>
       </div>
     </div>
   );
 }
-
+//<Route path="/Histo" element={<Histo />} />
 export default App;

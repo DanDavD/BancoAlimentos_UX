@@ -8,11 +8,13 @@ const jwt = require('jsonwebtoken');
 
 const login = async (req, res) => {
   try {
+    console.log("pene 2");
     const { correo, contraseña } = req.body;
     if (!correo || !contraseña) {
       return res.status(400).json({ message: 'Correo y contraseña son requeridos' });
     }
 
+    console.log("pene 3");
     //  Buscar usuario 
     const usuario = await Usuario.findOne({ where: { correo } });
     if (!usuario) {
@@ -25,6 +27,7 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
+    console.log("pene 4");
     //  Crear token
     const token = jwt.sign(
       { id: usuario.id_usuario, nombre: usuario.nombre , rol: usuario.id_rol}, // 👈 id_usuario
@@ -40,6 +43,7 @@ const login = async (req, res) => {
       maxAge: 2 * 60 * 60 * 1000
     });
 
+    console.log("pene 5");
     return res.json({ message: 'Login exitoso', token });
   } catch (error) {
     console.error('❌ Error en login:', error.stack);
