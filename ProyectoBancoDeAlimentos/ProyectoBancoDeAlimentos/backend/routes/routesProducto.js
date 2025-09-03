@@ -13,7 +13,8 @@ router.get('/destacados', async (req, res) => {
         'nombre',
         'descripcion',
         'precio_base',
-        'unidad_medida'
+        'unidad_medida',
+        'estrellas'
       ],
       /*include: [
         { model: Imagenproducto, attributes: ['url_imagen'], limit: 1 }
@@ -36,7 +37,8 @@ router.get('/tendencias', async (req, res) => {
         'id_producto',
         'nombre',
         'descripcion',
-        'precio_base'
+        'precio_base',
+        'estrellas'
       ],
       /*include: [
         { model: imagen_producto, attributes: ['url_imagen'], limit: 1 }

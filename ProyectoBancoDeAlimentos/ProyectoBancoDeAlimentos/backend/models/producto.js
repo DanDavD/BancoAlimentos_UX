@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DOUBLE,
         allowNull: true,
       },
+      estrellas: {
+        type: DataTypes.DOUBLE,
+        allowNull: true,
+      },
     },
     {
       tableName: "producto",
