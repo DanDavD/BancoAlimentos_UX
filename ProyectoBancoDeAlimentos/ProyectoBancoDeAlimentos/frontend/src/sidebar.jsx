@@ -10,16 +10,18 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar flex flex-col h-screen">
-      <img src={logo} className="w-40 h-12 object-cover ml-4 my-4"></img>
-      <hr className="bg-white h-[2px] mt-1"></hr>
+    <div className="sidebar  min-h-screen pt-1">
+      {
+        //<img src={logo} className="w-40 h-12 object-cover ml-4 my-4"></img>
+      }
+      <hr className="bg-white h-[3px] mt-1"></hr>
       <a href="/user" className="perfil">
         <span className="material-symbols-outlined text-[42px] text-white">
           person
         </span>
         Mi Perfil
       </a>
-      <hr className="bg-white h-[2px] mb-2"></hr>
+      <hr className="bg-white h-[3px] mb-2"></hr>
       <ul className="space-y-5 relative flex flex-col pt-1">
         <li>
           <a href="/dashboard" className="sidebar_item">
