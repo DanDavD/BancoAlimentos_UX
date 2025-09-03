@@ -4,7 +4,7 @@ import "./crear_cuenta.css";
 const Crear_cuenta = () => {
   return (
     <div className="crear-form">
-      <img className="logo-titulo" src="/logo-easyway.jpg" alt="Logo" />
+      <img className="logo-titulo" src="/logo-easyway.png" alt="Logo" />
       <p className="crear-text">Crear cuenta</p>
       <p className="menosmin-text">Crea tu cuenta en menos de un minuto!</p>
 
@@ -27,7 +27,7 @@ const Crear_cuenta = () => {
       <button className="crear-button">Crear cuenta</button>
 
       <Link
-        to="./login"
+        to="/login"
         className="ya-tienes-cuenta-link"
         rel="noopener noreferrer"
       >

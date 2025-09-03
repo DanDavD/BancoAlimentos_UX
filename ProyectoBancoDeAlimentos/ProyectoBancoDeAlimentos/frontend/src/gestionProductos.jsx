@@ -76,7 +76,7 @@ function GestionProductos() {
     addSubCategory(newSub);
   };
   return (
-    <div className="bg-gray-100 h-screen w-screen">
+    <div className="bg-gray-100 w-screen ">
       {showSidebar && <Sidebar />}
       <button
         onClick={handleClick}

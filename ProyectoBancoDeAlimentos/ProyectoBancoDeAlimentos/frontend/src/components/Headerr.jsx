@@ -10,8 +10,9 @@ import reportesPer from "../images/reportesPer.png";
 import checkout from "../images/checkout.png";
 import soporte from "../images/soporte.png";
 import idioma from "../images/idioma.png";
+import { Link } from "react-router-dom";
 
-const Headerr = () => {
+const Headerr = ({ isAdminPage }) => {
   const [logMenu, setLogOpen] = useState(false);
 
   return (
@@ -50,7 +51,53 @@ const Headerr = () => {
 
           {logMenu && (
             <div style={styles.dropdown}>
-              <a href="#">Iniciar Sesion</a>
+              {/* Solo en InicioAdmin */}
+              {isAdminPage && (
+                <Link
+                  to="/EditarPerfilAdmin"
+                  style={styles.dropdownLink}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#D8572F")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                >
+                  Ver mi Perfil
+                </Link>
+              )}
+
+              {/* Solo mostrar Iniciar Sesión si NO estamos en InicioAdmin */}
+              {!isAdminPage && (
+                <Link
+                  to="/login"
+                  style={styles.dropdownLink}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#D8572F")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                >
+                  Iniciar Sesión
+                </Link>
+              )}
+
+              {/* Cerrar Sesión solo en InicioAdmin */}
+              {isAdminPage && (
+                <Link
+                  to="/"
+                  style={styles.dropdownLink}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#D8572F")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
+                >
+                  Cerrar Sesión
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -160,12 +207,6 @@ const styles = {
     flexDirection: "column",
   },
 
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    width: "100%",
-  },
-
   topBar: {
     display: "flex",
     justifyContent: "space-between",
@@ -263,6 +304,15 @@ const styles = {
     flexDirection: "column",
     gap: "10px",
     zIndex: 1000,
+    border: "2px solid #2b6daf",
+  },
+
+  dropdownLink: {
+    padding: "8px 12px",
+    borderRadius: "8px",
+    textDecoration: "none",
+    color: "black",
+    transition: "background 0.3s, color 0.3s",
   },
 
   bottomBar: {
@@ -292,11 +342,6 @@ const styles = {
     height: "100%",
     width: "100%",
     transition: "background 0.3s, color 0.3s",
-  },
-
-  navLinkHover: {
-    backgroundColor: "#D8572F",
-    color: "white",
   },
 
   navIcon: {

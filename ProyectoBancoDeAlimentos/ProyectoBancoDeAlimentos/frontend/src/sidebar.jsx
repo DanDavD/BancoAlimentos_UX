@@ -1,6 +1,6 @@
 import React from "react";
 import "./sidebar.css";
-import logo from "./images/logo_sidebar.png";
+import logo from "./images/logo-easyway.png";
 import { useState } from "react";
 
 const Sidebar = () => {
@@ -20,7 +20,7 @@ const Sidebar = () => {
         Mi Perfil
       </a>
       <hr className="bg-white h-[2px] mb-2"></hr>
-      <ul className="space-y-5 relative flex flex-col pt-1">
+      <ul className="space-y-4 relative flex flex-col pt-1">
         <li>
           <a href="/dashboard" className="sidebar_item">
             <span className="material-symbols-outlined text-[42px] text-white">
@@ -40,13 +40,13 @@ const Sidebar = () => {
           </a>
         </li>
         <li>
-          <a href="/reportes" className="sidebar_item">
+          <a href="/gestionProductos" className="sidebar_item">
             <span className="material-symbols-outlined text-[42px] text-white">
               assignment
             </span>
             Gestion de
             <br />
-            pedidos
+            Productos
           </a>
         </li>
         <li>

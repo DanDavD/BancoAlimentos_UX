@@ -367,15 +367,14 @@ const styles = {
   divProducts: {
     display: "flex",
     gap: "13px",
-    overflowX: "auto",
+    overflow: "hidden", // 👈 cambia esto
     scrollBehavior: "smooth",
     width: "100%",
-    scrollbarWidth: "none",
     padding: "10px 10px",
   },
   productBox: {
     flexShrink: 0,
-    width: "249px",
+    width: "254px",
     height: "265px",
     borderRadius: "25px",
     padding: "10px",

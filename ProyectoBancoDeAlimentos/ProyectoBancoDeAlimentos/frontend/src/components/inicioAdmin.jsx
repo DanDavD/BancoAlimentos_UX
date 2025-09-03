@@ -3,6 +3,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCoverflow, Autoplay } from "swiper/modules";
 import { useState } from "react";
 import Sidebar from "../sidebar";
+import Headerr from "../components/Headerr"; // o donde esté tu componente Headerr
+
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/autoplay";
@@ -96,6 +98,7 @@ const InicioAdmin = () => {
             menu
           </span>
         </button>
+        <Headerr isAdminPage={true} />
       </div>
       {/* Categories */}
       <div className="mt-4" style={styles.scrollWrapper}>
@@ -393,7 +396,7 @@ const styles = {
   },
   productBox: {
     flexShrink: 0,
-    width: "249px",
+    width: "260px",
     height: "265px",
     borderRadius: "25px",
     padding: "10px",

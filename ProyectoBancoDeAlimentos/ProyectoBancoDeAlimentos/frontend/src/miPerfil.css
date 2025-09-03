@@ -1,0 +1,271 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.perfil-container .editar-boton {
+  height: 30px;
+  align-items: center;
+  width: 105px;
+  display: flex;
+  background-color: #f0833e;
+  border-radius: 3rem;
+  font-weight: bold;
+  color: white;
+  font-size: 0.8rem;
+}
+
+.perfil-title {
+  font-size: 1.8rem;
+  color: #f0833e;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.perfil-separator {
+  border: none;
+  border-top: 2px solid #f0833e;
+  margin: 0 auto 30px;
+  width: 60%;
+}
+
+.perfil-container .Datos-text {
+  text-align: left;
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.perfil-content {
+  display: flex;
+  gap: 20px;
+}
+
+/* Sidebar */
+.perfil-sidebar {
+  flex: 1;
+  max-width: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.perfil-avatar {
+  width: 120px;
+  height: 120px;
+  background: #ebeaea;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.icon-large {
+  width: 60px;
+  height: 60px;
+  color: #93979c;
+}
+
+.icon-small {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.perfil-select {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.perfil-select select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 0.5rem;
+  border: 2px solid #2b6daf;
+}
+
+/* Card principal */
+.perfil-container {
+  flex: 2;
+  background: white;
+  padding: 20px;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.perfil-card {
+  background: white;
+  padding: 20px;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.perfil-container .boton-guardar {
+  position: inherit;
+  margin-left: 320px;
+  margin-top: 20px;
+  height: 30px;
+  justify-content: center;
+  width: 105px;
+  display: flex;
+  background-color: #f0833e;
+  border-radius: 3rem;
+  font-weight: bold;
+  color: white;
+  font-size: 0.8rem;
+}
+
+.configuracion-container {
+  height: 200px;
+  background: white;
+  padding: 20px;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-top: 1rem;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.field-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.field-input {
+  display: flex;
+  align-items: center;
+  border: 2px solid #a9acaf;
+  border-radius: 0.5rem;
+  padding: 5px 10px;
+}
+
+.field-container {
+  display: flex;
+  flex-direction: column; /* etiqueta arriba del input */
+}
+
+/* Botones */
+.btn-primary {
+  background: #2b6daf;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #3d7fc4;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #f0833e;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  margin-top: 80px;
+  background: white;
+  padding: 20px;
+  border-radius: 1rem;
+  width: 400px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.modal-body input {
+  padding: 8px;
+  border: 2px solid #a9acaf;
+  border-radius: 0.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 15px;
+}
+
+.btn-danger {
+  border-radius: 1.3rem;
+}
+
+.btn-secondary {
+  background-color: #f0833e;
+  border-radius: 1.3rem;
+}
+
+.configuracion-container .Config {
+  font-size: 1.4rem;
+  text-align: left;
+  margin-bottom: 1.2rem;
+}
+
+.configuracion-container .new-link {
+  color: #3d7fc4;
+}
+
+.configuracion-container .candado-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding-left: 0.5rem;
+}
+
+.configuracion-container .f2-autenticacion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding-left: 0.5rem;
+  color: #3d7fc4;
+}
+
+.configuracion-container .historial {
+  text-align: left;
+}

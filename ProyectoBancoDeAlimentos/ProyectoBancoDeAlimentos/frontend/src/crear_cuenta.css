@@ -18,20 +18,20 @@ body {
 }
 
 .crear-form {
-  height: 820px;
+  height: 800px;
   width: 500px;
   display: flex;
   align-items: center;
   flex-direction: column;
-
   border-radius: 2rem;
-  background: #fff;
+  background: #d9d9d9;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  margin-top: 190px;
 }
 
 .crear-form .logo-titulo {
   height: 80px;
-  width: 350px;
+  width: 250px;
   margin-bottom: 20px;
   margin-top: 20px;
 }
@@ -61,6 +61,10 @@ body {
   border-color: #2b6daf;
   border-radius: 0.9rem;
   margin-bottom: 50px;
+}
+
+.crear-form .input-field {
+  padding-left: 1rem;
 }
 
 .crear-form .ya-tienes-cuenta-link {

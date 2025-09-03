@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const Forgot_password = () => {
   return (
     <div className="forgot-form">
-      <img className="logo-titulo" src="/logo-easyway.jpg" alt="Logo" />
+      <img className="logo-titulo" src="/logo-easyway.png" alt="Logo" />
       <p className="encontremos-text">Encontremos tu cuenta de Easy Way</p>
 
       <div className="input-wrapper">

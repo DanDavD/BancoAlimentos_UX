@@ -1,5 +1,6 @@
 // src/pages/Inventario.jsx
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import Sidebar from "../sidebar";
 
 /**
  * Paleta:
@@ -15,65 +16,230 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 const PageSize = 10;
 
 const initialData = [
-  { id: "001", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
-  { id: "002", producto: "Manzanas", marca: "Fruta", categoria: "Ácida", subcategoria: "Roja", stockKg: 65, precioBase: 120, precioVenta: 145 },
-  { id: "003", producto: "Peras",    marca: "Fruta", categoria: "Dulce", subcategoria: "Verde", stockKg: 50, precioBase: 110, precioVenta: 135 },
-  { id: "004", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
-  { id: "005", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
-  { id: "006", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
-  { id: "007", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
-  { id: "008", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
-  { id: "009", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
-  { id: "010", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
-  { id: "011", producto: "Bananas", marca: "Fruta", categoria: "Dulce", subcategoria: "Dulce", stockKg: 107, precioBase: 80, precioVenta: 98 },
+  {
+    id: "001",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
+  {
+    id: "002",
+    producto: "Manzanas",
+    marca: "Fruta",
+    categoria: "Ácida",
+    subcategoria: "Roja",
+    stockKg: 65,
+    precioBase: 120,
+    precioVenta: 145,
+  },
+  {
+    id: "003",
+    producto: "Peras",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Verde",
+    stockKg: 50,
+    precioBase: 110,
+    precioVenta: 135,
+  },
+  {
+    id: "004",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
+  {
+    id: "005",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
+  {
+    id: "006",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
+  {
+    id: "007",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
+  {
+    id: "008",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
+  {
+    id: "009",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
+  {
+    id: "010",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
+  {
+    id: "011",
+    producto: "Bananas",
+    marca: "Fruta",
+    categoria: "Dulce",
+    subcategoria: "Dulce",
+    stockKg: 107,
+    precioBase: 80,
+    precioVenta: 98,
+  },
 ];
 
 function emptyDraft() {
-  return { id: "", producto: "", marca: "", categoria: "", subcategoria: "", stockKg: 0, precioBase: 0, precioVenta: 0 };
+  return {
+    id: "",
+    producto: "",
+    marca: "",
+    categoria: "",
+    subcategoria: "",
+    stockKg: 0,
+    precioBase: 0,
+    precioVenta: 0,
+  };
 }
 
 // Íconos SVG
 const Icon = {
   Search: (props) => (
-    <svg viewBox="0 0 24 24" fill="none" className={"w-4 h-4 " + (props.className || "")}>
-      <path d="M11 19a8 8 0 1 1 5.29-14.03A8 8 0 0 1 11 19Zm10 2-5.4-5.4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={"w-4 h-4 " + (props.className || "")}
+    >
+      <path
+        d="M11 19a8 8 0 1 1 5.29-14.03A8 8 0 0 1 11 19Zm10 2-5.4-5.4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   ),
   Sort: ({ active, dir }) => (
-    <svg viewBox="0 0 24 24" className={"w-4 h-4 " + (active ? "text-white" : "text-white/70")}>
-      <path d="M12 6l3 3H9l3-3z" fill="currentColor" opacity={dir === "asc" ? 1 : 0.35}/>
-      <path d="M12 18l-3-3h6l-3 3z" fill="currentColor" opacity={dir === "desc" ? 1 : 0.35}/>
+    <svg
+      viewBox="0 0 24 24"
+      className={"w-4 h-4 " + (active ? "text-white" : "text-white/70")}
+    >
+      <path
+        d="M12 6l3 3H9l3-3z"
+        fill="currentColor"
+        opacity={dir === "asc" ? 1 : 0.35}
+      />
+      <path
+        d="M12 18l-3-3h6l-3 3z"
+        fill="currentColor"
+        opacity={dir === "desc" ? 1 : 0.35}
+      />
     </svg>
   ),
   Plus: (props) => (
     <svg viewBox="0 0 24 24" className={"w-5 h-5 " + (props.className || "")}>
-      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <path
+        d="M12 5v14M5 12h14"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   ),
   Edit: (props) => (
     <svg viewBox="0 0 24 24" className={"w-5 h-5 " + (props.className || "")}>
-      <path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path
+        d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
     </svg>
   ),
   Trash: (props) => (
     <svg viewBox="0 0 24 24" className={"w-5 h-5 " + (props.className || "")}>
-      <path d="M6 7h12M9 7V5h6v2m-8 0 1 12h8l1-12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path
+        d="M6 7h12M9 7V5h6v2m-8 0 1 12h8l1-12"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
     </svg>
   ),
   ChevronLeft: (props) => (
     <svg viewBox="0 0 24 24" className={"w-6 h-6 " + (props.className || "")}>
-      <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path
+        d="M15 6l-6 6 6 6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
     </svg>
   ),
   ChevronRight: (props) => (
     <svg viewBox="0 0 24 24" className={"w-6 h-6 " + (props.className || "")}>
-      <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <path
+        d="M9 6l6 6-6 6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
     </svg>
   ),
 };
 
 /* ===================== PAGINA INVENTARIO ===================== */
 export default function Inventario() {
+  const handleClick = () => {
+    setLeft(!moveButton);
+    setShowSidebar(!showSidebar);
+  };
+
+  const [moveButton, setLeft] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+
   const [rows, setRows] = useState(initialData);
 
   const [filters, setFilters] = useState({
@@ -86,17 +252,22 @@ export default function Inventario() {
 
   const [sort, setSort] = useState({ key: "", dir: "asc" });
   const [page, setPage] = useState(1);
-  const [modal, setModal] = useState({ open: false, mode: "add", draft: emptyDraft() });
+  const [modal, setModal] = useState({
+    open: false,
+    mode: "add",
+    draft: emptyDraft(),
+  });
 
   // Filtros
   const filtered = useMemo(() => {
     const f = (t) => t.toString().toLowerCase();
-    return rows.filter((r) =>
-      f(r.id).includes(f(filters.id)) &&
-      f(r.producto).includes(f(filters.producto)) &&
-      f(r.marca).includes(f(filters.marca)) &&
-      f(r.categoria).includes(f(filters.categoria)) &&
-      f(r.subcategoria).includes(f(filters.subcategoria))
+    return rows.filter(
+      (r) =>
+        f(r.id).includes(f(filters.id)) &&
+        f(r.producto).includes(f(filters.producto)) &&
+        f(r.marca).includes(f(filters.marca)) &&
+        f(r.categoria).includes(f(filters.categoria)) &&
+        f(r.subcategoria).includes(f(filters.subcategoria))
     );
   }, [rows, filters]);
 
@@ -125,7 +296,11 @@ export default function Inventario() {
 
   // Funciones
   function toggleSort(key) {
-    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
+    setSort((s) =>
+      s.key === key
+        ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: "asc" }
+    );
   }
 
   function openAdd() {
@@ -141,9 +316,28 @@ export default function Inventario() {
     const d = modal.draft;
     if (!d.id || !d.producto) return;
     if (modal.mode === "add") {
-      setRows((r) => [{ ...d, stockKg: +d.stockKg, precioBase: +d.precioBase, precioVenta: +d.precioVenta }, ...r]);
+      setRows((r) => [
+        {
+          ...d,
+          stockKg: +d.stockKg,
+          precioBase: +d.precioBase,
+          precioVenta: +d.precioVenta,
+        },
+        ...r,
+      ]);
     } else {
-      setRows((r) => r.map((x) => (x.id === d.id ? { ...d, stockKg: +d.stockKg, precioBase: +d.precioBase, precioVenta: +d.precioVenta } : x)));
+      setRows((r) =>
+        r.map((x) =>
+          x.id === d.id
+            ? {
+                ...d,
+                stockKg: +d.stockKg,
+                precioBase: +d.precioBase,
+                precioVenta: +d.precioVenta,
+              }
+            : x
+        )
+      );
     }
     closeModal();
   }
@@ -154,36 +348,97 @@ export default function Inventario() {
   }
 
   return (
-    <div className="w-full px-4 py-6 bg-[#f9fafb]">
+    <div className="w-full px-4  bg-[#f9fafb]">
       {/* ancho completo sin max-w para visualizar toda la tabla */}
-      <div className="mx-auto">
+      {showSidebar && <Sidebar />}
+      <button
+        onClick={handleClick}
+        className={`btn_sidebar ${moveButton ? "left-[186px]" : "left-2"}`}
+      >
+        <span className="material-symbols-outlined text-[42px] text-white">
+          menu
+        </span>
+      </button>
+      <div className="mx-auto py-6">
         <div className="flex items-center justify-center gap-2"></div>
-        <h1 className="text-4xl font-semibold tracking-wide flex items-center justify-between gap-2" style={{ color: "#d8572f" }}>
+        <h1
+          className="text-4xl font-semibold tracking-wide flex items-center justify-between gap-2"
+          style={{ color: "#d8572f" }}
+        >
           Inventario
         </h1>
         <div className="flex items-center gap-3 rounded-t-2xl bg-[#ffffff] p-1">
-            <div className="h-1 w-full rounded-md bg-[#f0833e]" />
+          <div className="h-1 w-full rounded-md bg-[#f0833e]" />
         </div>
 
         <div className="mt-4 overflow-hidden rounded-2xl shadow-sm border border-[#d8dadc] bg-white">
           <div className="overflow-x-auto">
             <table className="w-full text-sm table-auto">
               <thead>
-                <tr className="text-white" style={{ backgroundColor: "#2b6daf" }}>
-                  <Th label="ID de Producto" sortKey="id" sort={sort} onSort={toggleSort} />
-                  <ThFilter label="Producto" filterKey="producto" value={filters.producto} onChange={setFilters} />
-                  <ThFilter label="Marca" filterKey="marca" value={filters.marca} onChange={setFilters} />
-                  <ThFilter label="Categoría" filterKey="categoria" value={filters.categoria} onChange={setFilters} />
-                  <ThFilter label="Subcategoría" filterKey="subcategoria" value={filters.subcategoria} onChange={setFilters} />
-                  <Th label="Total en Stock" sortKey="stockKg" sort={sort} onSort={toggleSort} className="w-32" />
-                  <Th label="Precio Base" sortKey="precioBase" sort={sort} onSort={toggleSort} className="w-28" />
-                  <Th label="Precio Venta" sortKey="precioVenta" sort={sort} onSort={toggleSort} className="w-28" />
+                <tr
+                  className="text-white"
+                  style={{ backgroundColor: "#2b6daf" }}
+                >
+                  <Th
+                    label="ID de Producto"
+                    sortKey="id"
+                    sort={sort}
+                    onSort={toggleSort}
+                  />
+                  <ThFilter
+                    label="Producto"
+                    filterKey="producto"
+                    value={filters.producto}
+                    onChange={setFilters}
+                  />
+                  <ThFilter
+                    label="Marca"
+                    filterKey="marca"
+                    value={filters.marca}
+                    onChange={setFilters}
+                  />
+                  <ThFilter
+                    label="Categoría"
+                    filterKey="categoria"
+                    value={filters.categoria}
+                    onChange={setFilters}
+                  />
+                  <ThFilter
+                    label="Subcategoría"
+                    filterKey="subcategoria"
+                    value={filters.subcategoria}
+                    onChange={setFilters}
+                  />
+                  <Th
+                    label="Total en Stock"
+                    sortKey="stockKg"
+                    sort={sort}
+                    onSort={toggleSort}
+                    className="w-32"
+                  />
+                  <Th
+                    label="Precio Base"
+                    sortKey="precioBase"
+                    sort={sort}
+                    onSort={toggleSort}
+                    className="w-28"
+                  />
+                  <Th
+                    label="Precio Venta"
+                    sortKey="precioVenta"
+                    sort={sort}
+                    onSort={toggleSort}
+                    className="w-28"
+                  />
                   <th className="px-3 py-2 text-left w-36">Opciones</th>
                 </tr>
               </thead>
               <tbody>
                 {pageItems.map((r, idx) => (
-                  <tr key={r.id + idx} className="border-b last:border-0 border-[#d8dadc]">
+                  <tr
+                    key={r.id + idx}
+                    className="border-b last:border-0 border-[#d8dadc]"
+                  >
                     <td className="px-3 py-3">{r.id}</td>
                     <td className="px-3 py-3">{r.producto}</td>
                     <td className="px-3 py-3">{r.marca}</td>
@@ -194,13 +449,25 @@ export default function Inventario() {
                     <td className="px-3 py-3">L. {r.precioVenta}</td>
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
-                        <button onClick={openAdd} className="p-2 rounded-xl border border-[#d8dadc] hover:bg-[#ffac77]/30" title="Agregar">
+                        <button
+                          onClick={openAdd}
+                          className="p-2 rounded-xl border border-[#d8dadc] hover:bg-[#ffac77]/30"
+                          title="Agregar"
+                        >
                           <Icon.Plus className="text-[#2b6daf]" />
                         </button>
-                        <button onClick={() => openEdit(r)} className="p-2 rounded-xl border border-[#d8dadc] hover:bg-[#2ca9e3]/20" title="Editar">
+                        <button
+                          onClick={() => openEdit(r)}
+                          className="p-2 rounded-xl border border-[#d8dadc] hover:bg-[#2ca9e3]/20"
+                          title="Editar"
+                        >
                           <Icon.Edit className="text-[#2ca9e3]" />
                         </button>
-                        <button onClick={() => removeRow(r.id)} className="p-2 rounded-xl border border-[#d8dadc] hover:bg-red-50" title="Eliminar">
+                        <button
+                          onClick={() => removeRow(r.id)}
+                          className="p-2 rounded-xl border border-[#d8dadc] hover:bg-red-50"
+                          title="Eliminar"
+                        >
                           <Icon.Trash className="text-red-500" />
                         </button>
                       </div>
@@ -209,7 +476,12 @@ export default function Inventario() {
                 ))}
                 {pageItems.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-3 py-8 text-center text-gray-500">Sin resultados.</td>
+                    <td
+                      colSpan={9}
+                      className="px-3 py-8 text-center text-gray-500"
+                    >
+                      Sin resultados.
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -217,7 +489,6 @@ export default function Inventario() {
           </div>
 
           <div className="flex items-center justify-center px-4 py-3 bg-white">
-
             <Pagination
               page={page}
               pageCount={pageCount}
@@ -232,24 +503,104 @@ export default function Inventario() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
           <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-xl border border-[#d8dadc]">
-            <div className="px-5 py-3 rounded-t-2xl" style={{ backgroundColor: "#2b6daf" }}>
-              <h3 className="text-white font-medium">{modal.mode === "add" ? "Agregar producto" : "Editar producto"}</h3>
+            <div
+              className="px-5 py-3 rounded-t-2xl"
+              style={{ backgroundColor: "#2b6daf" }}
+            >
+              <h3 className="text-white font-medium">
+                {modal.mode === "add" ? "Agregar producto" : "Editar producto"}
+              </h3>
             </div>
 
             <div className="p-5 grid grid-cols-2 gap-4">
-              <Input label="ID" value={modal.draft.id} onChange={(v) => setModal((m) => ({ ...m, draft: { ...m.draft, id: v } }))} />
-              <Input label="Producto" value={modal.draft.producto} onChange={(v) => setModal((m) => ({ ...m, draft: { ...m.draft, producto: v } }))} />
-              <Input label="Marca" value={modal.draft.marca} onChange={(v) => setModal((m) => ({ ...m, draft: { ...m.draft, marca: v } }))} />
-              <Input label="Categoría" value={modal.draft.categoria} onChange={(v) => setModal((m) => ({ ...m, draft: { ...m.draft, categoria: v } }))} />
-              <Input label="Subcategoría" value={modal.draft.subcategoria} onChange={(v) => setModal((m) => ({ ...m, draft: { ...m.draft, subcategoria: v } }))} />
-              <Input type="number" label="Stock (kg)" value={modal.draft.stockKg} onChange={(v) => setModal((m) => ({ ...m, draft: { ...m.draft, stockKg: v } }))} />
-              <Input type="number" label="Precio Base (L.)" value={modal.draft.precioBase} onChange={(v) => setModal((m) => ({ ...m, draft: { ...m.draft, precioBase: v } }))} />
-              <Input type="number" label="Precio Venta (L.)" value={modal.draft.precioVenta} onChange={(v) => setModal((m) => ({ ...m, draft: { ...m.draft, precioVenta: v } }))} />
+              <Input
+                label="ID"
+                value={modal.draft.id}
+                onChange={(v) =>
+                  setModal((m) => ({ ...m, draft: { ...m.draft, id: v } }))
+                }
+              />
+              <Input
+                label="Producto"
+                value={modal.draft.producto}
+                onChange={(v) =>
+                  setModal((m) => ({
+                    ...m,
+                    draft: { ...m.draft, producto: v },
+                  }))
+                }
+              />
+              <Input
+                label="Marca"
+                value={modal.draft.marca}
+                onChange={(v) =>
+                  setModal((m) => ({ ...m, draft: { ...m.draft, marca: v } }))
+                }
+              />
+              <Input
+                label="Categoría"
+                value={modal.draft.categoria}
+                onChange={(v) =>
+                  setModal((m) => ({
+                    ...m,
+                    draft: { ...m.draft, categoria: v },
+                  }))
+                }
+              />
+              <Input
+                label="Subcategoría"
+                value={modal.draft.subcategoria}
+                onChange={(v) =>
+                  setModal((m) => ({
+                    ...m,
+                    draft: { ...m.draft, subcategoria: v },
+                  }))
+                }
+              />
+              <Input
+                type="number"
+                label="Stock (kg)"
+                value={modal.draft.stockKg}
+                onChange={(v) =>
+                  setModal((m) => ({ ...m, draft: { ...m.draft, stockKg: v } }))
+                }
+              />
+              <Input
+                type="number"
+                label="Precio Base (L.)"
+                value={modal.draft.precioBase}
+                onChange={(v) =>
+                  setModal((m) => ({
+                    ...m,
+                    draft: { ...m.draft, precioBase: v },
+                  }))
+                }
+              />
+              <Input
+                type="number"
+                label="Precio Venta (L.)"
+                value={modal.draft.precioVenta}
+                onChange={(v) =>
+                  setModal((m) => ({
+                    ...m,
+                    draft: { ...m.draft, precioVenta: v },
+                  }))
+                }
+              />
             </div>
 
             <div className="p-5 pt-0 flex items-center justify-end gap-2">
-              <button onClick={closeModal} className="px-4 py-2 rounded-xl border border-[#d8dadc]">Cancelar</button>
-              <button onClick={saveModal} className="px-4 py-2 rounded-xl text-white" style={{ backgroundColor: "#f0833e" }}>
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 rounded-xl border border-[#d8dadc]"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={saveModal}
+                className="px-4 py-2 rounded-xl text-white"
+                style={{ backgroundColor: "#f0833e" }}
+              >
                 Guardar
               </button>
             </div>
@@ -265,7 +616,11 @@ function Th({ label, className = "", sortKey, sort, onSort }) {
   const active = sort.key === sortKey;
   return (
     <th className={"px-3 py-2 text-left " + className}>
-      <button onClick={() => onSort(sortKey)} className="inline-flex items-center gap-2 text-white" title="Ordenar">
+      <button
+        onClick={() => onSort(sortKey)}
+        className="inline-flex items-center gap-2 text-white"
+        title="Ordenar"
+      >
         <span className="font-medium">{label}</span>
         <Icon.Sort active={active} dir={active ? sort.dir : "asc"} />
       </button>
@@ -337,7 +692,10 @@ function ThFilter({ label, filterKey, value, onChange }) {
               }}
             />
             <div className="flex items-center justify-end gap-2 pt-1">
-              <button onClick={clear} className="px-3 py-1.5 rounded-xl border border-[#d8dadc] text-sm">
+              <button
+                onClick={clear}
+                className="px-3 py-1.5 rounded-xl border border-[#d8dadc] text-sm"
+              >
                 Limpiar
               </button>
               <button
@@ -370,8 +728,6 @@ function Input({ label, value, onChange, type = "text" }) {
   );
 }
 
-
-
 function Pagination({ page, pageCount, onPage }) {
   const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
   return (
@@ -389,7 +745,9 @@ function Pagination({ page, pageCount, onPage }) {
         <button
           key={p}
           onClick={() => onPage(p)}
-          className={`w-9 h-9 rounded-full border border-[#d8dadc] ${p === page ? "ring-2" : ""}`}
+          className={`w-9 h-9 rounded-full border border-[#d8dadc] ${
+            p === page ? "ring-2" : ""
+          }`}
           style={p === page ? { ringColor: "#d8572f", color: "#d8572f" } : {}}
           title={`Página ${p}`}
         >
