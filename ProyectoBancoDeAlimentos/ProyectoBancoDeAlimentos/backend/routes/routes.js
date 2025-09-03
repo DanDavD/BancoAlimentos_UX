@@ -17,5 +17,12 @@ router.use('/producto',    require('./routesProducto'));
 router.use('/carrito',      require('./routesCarrito'));
 router.use('/subcategorias', require('./routesSubcategoria'));
 
+router.use('/direcciones' , require('./direcciones'));
+router.use('/direccion-default', require('./direcciones'));
+router.use('/actualizar-direccion', require('./direcciones'));
+router.use('/borrar-direccion', require('./direcciones'));
+
+router.use('/cupones', require('./cupones'));
+
 
 module.exports = router;

@@ -73,7 +73,7 @@ const login = async (req, res) => {
     });
 
     res.status(201).json({
-      msg: 'Usuario registrado correctamente',
+      message: 'Usuario registrado correctamente',
         nombre: new_user.nombre,
         correo: new_user.correo,
         telefono: new_user.telefono,
@@ -82,7 +82,7 @@ const login = async (req, res) => {
 
   }catch (error){
     console.error('No se pudo registrar el usuario!', error);
-    res.status(500).json({ msg: 'Error interno del servidor' });
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
 }
 
