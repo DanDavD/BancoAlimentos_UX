@@ -1,5 +1,4 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 
 
 const instance = axios.create({
@@ -7,4 +6,9 @@ const instance = axios.create({
    withCredentials: true,
 });
 
+instance.interceptors.request.use((config) => {
+  const t = localStorage.getItem('token');
+  if (t) config.headers.Authorization = `Bearer ${t}`;
+  return config;
+});
 export default instance;

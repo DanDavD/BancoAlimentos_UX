@@ -1,55 +1,89 @@
+// controllers/AuthController.js
+const sequelize = require('../config/db');
+const { DataTypes } = require('sequelize');
+const Usuario = require('../models/Usuario')(sequelize, DataTypes);
 const bcrypt = require('bcrypt');
-const { Usuario } = require('../models');
-const { generateToken } = require('../services/jwtService');
 const jwt = require('jsonwebtoken');
+
 
 const login = async (req, res) => {
   try {
-    const { User, password } = req.body;
-    console.log('📥 Datos recibidos:', { User, password });
+    console.log("pene 2");
+    const { correo, contraseña } = req.body;
+    if (!correo || !contraseña) {
+      return res.status(400).json({ message: 'Correo y contraseña son requeridos' });
+    }
 
-    const usuario = await Usuario.findOne({ where: { nickname: User } });
-
+    console.log("pene 3");
+    //  Buscar usuario 
+    const usuario = await Usuario.findOne({ where: { correo } });
     if (!usuario) {
-      console.warn('⚠️ Usuario no encontrado en base de datos');
       return res.status(401).json({ message: 'Usuario no encontrado' });
     }
 
-    console.log('👤 Usuario encontrado:', usuario.nickname);
-    console.log('🔐 Hash en base de datos:', usuario.password);
-
-    const passwordValida = await bcrypt.compare(password, usuario.password);
-    console.log('🔎 ¿Contraseña válida?:', passwordValida);
-
-    if (!passwordValida) {
+    //  Verificar contraseña
+    const valid = await bcrypt.compare(contraseña, usuario.contraseña);
+    if (!valid) {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    // 🔐 Crear el token JWT
+    console.log("pene 4");
+    //  Crear token
     const token = jwt.sign(
-      { id: usuario.idusuario, nombre: usuario.nickname },
+      { id: usuario.id_usuario, nombre: usuario.nombre , rol: usuario.id_rol}, // 👈 id_usuario
       process.env.JWT_SECRET || 'secreto',
       { expiresIn: '2h' }
     );
 
-    console.log('✅ Token generado:', token);
-
-    // 🧁 Guardar el token como cookie segura y HttpOnly
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-
+    // Cookie opcional
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // ✅ pon true si usas HTTPS en producción
-      sameSite: 'Lax',
-      maxAge: 2 * 60 * 60 * 1000 // 2 horas
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 2 * 60 * 60 * 1000
     });
 
-    return res.json({ message: 'Login exitoso' });
+    console.log("pene 5");
+    return res.json({ message: 'Login exitoso', token });
   } catch (error) {
-    console.error('❌ Error en login:', error);
-    return res.status(500).json({ message: 'Error del servidor si se corre' });
+    console.error('❌ Error en login:', error.stack);
+    return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
 
-module.exports = { login };
+ const registrarse = async(req,res) =>{
+  try{
+    const {/*id_usuario,*/nombre, correo, contraseña, telefono, id_rol } = req.body;
+
+    const user_existence = await Usuario.findOne({where : {correo}});
+
+    if(user_existence){
+      return res.status(400).json({ msg: 'El correo ya está registrado' });
+    }
+
+    const hashedPassword = await bcrypt.hash(contraseña, 10);
+
+    const new_user = await Usuario.create({
+      //id_usuario,
+      nombre,
+      correo,
+      contraseña: hashedPassword,
+      id_rol,
+      telefono,
+    });
+
+    res.status(201).json({
+      message: 'Usuario registrado correctamente',
+        nombre: new_user.nombre,
+        correo: new_user.correo,
+        telefono: new_user.telefono,
+        rol: new_user.id_rol
+    });
+
+  }catch (error){
+    console.error('No se pudo registrar el usuario!', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+}
+
+module.exports = { login, registrarse };

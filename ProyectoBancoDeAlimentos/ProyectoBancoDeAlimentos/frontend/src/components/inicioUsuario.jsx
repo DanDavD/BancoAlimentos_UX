@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCoverflow, Autoplay } from "swiper/modules";
+import { useNavigate } from "react-router-dom";
 
 import "swiper/css";
 import "swiper/css/effect-coverflow";
@@ -43,20 +44,40 @@ const categories = [
 ];
 
 const products = [
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
-  { name: "Manzana", price: "L. 10.00", img: appleImage },
+  { id: 1, name: "Manzana", price: "L. 10.00", img: appleImage, valoracion: 2 },
+  {
+    id: 2,
+    name: "Arroz Blanco",
+    price: "L. 25.30",
+    img: appleImage,
+    valoracion: 1,
+  },
+  {
+    id: 3,
+    name: "Leche Entera",
+    price: "L. 35.00",
+    img: appleImage,
+    valoracion: 3,
+  },
+  {
+    id: 4,
+    name: "Pan Integral",
+    price: "L. 15.00",
+    img: appleImage,
+    valoracion: 1,
+  },
+  { id: 5, name: "Huevos", price: "L. 40.00", img: appleImage, valoracion: 3 },
+  { id: 6, name: "Pollo", price: "L. 80.00", img: appleImage, valoracion: 2 },
+  { id: 7, name: "Queso", price: "L. 60.00", img: appleImage, valoracion: 3 },
+  { id: 8, name: "Yogurt", price: "L. 25.00", img: appleImage, valoracion: 3 },
+  { id: 9, name: "Cereal", price: "L. 45.00", img: appleImage, valoracion: 3 },
 ];
 
 const banners = [banner1, banner3, banner2];
 
 const InicioUsuario = () => {
+  const navigate = useNavigate();
+
   const catRef = useRef(null);
   const prodRefDestacados = useRef(null);
   const prodRefTendencias = useRef(null);
@@ -64,6 +85,10 @@ const InicioUsuario = () => {
   const [hoveredIndex, setHoveredIndex] = React.useState(null);
   const [hoveredProductDest, setHoveredProductDest] = React.useState(null);
   const [hoveredProductTrend, setHoveredProductTrend] = React.useState(null);
+
+  const handleProductClick = (productId) => {
+    navigate(`/producto/${productId}`);
+  };
 
   const scroll = (direction, ref, itemWidth) => {
     if (ref.current) {
@@ -191,17 +216,27 @@ const InicioUsuario = () => {
                 transform:
                   hoveredProductDest === i ? "scale(1.05)" : "scale(1)",
                 transition: "all 0.2s ease-in-out",
+                cursor: "pointer",
               }}
               onMouseEnter={() => setHoveredProductDest(i)}
               onMouseLeave={() => setHoveredProductDest(null)}
+              onClick={() => handleProductClick(p.id)}
             >
               <div style={styles.topRow}>
                 <span style={styles.badge}>Oferta</span>
-                <div style={styles.stars}>
-                  <span>★</span>
-                  <span>★</span>
-                  <span>☆</span>
-                </div>
+                <span style={styles.stars}>
+                  {Array.from({ length: 3 }, (_, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        color: i < p.valoracion ? "#2b6daf" : "#ddd",
+                        fontSize: "25px",
+                      }}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </span>
               </div>
 
               <img src={p.img} alt={p.name} style={styles.productImg} />
@@ -212,6 +247,10 @@ const InicioUsuario = () => {
                   ...styles.addButton,
                   backgroundColor:
                     hoveredProductDest === i ? "#2b6daf" : "#F0833E",
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  //lógica del carrito
                 }}
               >
                 Agregar
@@ -260,17 +299,27 @@ const InicioUsuario = () => {
                 transform:
                   hoveredProductTrend === i ? "scale(1.05)" : "scale(1)",
                 transition: "all 0.2s ease-in-out",
+                cursor: "pointer",
               }}
               onMouseEnter={() => setHoveredProductTrend(i)}
               onMouseLeave={() => setHoveredProductTrend(null)}
+              onClick={() => handleProductClick(p.id)}
             >
               <div style={styles.topRow}>
                 <span style={styles.badge}>Oferta</span>
-                <div style={styles.stars}>
-                  <span>★</span>
-                  <span>★</span>
-                  <span>☆</span>
-                </div>
+                <span style={styles.stars}>
+                  {Array.from({ length: 3 }, (_, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        color: i < p.valoracion ? "#2b6daf" : "#ddd",
+                        fontSize: "25px",
+                      }}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </span>
               </div>
 
               <img src={p.img} alt={p.name} style={styles.productImg} />
@@ -281,6 +330,10 @@ const InicioUsuario = () => {
                   ...styles.addButton,
                   backgroundColor:
                     hoveredProductTrend === i ? "#2b6daf" : "#F0833E",
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  //lógica del carrito
                 }}
               >
                 Agregar

@@ -76,7 +76,7 @@ function GestionProductos() {
     addSubCategory(newSub);
   };
   return (
-    <div className="bg-gray-100 w-screen ">
+    <div className="bg-gray-100 w-screen pb-8 ">
       {showSidebar && <Sidebar />}
       <button
         onClick={handleClick}
@@ -248,7 +248,7 @@ function GestionProductos() {
           </div>
         </div>
       </div>
-      <div className="h-screen flex items-center justify-center bg-gray-100">
+      <div className=" flex items-center justify-center bg-gray-100">
         {showCat && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
             <div className="bg-white rounded-md shadow-lg w-96  relative animate-fadeIn">

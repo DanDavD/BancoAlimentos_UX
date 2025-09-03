@@ -1,9 +1,16 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/db');
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const app = express();
+const cors = require('cors');
+app.use(express.json());
+app.use(cookieParser());
 
 const models = {
   Usuario: require('./Usuario')
 };
+
 
 // Ejecutar asociaciones
 Object.values(models).forEach(model => {
@@ -12,8 +19,7 @@ Object.values(models).forEach(model => {
   }
 });
 
-
-// 1) Cargar todos los modelos que **sí** están en la carpeta
+//Cargar todos los modelos 
 const carrito               = require('./carrito.js')(sequelize, Sequelize.DataTypes);
 const carrito_detalle       = require('./carrito_detalle.js')(sequelize, Sequelize.DataTypes);
 const categoria             = require('./categoria.js')(sequelize, Sequelize.DataTypes);
@@ -37,13 +43,14 @@ const rol_privilegio        = require('./rol_privilegio.js')(sequelize, Sequeliz
 const subcategoria          = require('./subcategoria.js')(sequelize, Sequelize.DataTypes);
 const sucursal              = require('./sucursal.js')(sequelize, Sequelize.DataTypes);
 const sucursal_producto     = require('./sucursal_producto.js')(sequelize, Sequelize.DataTypes);
-const usuario               = require('./Usuario.js')(sequelize, Sequelize.DataTypes);
+const Usuario               = require('./Usuario.js')(sequelize, Sequelize.DataTypes);
 const valoracion_producto   = require('./valoracion_producto.js')(sequelize, Sequelize.DataTypes);
+const metodo_pago           = require('./metodo_pago.js')(sequelize,Sequelize.DataTypes);
 
 
 // --- Identity ---
-rol.hasMany(usuario, { foreignKey: 'id_rol' });
-usuario.belongsTo(rol, { foreignKey: 'id_rol' });
+rol.hasMany(Usuario, { foreignKey: 'id_rol' });
+Usuario.belongsTo(rol, { foreignKey: 'id_rol' });
 
 rol.belongsToMany(privilegio, { through: rol_privilegio, foreignKey: 'id_rol', otherKey: 'id_privilegio' });
 privilegio.belongsToMany(rol, { through: rol_privilegio, foreignKey: 'id_privilegio', otherKey: 'id_rol' });
@@ -58,8 +65,8 @@ direccion.belongsTo(municipio, { foreignKey: 'id_municipio' });
 municipio.hasMany(sucursal, { foreignKey: 'id_municipio' });
 sucursal.belongsTo(municipio, { foreignKey: 'id_municipio' });
 
-usuario.hasMany(direccion, { foreignKey: 'id_usuario' });
-direccion.belongsTo(usuario, { foreignKey: 'id_usuario' });
+Usuario.hasMany(direccion, { foreignKey: 'id_usuario' });
+direccion.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 
 // --- Categorías ---
 categoria.hasMany(subcategoria, { foreignKey: 'id_categoria_padre' });
@@ -77,8 +84,8 @@ imagen_producto.belongsTo(producto, { foreignKey: 'id_producto' });
 producto.hasMany(valoracion_producto, { foreignKey: 'id_producto' });
 valoracion_producto.belongsTo(producto, { foreignKey: 'id_producto' });
 
-usuario.hasMany(valoracion_producto, { foreignKey: 'id_usuario' });
-valoracion_producto.belongsTo(usuario, { foreignKey: 'id_usuario' });
+Usuario.hasMany(valoracion_producto, { foreignKey: 'id_usuario' });
+valoracion_producto.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 
 // --- Stock / Sucursales ---
 sucursal.hasMany(sucursal_producto, { foreignKey: 'id_sucursal' });
@@ -88,8 +95,8 @@ producto.hasMany(sucursal_producto, { foreignKey: 'id_producto' });
 sucursal_producto.belongsTo(producto, { foreignKey: 'id_producto' });
 
 // --- Carrito ---
-usuario.hasOne(carrito, { foreignKey: 'id_usuario' });
-carrito.belongsTo(usuario, { foreignKey: 'id_usuario' });
+Usuario.hasOne(carrito, { foreignKey: 'id_usuario' });
+carrito.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 
 carrito.hasMany(carrito_detalle, { foreignKey: 'id_carrito' });
 carrito_detalle.belongsTo(carrito, { foreignKey: 'id_carrito' });
@@ -99,8 +106,8 @@ carrito_detalle.belongsTo(producto, { foreignKey: 'id_producto' });
 
 
 // --- Pedidos / Facturas ---
-usuario.hasMany(pedido, { foreignKey: 'id_usuario' });
-pedido.belongsTo(usuario, { foreignKey: 'id_usuario' });
+Usuario.hasMany(pedido, { foreignKey: 'id_usuario' });
+pedido.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 
 sucursal.hasMany(pedido, { foreignKey: 'id_sucursal' });
 pedido.belongsTo(sucursal, { foreignKey: 'id_sucursal' });
@@ -125,11 +132,19 @@ pedido.belongsToMany(promocion, { through: promocion_pedido, foreignKey: 'id_ped
 cupon.hasMany(historial_cupon, { foreignKey: 'id_cupon' });
 historial_cupon.belongsTo(cupon, { foreignKey: 'id_cupon' });
 
-usuario.hasMany(historial_cupon, { foreignKey: 'id_usuario' });
-historial_cupon.belongsTo(usuario, { foreignKey: 'id_usuario' });
+Usuario.hasMany(historial_cupon, { foreignKey: 'id_usuario' });
+historial_cupon.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 
 pedido.hasMany(historial_cupon, { foreignKey: 'id_pedido' });
 historial_cupon.belongsTo(pedido, { foreignKey: 'id_pedido' });
+
+//direccion - metodo_pago
+direccion.hasMany(metodo_pago, { foreignKey: 'id_direccion_facturacion' });
+metodo_pago.belongsTo(direccion, { foreignKey: 'id_direccion_facturacion' });
+
+// ---Metodos Pago---
+metodo_pago.belongsTo(Usuario,{foreigKey:'id_usuario'});
+Usuario.hasOne(metodo_pago,  { foreignKey: 'id_usuario' });
 
 // 3) Exportar todo
 module.exports = {
@@ -156,8 +171,9 @@ module.exports = {
   subcategoria,
   sucursal,
   sucursal_producto,
-  usuario,
+  Usuario,
   valoracion_producto,
   sequelize,
-  Sequelize
+  Sequelize,
+  metodo_pago
 };
