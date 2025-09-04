@@ -9,6 +9,11 @@ exports.getAllMetodosDePago = async (req, res) => {
       where: { id_usuario: req.user.id },
     });
     res.json(metodos);
+    if (!metodos.length) {
+      return res
+        .status(404)
+        .json({ error: "No se encontraron métodos de pago" });
+    }
   } catch (error) {
     res.status(500).json({ error: "Error al obtener métodos de pago" });
   }
