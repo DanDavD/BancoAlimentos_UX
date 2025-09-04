@@ -26,5 +26,8 @@ router.use('/borrar-direccion', require('./direcciones'));
 
 router.use('/cupones', require('./cupones'));
 
+router.use('/agregar-rol',require('./roles_privilegios'));
+router.use('/agregar-privilegio', require('./roles_privilegios'));
+router.use('/asignar', require('./roles_privilegios'));
 
 module.exports = router;

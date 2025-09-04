@@ -3,10 +3,10 @@ const router = express.Router();
 
 const direccionController = require('../controllers/direccionController');
 
-router.post('/',direccionController.addDirection);
-router.get('/', direccionController.allDirections);
-router.patch('/', direccionController.direccionDefault);
-router.put('/', direccionController.actualizarDireccion);
-router.delete('/', direccionController.eliminarDireccion);
+router.post('/:id_usuario',direccionController.addDirection);
+router.get('/:id_usuario', direccionController.allDirections);
+router.patch('/:id_usuario', direccionController.direccionDefault);
+router.put('/:id_usuario/:id_direccion', direccionController.actualizarDireccion);
+router.delete('/:id_usuario/:id_direccion', direccionController.eliminarDireccion);
 
 module.exports = router;

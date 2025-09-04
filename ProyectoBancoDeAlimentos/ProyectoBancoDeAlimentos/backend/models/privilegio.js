@@ -7,15 +7,5 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     underscored: true,
   });
-
-  privilegio.associate = (models) => {
-    privilegio.belongsToMany(models.rol, {
-      through: models.rol_privilegio,
-      foreignKey: 'id_privilegio',
-      otherKey: 'id_rol',
-      as: 'roles',
-    });
-  };
-
   return privilegio;
 };

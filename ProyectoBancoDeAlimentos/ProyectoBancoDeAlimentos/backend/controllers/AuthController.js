@@ -8,13 +8,11 @@ const jwt = require('jsonwebtoken');
 
 const login = async (req, res) => {
   try {
-    console.log("pene 2");
     const { correo, contraseña } = req.body;
     if (!correo || !contraseña) {
       return res.status(400).json({ message: 'Correo y contraseña son requeridos' });
     }
 
-    console.log("pene 3");
     //  Buscar usuario 
     const usuario = await Usuario.findOne({ where: { correo } });
     if (!usuario) {
@@ -27,7 +25,6 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Contraseña incorrecta' });
     }
 
-    console.log("pene 4");
     //  Crear token
     const token = jwt.sign(
       { id: usuario.id_usuario, nombre: usuario.nombre , rol: usuario.id_rol}, // 👈 id_usuario
@@ -53,18 +50,17 @@ const login = async (req, res) => {
 
  const registrarse = async(req,res) =>{
   try{
-    const {/*id_usuario,*/nombre, correo, contraseña, telefono, id_rol } = req.body;
+    const {nombre, correo, contraseña, telefono, id_rol} = req.body;
 
     const user_existence = await Usuario.findOne({where : {correo}});
 
     if(user_existence){
-      return res.status(400).json({ msg: 'El correo ya está registrado' });
+      return res.status(400).json({ msg: 'El correo ya esta registrado' });
     }
 
     const hashedPassword = await bcrypt.hash(contraseña, 10);
 
     const new_user = await Usuario.create({
-      //id_usuario,
       nombre,
       correo,
       contraseña: hashedPassword,

@@ -4,7 +4,7 @@ const { historial_cupon, cupon } = require('../models');
 
 exports.allCupones = async (req, res) => {
     try {
-        const { id_usuario } = req.body;
+        const { id_usuario } = req.params;
 
         const cuponesUsuario = await historial_cupon.findAll({
             where: { id_usuario },
