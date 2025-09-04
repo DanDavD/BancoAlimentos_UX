@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const metodoPagoController = require("../controllers/MetodoPagoController");
+const metodoPagoController = require("../controllers/metodoPagoController");
 
 // Obtener todos los métodos de pago del usuario autenticado
 router.get("/", metodoPagoController.getAllMetodosDePago);
