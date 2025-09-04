@@ -16,7 +16,7 @@ import MisPedidos from "./misPedidos.jsx";
 import PedidoEmergente from "./components/pedidoEmergente.jsx";
 import MetodoPago from "./metodoPago.jsx";
 import TestAuth from "./pages/PruebaDeRoutes.jsx";
-//import Histo from "./pages/HistorialPedido.jsx";
+import HistorialPedido from "./pages/HistorialPedido.jsx";
 import AgregarCarrito from "./components/agregarCarrito.jsx";
 import CompararProducto from "./components/compararProducto.jsx";
 const HEADER_HEIGHT = 144; // px
@@ -44,10 +44,8 @@ function App() {
           <Route path="/metodoPago" element={<MetodoPago />} />
           <Route path="/Prueba" element={<TestAuth />} />
           <Route path="/producto/:id" element={<AgregarCarrito />} />
-          <Route
-            path="/compararProductos/:id1/:id2"
-            element={<CompararProducto />}
-          />
+          <Route path="/compararProductos/:id1/:id2" element={<CompararProducto />}/>
+          <Route path="/historialPedidos" element={<HistorialPedido />} />
         </Routes>
       </div>
     </div>
