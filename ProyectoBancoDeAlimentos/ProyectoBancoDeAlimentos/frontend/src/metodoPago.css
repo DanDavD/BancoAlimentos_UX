@@ -1,15 +1,10 @@
-.metodo-pago {
-  padding: 20px;
-  width: 100%;
-  width: 1000px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-}
-
 .agregar-tarjeta-container {
+  margin-top: 170px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   margin-bottom: 10px;
   padding-bottom: 20px;
   border-radius: 1rem;
+  width: 970px;
 }
 
 .titulo-pago {
@@ -151,12 +146,17 @@
 }
 
 .info-seguridad {
+  display: flex;
+  flex-direction: column;
   margin-top: 25px;
   font-size: 13px;
   color: #444;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   padding-bottom: 20px;
   border-radius: 1rem;
+  height: 210px;
+  align-items: center;
+  justify-content: center;
 }
 
 .info-seguridad ul {

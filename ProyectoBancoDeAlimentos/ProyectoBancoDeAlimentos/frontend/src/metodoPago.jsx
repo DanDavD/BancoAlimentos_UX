@@ -80,7 +80,6 @@ export default function MetodoPago() {
 
       {/* Información de seguridad */}
       <div className="info-seguridad">
-        <img className="seguro" src="./secure.png" alt="seguro" />
         <p>
           <b>Easy Way</b> protege tu información de pago
         </p>

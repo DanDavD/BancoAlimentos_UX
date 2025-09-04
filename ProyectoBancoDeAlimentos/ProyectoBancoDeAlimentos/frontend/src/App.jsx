@@ -11,6 +11,10 @@ import GestionProductos from "./gestionProductos.jsx";
 import Headerr from "./components/Headerr";
 import Inventario from "./pages/Inventario.jsx";
 import EditarPerfilAdmin from "./pages/EditMiPerfil.jsx";
+import MiPerfil from "./miPerfil.jsx";
+import MisPedidos from "./misPedidos.jsx";
+import PedidoEmergente from "./components/pedidoEmergente.jsx";
+import MetodoPago from "./metodoPago.jsx";
 import TestAuth from "./pages/PruebaDeRoutes.jsx";
 //import Histo from "./pages/HistorialPedido.jsx";
 import AgregarCarrito from "./components/agregarCarrito.jsx";
@@ -34,6 +38,10 @@ function App() {
           <Route path="/inicioAdmin" element={<InicioAdmin />} />
           <Route path="/inventario" element={<Inventario />} />
           <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
+          <Route path="/miPerfil" element={<MiPerfil />} />
+          <Route path="/misPedidos" element={<MisPedidos />} />
+          <Route path="/pedidoEmergente" element={<PedidoEmergente />} />
+          <Route path="/metodoPago" element={<MetodoPago />} />
           <Route path="/Prueba" element={<TestAuth />} />
           <Route path="/producto/:id" element={<AgregarCarrito />} />
           <Route

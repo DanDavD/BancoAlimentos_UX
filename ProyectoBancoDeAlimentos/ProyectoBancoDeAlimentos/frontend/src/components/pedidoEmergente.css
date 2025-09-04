@@ -24,11 +24,14 @@
 
 /* Título azul */
 .modal h3 {
-  background: #004a99;
+  background: #2b6daf;
   color: #fff;
   padding: 10px;
-  border-radius: 6px;
+  margin-left: -20px;
+
   margin-bottom: 15px;
+  margin-top: -20px;
+  margin-right: -20px;
 }
 
 /* Tabla */
@@ -66,7 +69,7 @@ th {
 }
 
 .btn-volver {
-  background: #0077cc;
+  background: #2b6daf;
   color: #fff;
   border: none;
   padding: 8px 14px;
