@@ -1,8 +1,8 @@
 module.exports = (sequelize, DataTypes) => {
   const cupon = sequelize.define('cupon', {
     id_cupon:         { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    código:           { type: DataTypes.STRING, unique: true },
-    descripción:      DataTypes.STRING,
+    codigo:           { type: DataTypes.STRING, unique: true },
+    descripcion:      DataTypes.STRING,
     tipo:             DataTypes.STRING,
     valor:            DataTypes.DOUBLE,
     uso_max:          DataTypes.INTEGER,

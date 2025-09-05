@@ -65,20 +65,22 @@ exports.sumarItem = async (req, res) => {
 };
 
 exports.aplicarCupon = async (req, res) => {
-    try {
-        const { codigo } = req.body;
-        const id_usuario = req.user.id_usuario;
+  try {
+    const { codigo } = req.body;
+    if (!codigo) return res.status(400).json({ msg: 'Código requerido' });
 
-        const cupon = await cupon.findOne({ where: { codigo, activo: true } });
-        if (!cupon) return res.status(404).json({ msg: 'Cupón inválido o expirado' });
+    const id_usuario = req.user.id_usuario;
 
-        const cart = await carrito.findOne({ where: { id_usuario } });
-        if (!cart) return res.status(404).json({ msg: 'Carrito no existe' });
+    const cuponn = await cupon.findOne({ where: { codigo, activo: true } });
+    if (!cuponn) return res.status(404).json({ msg: 'Cupón inválido o expirado' });
 
-        res.json({ msg: 'Cupón aplicado', cupon });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+    const cart = await carrito.findOne({ where: { id_usuario } });
+    if (!cart) return res.status(404).json({ msg: 'Carrito no existe' });
+
+    res.json({ msg: 'Cupón aplicado', cuponn });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 exports.eliminarItem = async (req, res) => {
