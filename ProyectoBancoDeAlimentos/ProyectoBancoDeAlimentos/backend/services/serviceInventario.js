@@ -1,30 +1,64 @@
 const { Op } = require('sequelize');
-const {sequelize,producto, categoria, subcategoria, sucursal_producto, sucursal,carrito, carrito_detalle,marca_producto} = require('../models');
+const {sequelize,producto, categoria, subcategoria, sucursal_producto, sucursal,carrito, carrito_detalle,marca_producto,imagen_producto} = require('../models');
 
 
 async function GetAllProductos() {
   const productosList = await producto.findAll({
-    attributes: ['id_producto', 'nombre', 'descripcion', 'precio_base', 'unidad_medida', 'activo', 'id_marca', 'id_subcategoria'],
+    attributes: [
+      'id_producto',
+      'nombre',
+      'descripcion',
+      'precio_base',
+      'unidad_medida',
+      'activo',
+      'id_marca',
+      'id_subcategoria',
+      'porcentaje_ganancia',
+      'estrellas',
+    ],
     include: [
+      // producto -> subcategoria (alias definido en producto.associate)
       {
         model: subcategoria,
         as: 'subcategoria',
         attributes: ['id_subcategoria', 'nombre', 'id_categoria_padre'],
+        // subcategoria -> categoria (SIN alias en tus asociaciones globales)
         include: [
-          { model: categoria, attributes: ['id_categoria', 'nombre', 'icono_categoria'] }
-        ]
+          {
+            model: categoria,
+            attributes: ['id_categoria', 'nombre', 'icono_categoria'],
+          },
+        ],
       },
+
+      // producto -> marca_producto (alias 'marca' en producto.associate)
+      {
+        model: marca_producto,
+        attributes: ['id_marca_producto', 'nombre'],
+      },
+
+      // producto -> imagen_producto (alias 'imagenes')
+      {
+  model: imagen_producto,
+  attributes: ['id_imagen','url_imagen','orden_imagen'],
+  separate: true,
+  order: [['orden_imagen','ASC']]
+}
+,
+
+      // producto -> sucursal_producto (alias 'stock_sucursales')
       {
         model: sucursal_producto,
         attributes: ['id_sucursal_producto', 'id_sucursal', 'etiquetas', 'stock_disponible'],
         include: [
-          { model: sucursal, attributes: ['id_sucursal', 'nombre_sucursal', 'activo'] }
+          // sucursal_producto -> sucursal (SIN alias)
+          { model: sucursal, attributes: ['id_sucursal', 'nombre_sucursal', 'activo'] },
         ],
-        separate: true,                 // ← hace query aparte (ideal para ordenar en hasMany)
-        order: [['id_sucursal_producto', 'ASC']]
-      }
+        separate: true,                 // hasMany: ideal si quieres ordenar/paginar hijos
+        order: [['id_sucursal_producto', 'ASC']],
+      },
     ],
-    order: [['id_producto', 'ASC']]
+    order: [['id_producto', 'ASC']],
   });
 
   if (!productosList || productosList.length === 0) {

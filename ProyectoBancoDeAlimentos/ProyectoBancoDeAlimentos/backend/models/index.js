@@ -104,6 +104,9 @@ carrito_detalle.belongsTo(carrito, { foreignKey: 'id_carrito' });
 producto.hasMany(carrito_detalle, { foreignKey: 'id_producto' });
 carrito_detalle.belongsTo(producto, { foreignKey: 'id_producto' });
 
+// index.js
+producto.hasMany(imagen_producto, { foreignKey: 'id_producto', as: 'imagenes' });
+
 
 // --- Pedidos / Facturas ---
 Usuario.hasMany(pedido, { foreignKey: 'id_usuario' });
