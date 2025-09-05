@@ -3,3 +3,8 @@ build
 dist
 .env
 .git
+.cache/
+node_modules/.cache/
+.eslintcache
+*.pack
+*.pack.old
