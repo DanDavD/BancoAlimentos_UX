@@ -562,7 +562,8 @@ export default function UserManagementViews() {
           <button
             className="btn-secondary"
             onClick={() => {
-              handleClosePrivileges(), closeEdit();
+              handleClosePrivileges();
+              closeEdit();
             }}
           >
             Cancelar
