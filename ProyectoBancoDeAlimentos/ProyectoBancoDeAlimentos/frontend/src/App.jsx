@@ -18,13 +18,13 @@ import MisPedidos from "./misPedidos.jsx";
 import PedidoEmergente from "./components/pedidoEmergente.jsx";
 import MetodoPago from "./metodoPago.jsx";
 import TestAuth from "./pages/PruebaDeRoutes.jsx";
-
 import HistorialPedido from "./pages/HistorialPedido.jsx";
 import MisDirecciones from "./misDirecciones.jsx";
 import AgregarCarrito from "./components/agregarCarrito.jsx";
 import CompararProducto from "./components/compararProducto.jsx";
 import UserManagementViews from "./UserManagementViews.jsx";
 import MisCupones from "./misCupones.jsx";
+import Verificacion from "./components/verificacion.jsx";
 
 const HEADER_HEIGHT = 144; // px
 
@@ -62,6 +62,7 @@ function App() {
             path="/userManagementViews"
             element={<UserManagementViews />}
           />
+          <Route path="/verificacion" element={<Verificacion />} />
         </Routes>
       </div>
     </div>

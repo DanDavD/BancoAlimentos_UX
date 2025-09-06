@@ -1,7 +1,9 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectCoverflow, Autoplay } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
+import { getAllProducts } from "../api/InventarioApi";
+import { ObtenerCategoria, ListarCategoria } from "../api/CategoriaApi";
 
 import "swiper/css";
 import "swiper/css/effect-coverflow";
@@ -43,36 +45,6 @@ const categories = [
   { name: "Granos", icon: coffee },
 ];
 
-const products = [
-  { id: 1, name: "Manzana", price: "L. 10.00", img: appleImage, valoracion: 2 },
-  {
-    id: 2,
-    name: "Arroz Blanco",
-    price: "L. 25.30",
-    img: appleImage,
-    valoracion: 1,
-  },
-  {
-    id: 3,
-    name: "Leche Entera",
-    price: "L. 35.00",
-    img: appleImage,
-    valoracion: 3,
-  },
-  {
-    id: 4,
-    name: "Pan Integral",
-    price: "L. 15.00",
-    img: appleImage,
-    valoracion: 1,
-  },
-  { id: 5, name: "Huevos", price: "L. 40.00", img: appleImage, valoracion: 3 },
-  { id: 6, name: "Pollo", price: "L. 80.00", img: appleImage, valoracion: 2 },
-  { id: 7, name: "Queso", price: "L. 60.00", img: appleImage, valoracion: 3 },
-  { id: 8, name: "Yogurt", price: "L. 25.00", img: appleImage, valoracion: 3 },
-  { id: 9, name: "Cereal", price: "L. 45.00", img: appleImage, valoracion: 3 },
-];
-
 const banners = [banner1, banner3, banner2];
 
 const InicioUsuario = () => {
@@ -86,8 +58,44 @@ const InicioUsuario = () => {
   const [hoveredProductDest, setHoveredProductDest] = React.useState(null);
   const [hoveredProductTrend, setHoveredProductTrend] = React.useState(null);
 
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await getAllProducts();
+        console.log(res.data);
+        setProducts(res.data);
+      } catch (err) {
+        console.error("[PRODUCTS] error:", err?.response?.data || err);
+        alert(err?.response?.data?.message || "Error al cargar productos");
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const [categoriesData, setCategoriesData] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await ListarCategoria();
+        setCategoriesData(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.error("[CATEGORIES] error:", err?.response?.data || err);
+        alert(err?.response?.data?.message || "Error al cargar categorías");
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const handleProductClick = (productId) => {
     navigate(`/producto/${productId}`);
+  };
+  const handleCategoryClick = (categoryId) => {
+    navigate(`/categoria/${categoryId}`);
   };
 
   const scroll = (direction, ref, itemWidth) => {
@@ -118,7 +126,7 @@ const InicioUsuario = () => {
         </button>
 
         <div style={styles.divCat} ref={catRef}>
-          {categories.map((cat, index) => (
+          {categoriesData.map((cat, index) => (
             <div key={index} style={styles.catItem}>
               <div
                 style={{
@@ -133,10 +141,11 @@ const InicioUsuario = () => {
                 }}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
+                onClick={() => handleCategoryClick(cat.id_categoria)}
               >
-                <img src={cat.icon} alt={cat.name} />
+                <img src={cat.icon} alt={cat.icono_categoria} />
               </div>
-              <span style={styles.catTitle}>{cat.name}</span>
+              <span style={styles.catTitle}>{cat.nombre}</span>
             </div>
           ))}
         </div>
@@ -220,16 +229,16 @@ const InicioUsuario = () => {
               }}
               onMouseEnter={() => setHoveredProductDest(i)}
               onMouseLeave={() => setHoveredProductDest(null)}
-              onClick={() => handleProductClick(p.id)}
+              onClick={() => handleProductClick(p.id_producto)}
             >
               <div style={styles.topRow}>
                 <span style={styles.badge}>Oferta</span>
                 <span style={styles.stars}>
-                  {Array.from({ length: 3 }, (_, i) => (
+                  {Array.from({ length: 5 }, (_, i) => (
                     <span
                       key={i}
                       style={{
-                        color: i < p.valoracion ? "#2b6daf" : "#ddd",
+                        color: i < p.estrellas ? "#2b6daf" : "#ddd",
                         fontSize: "25px",
                       }}
                     >
@@ -239,9 +248,9 @@ const InicioUsuario = () => {
                 </span>
               </div>
 
-              <img src={p.img} alt={p.name} style={styles.productImg} />
-              <p style={styles.productName}>{p.name}</p>
-              <p style={styles.productPrice}>{p.price}</p>
+              <img src={p.img} alt={p.nombre} style={styles.productImg} />
+              <p style={styles.productName}>{p.nombre}</p>
+              <p style={styles.productPrice}>{p.precio_base}</p>
               <button
                 style={{
                   ...styles.addButton,
@@ -250,7 +259,6 @@ const InicioUsuario = () => {
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  //lógica del carrito
                 }}
               >
                 Agregar
@@ -303,16 +311,16 @@ const InicioUsuario = () => {
               }}
               onMouseEnter={() => setHoveredProductTrend(i)}
               onMouseLeave={() => setHoveredProductTrend(null)}
-              onClick={() => handleProductClick(p.id)}
+              onClick={() => handleProductClick(p.id_producto)}
             >
               <div style={styles.topRow}>
                 <span style={styles.badge}>Oferta</span>
                 <span style={styles.stars}>
-                  {Array.from({ length: 3 }, (_, i) => (
+                  {Array.from({ length: 5 }, (_, i) => (
                     <span
                       key={i}
                       style={{
-                        color: i < p.valoracion ? "#2b6daf" : "#ddd",
+                        color: i < p.estrellas ? "#2b6daf" : "#ddd",
                         fontSize: "25px",
                       }}
                     >
@@ -322,9 +330,9 @@ const InicioUsuario = () => {
                 </span>
               </div>
 
-              <img src={p.img} alt={p.name} style={styles.productImg} />
-              <p style={styles.productName}>{p.name}</p>
-              <p style={styles.productPrice}>{p.price}</p>
+              <img src={p.img} alt={p.nombre} style={styles.productImg} />
+              <p style={styles.productName}>{p.nombre}</p>
+              <p style={styles.productPrice}>{p.precio_base}</p>
               <button
                 style={{
                   ...styles.addButton,
