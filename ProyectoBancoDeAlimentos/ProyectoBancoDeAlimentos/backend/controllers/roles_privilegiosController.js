@@ -1,9 +1,7 @@
 const sequelize = require('../config/db');
 const { DataTypes } = require('sequelize');
-const rol = require('../models/rol')(sequelize,DataTypes);
-const privilegio = require('../models/privilegio')(sequelize,DataTypes);
-const { rol_privilegio } = require('../models');
-const Usuario = require('../models/Usuario')(sequelize, DataTypes);
+const { Usuario, rol, privilegio, rol_privilegio } = require('../models');
+
 
 //no se puede aun porque en el model de rol, nombre_rol es un enum (tiene que ser un string)
 exports.addRol = async (req,res) => {
@@ -33,7 +31,6 @@ exports.addRol = async (req,res) => {
     }
 }
 
-//
 exports.addPrivilegio = async (req,res) => {
     try{
         const {id_usuario} = req.params;
@@ -72,5 +69,58 @@ exports.asignarPrivilegioARol = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Error al asignar privilegio al rol' });
+  }
+};
+
+exports.getRoles = async (req,res) => {
+    try {
+        const roles = await rol.findAll();
+        return res.status(200).json(roles);
+    } catch (error) {
+        console.error('Error al obtener roles:', error);
+        return res.status(500).json({ error: 'Error interno del servidor' });
+    }
+}
+
+exports.getPrivilegios = async (req, res) => {
+  try {
+    const privilegios = await privilegio.findAll();
+    return res.status(200).json(privilegios);
+  } catch (error) {
+    console.error('Error al obtener privilegios:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+exports.getRolesYPrivilegiosDeUsuario = async (req, res) => {
+  const { id_usuario } = req.params;
+
+  try {
+    const user = await Usuario.findByPk(id_usuario, {
+      attributes: [],
+      include: [
+        {
+          model: rol,
+          attributes: ['nombre_rol'],
+          include: [
+            {
+              model: privilegio,
+              attributes: ['nombre_privilegio'],
+              through: { attributes: [] }
+            }
+          ]
+        }
+      ]
+    });
+
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    return res.status(200).json(user.rols || user.rol); // Sequelize puede devolver en plural
+  } catch (error) {
+    console.error('Error al obtener roles y privilegios del usuario:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
   }
 };

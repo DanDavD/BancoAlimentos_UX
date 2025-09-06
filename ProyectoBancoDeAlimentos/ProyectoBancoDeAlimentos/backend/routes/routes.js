@@ -28,4 +28,7 @@ router.use("/facturas", require("./routesFactura"));
 
 router.use("/cupones", require("./cupones"));
 
+router.use('/roles-privilegios',require('./roles_privilegios'));
+
 module.exports = router;
+//

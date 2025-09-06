@@ -1,5 +1,3 @@
-
-
 module.exports = (sequelize, DataTypes) => {
   const Usuario = sequelize.define('Usuario', {
   id_usuario: {
@@ -52,14 +50,6 @@ module.exports = (sequelize, DataTypes) => {
   tableName: 'usuario',
   timestamps: false,
 });
-Usuario.associate = (models) => {
-    Usuario.belongsTo(models.rol, { foreignKey: 'id_rol', as: 'rol' });
-    Usuario.hasMany(models.pedido, { foreignKey: 'id_usuario', as: 'pedidos' });
-    Usuario.hasMany(models.carrito, { foreignKey: 'id_usuario', as: 'carritos' });
-    Usuario.hasMany(models.direccion, { foreignKey: 'id_usuario', as: 'direcciones' });
-    Usuario.hasMany(models.historial_cupon, { foreignKey: 'id_usuario', as: 'historialCupones' });
-    Usuario.hasMany(models.valoracion_producto, { foreignKey: 'id_usuario', as: 'valoraciones' });
-  };
   return Usuario;
 }
 
