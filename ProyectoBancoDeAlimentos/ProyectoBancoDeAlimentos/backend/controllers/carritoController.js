@@ -83,21 +83,38 @@ exports.aplicarCupon = async (req, res) => {
   }
 };
 
+
 exports.eliminarItem = async (req, res) => {
-    try {
-        const { id_producto } = req.body;
-        const id_usuario = req.user.id_usuario;
-
-        const cart = await carrito.findOne({ where: { id_usuario } });
-        if (!cart) return res.status(404).json({ msg: 'Carrito no existe' });
-
-        const rows = await carrito_detalle.destroy({
-            where: { id_carrito: cart.id_carrito, id_producto }
-        });
-        if (!rows) return res.status(404).json({ msg: 'Item no encontrado' });
-
-        res.json({ msg: 'Item eliminado' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+  try {
+    // 🔐 req.user viene del middleware verificarToken
+    if (!req.user?.id_usuario) {
+      return res.status(401).json({ msg: 'No autenticado' });
     }
+
+    const { id_producto } = req.body || {};
+    if (id_producto === undefined) {
+      return res.status(400).json({ msg: 'id_producto es requerido' });
+    }
+
+    const idProd = Number(id_producto);
+    if (!Number.isFinite(idProd) || idProd <= 0) {
+      return res.status(400).json({ msg: 'id_producto inválido' });
+    }
+
+    const id_usuario = req.user.id_usuario;
+
+    const cart = await carrito.findOne({ where: { id_usuario } });
+    if (!cart) return res.status(404).json({ msg: 'Carrito no existe' });
+
+    const rows = await carrito_detalle.destroy({
+      where: { id_carrito: cart.id_carrito, id_producto: idProd }
+    });
+
+    if (!rows) return res.status(404).json({ msg: 'Item no encontrado' });
+
+    return res.json({ ok: true, eliminados: rows, msg: 'Item eliminado' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: String(err?.message || err) });
+  }
 };

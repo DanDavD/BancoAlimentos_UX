@@ -20,21 +20,26 @@ exports.obtener = async (req, res) => {
 };
 
 exports.crear = async (req, res) => {
-  try {
-    const { nombre, url_icono_categoria } = req.body;
-    if (!nombre) return res.status(400).json({ msg: 'El nombre es obligatorio' });
-    const created = await categoria.create({ nombre, url_icono_categoria });
+   try {
+    const { nombre, icono_categoria } = req.body; // 👈 leer el nombre correcto
+    if (!nombre || !icono_categoria) {
+      return res.status(400).json({ msg: 'nombre e icono_categoria son obligatorios' });
+    }
+
+    const created = await categoria.create({ nombre, icono_categoria }); // 👈 guardar con el nombre correcto
     res.status(201).json(created);
   } catch (e) {
+    // Log útil para depurar
+    console.error('Error creando categoría:', e);
     res.status(500).json({ error: e.message });
   }
 };
 
 exports.actualizar = async (req, res) => {
   try {
-    const { nombre, url_icono_categoria } = req.body;
+    const { nombre, icono_categoria } = req.body;
     const [rows] = await categoria.update(
-      { nombre, url_icono_categoria },
+      { nombre, icono_categoria },
       { where: { id_categoria: req.params.id } }
     );
     if (!rows) return res.status(404).json({ msg: 'Categoría no encontrada' });

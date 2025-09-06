@@ -4,7 +4,7 @@ const { DataTypes } = require('sequelize');
 const Usuario = require('../models/Usuario')(sequelize, DataTypes);
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const { JWT_SECRET } = require('../config/config');
 
 const login = async (req, res) => {
   try {
