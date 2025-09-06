@@ -50,7 +50,7 @@ const login = async (req, res) => {
 
  const registrarse = async(req,res) =>{
   try{
-    const {nombre, correo, contraseña, telefono, id_rol} = req.body;
+    const {nombre, apellido, correo, contraseña, telefono, id_rol, foto_perfil_url, genero} = req.body;
 
     const user_existence = await Usuario.findOne({where : {correo}});
 
@@ -62,10 +62,13 @@ const login = async (req, res) => {
 
     const new_user = await Usuario.create({
       nombre,
+      apellido,
       correo,
       contraseña: hashedPassword,
       id_rol,
       telefono,
+      foto_perfil_url,
+      genero
     });
 
     res.status(201).json({

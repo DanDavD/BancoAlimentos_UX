@@ -52,7 +52,7 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     }
   );
-
+  /*
   producto.associate = (models) => {
     producto.belongsTo(models.subcategoria, {
       foreignKey: "id_subcategoria",
@@ -90,7 +90,7 @@ module.exports = (sequelize, DataTypes) => {
       otherKey: "id_promocion",
       as: "promociones",
     });
-  };
+  };*/
 
   return producto;
 };

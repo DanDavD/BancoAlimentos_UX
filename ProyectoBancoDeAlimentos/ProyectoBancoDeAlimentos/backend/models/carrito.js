@@ -9,7 +9,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    fecha_creacion: DataTypes.DATE
+    fecha_creacion: DataTypes.DATE,
+    descuento : DataTypes.DECIMAL(10, 2),
   }, {
     tableName: "carrito",
     timestamps: false

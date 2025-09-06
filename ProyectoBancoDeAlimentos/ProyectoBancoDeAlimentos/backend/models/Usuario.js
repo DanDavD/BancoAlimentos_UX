@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.STRING(55),
     allowNull: true,
   },
+  apellido : DataTypes.STRING(55),
   correo: {
     type: DataTypes.STRING(55),
     allowNull: false,
@@ -44,6 +45,8 @@ module.exports = (sequelize, DataTypes) => {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  autenticacion_dos_pasos : {type : DataTypes.BOOLEAN, defaultValue : false},
+  genero : DataTypes.ENUM('masculino', 'femenino', 'otro')
 }, {
   sequelize,
   modelName: 'Usuario',

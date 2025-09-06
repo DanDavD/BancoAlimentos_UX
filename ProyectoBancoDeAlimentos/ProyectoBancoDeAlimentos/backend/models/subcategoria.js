@@ -12,7 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     id_categoria_padre : {
         type : DataTypes.INTEGER,
         allowNull : false
-    }
+    },
+    url_icono_subcategoria : DataTypes.STRING,
+    porcentaje_ganancias : DataTypes.DECIMAL(10,2)
   }, {
     tableName: "subcategoria",
     timestamps: false

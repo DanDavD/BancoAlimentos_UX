@@ -46,9 +46,30 @@ const sucursal_producto     = require('./sucursal_producto.js')(sequelize, Seque
 const Usuario               = require('./Usuario.js')(sequelize, Sequelize.DataTypes);
 const valoracion_producto   = require('./valoracion_producto.js')(sequelize, Sequelize.DataTypes);
 const metodo_pago           = require('./metodo_pago.js')(sequelize,Sequelize.DataTypes);
+const estado_pedido = require('./estado_pedido.js')(sequelize,Sequelize.DataTypes);
+const historial_accesos = require('./historial_accesos.js')(sequelize,Sequelize.DataTypes);
+const lista_deseos = require('./lista_deseos.js')(sequelize,Sequelize.DataTypes);
 
 
 // --- Identity ---
+estado_pedido.hasMany(Usuario, { foreignKey: 'id_estado_pedido' });
+pedido.belongsTo(pedido, { foreignKey: 'id_estado_pedido' });
+
+Usuario.hasMany(historial_accesos, { foreignKey: 'id_usuario' });
+historial_accesos.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+
+estado_pedido.hasMany(pedido, { foreignKey: 'id_estado_pedido' });
+pedido.belongsTo(estado_pedido, { foreignKey: 'id_estado_pedido' });
+
+cupon.hasMany(pedido, { foreignKey: 'id_cupon' });
+pedido.belongsTo(cupon, { foreignKey: 'id_cupon' });
+
+Usuario.hasMany(lista_deseos, { foreignKey: 'id_usuario' });
+lista_deseos.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+
+producto.hasMany(lista_deseos, { foreignKey: 'id_producto' });
+lista_deseos.belongsTo(producto, { foreignKey: 'id_producto' });
+
 rol.hasMany(Usuario, { foreignKey: 'id_rol' });
 Usuario.belongsTo(rol, { foreignKey: 'id_rol' });
 

@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     underscored: true,
   });
 
+  /*
   promocion.associate = (models) => {
      promocion.belongsToMany(models.producto, {
       through: models.promocion_producto,
@@ -33,8 +34,7 @@ module.exports = (sequelize, DataTypes) => {
       otherKey: 'id_pedido',
       as: 'pedidos',
     });
-  
-  };
+  };*/
 
   return promocion;
 };
