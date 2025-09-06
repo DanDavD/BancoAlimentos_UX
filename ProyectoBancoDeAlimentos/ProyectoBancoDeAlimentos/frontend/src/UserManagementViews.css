@@ -1,0 +1,591 @@
+/* ====== Layout general ====== */
+:root{
+  --primary-blue: #2B6DAF; /* encabezado de tabla */
+  --accent-orange: #ff7a2a; /* título */
+  --ink-900: #0f172a;
+  --ink-700: #334155;
+  --ink-500: #64748b;
+  --bg-50: #f8fafc;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --muted: #f1f5f9;
+  --pill: #e5e7eb;
+}
+
+* { box-sizing: border-box; }
+
+.page-container{
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-50);
+  color: var(--ink-900);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+}
+
+.accent{
+  color: #ff7a2a;
+}
+
+/* ====== Contenido principal ====== */
+.main-content{
+  background: var(--card);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+
+.page-header h1{
+  color: var(--accent-orange);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  margin: 0 0 8px 0;
+}
+
+/* ====== Buscador y contador ====== */
+.search-bar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap; /* para que en pantallas chicas baje de línea */
+}
+
+
+.search-input{
+  flex: 1;            /* ocupa el espacio disponible */
+  max-width: 560px;   /* evita que sea gigante */
+}
+.search-input input{
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  padding: 10px 14px 10px 38px;
+  border-radius: 999px;
+  font-size: 14px;
+  outline: none;
+}
+.search-input input:focus{
+  background: #fff;
+  border-color: #ff7a2a;
+  box-shadow: 0 0 0 3px rgba(255,122,42,.15);
+}
+.search-icon{
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-500);
+}
+
+.user-count {
+  background: var(--muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  color: var(--ink-700);
+  display: inline-flex;
+  align-items: center; /* centra verticalmente los elementos */
+  gap: 6px; /* espacio entre texto y burbuja */
+  white-space: nowrap;
+}
+
+.count-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: #123c54;
+  color: #fff;
+  font-weight: 600;
+  flex-shrink: 0; /* evita que se reduzca en contenedores flex */
+}
+
+
+/* ====== Tabla ====== */
+.table-container{
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 500px; /* Altura mínima para mantener consistencia */
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.table-container table{
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  table-layout: fixed; /* Para mantener consistencia en el ancho de columnas */
+  text-align: center;
+}
+
+.table-container thead{
+  background: var(--primary-blue);
+  color: #fff;
+  text-align: center;
+}
+.table-container th{
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  padding: 12px 16px;
+  text-align: center;
+}
+.table-container th:last-child {
+  text-align: center; /* Centrar el encabezado de Opciones */
+}
+.table-container tbody tr{
+  border-top: 1px solid #f1f5f9;
+}
+.table-container td{
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--ink-900);
+  text-align: center;
+
+}
+.table-container td:last-child {
+  text-align: center; /* Centrar el contenido de la columna Opciones */
+}
+.table-container tbody tr:hover{
+  background: #f8fafc;
+}
+
+/* Píldoras y badges */
+.status-badge{
+  font-size: 13px;
+  font-weight: 700;
+}
+.status-badge.activo{ color: #16a34a; }    /* verde */
+.status-badge.inactivo{ color: #ff7a2a; }  /* naranja */
+
+.role-pill{
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--pill);
+  color: var(--ink-700);
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Acciones */
+.action-buttons{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center; /* Centrar botones de acción */
+}
+.action-buttons button{
+  border: none;
+  background: transparent;
+  padding: 6px;
+  border-radius: 8px;
+  color: #000;
+  cursor: pointer;
+}
+
+.action-buttons button:hover{
+  background: #f1f5f9;
+}
+
+/* ====== Paginación ====== */
+.pagination{
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.pagination button{
+  height: 36px;
+  width: 36px;
+  border-radius: 999px;
+  border: none;
+  background: #e2e8f0;
+  color: var(--ink-700);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centrar contenido de botones */
+}
+.pagination button:hover{ background: #cbd5e1; }
+.pagination button:disabled{
+  opacity: .45;
+  cursor: not-allowed;
+}
+.pagination button.active{
+  background: var(--accent-orange);
+  color: #fff;
+}
+
+/* ====== Modal ====== */
+.modal-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal-container{
+  width: 100%;
+  max-width: 720px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.15);
+}
+
+.modal-body{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 768px){
+  .modal-body{ grid-template-columns: 1fr 1fr; }
+}
+.modal-actions{
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.modal-actions button{
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  background: #fff;
+  cursor: pointer;
+}
+.modal-actions button:hover{ background: #f8fafc; }
+.modal-actions button:last-child{
+  background: #123c54;
+  color: #fff;
+  border-color: #123c54;
+}
+.modal-actions button:last-child:hover{
+  filter: brightness(1.1);
+}
+
+/* ====== Labels y campos (Field + formularios) ====== */
+label{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+label span{
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-700);
+}
+input, select{
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink-900);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+}
+input[readonly]{
+  background: #f8fafc;
+  box-shadow: inset 0 1px 0 rgba(0,0,0,.02);
+}
+
+/* ====== Responsivo ====== */
+@media (max-width: 980px){
+  .grid-layout{
+    grid-template-columns: 1fr; /* sidebar arriba */
+  }
+  .sidebar-placeholder{ min-height: 80px; }
+  .search-bar{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .user-count{ align-self: flex-start; }
+  
+  /* Ajustes responsivos para la tabla */
+  .table-container {
+    overflow-x: auto;
+  }
+  .table-container table {
+    min-width: 600px; /* Ancho mínimo para evitar compresión excesiva */
+  }
+}
+
+.modal-header {
+  background-color: #2B6DAF;
+  padding: 20px;
+  display: flex;
+  justify-content: center; /* horizontal centering */
+  align-items: center;     /* vertical centering */
+  position: relative;      /* optional, safe for future close button */
+}
+
+.modal-title{
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0;
+  text-align: center;      /* ensures text inside the h2 is centered */
+  width: 100%;   
+}
+
+/*CSS para el form de privilegios*/
+/* Modal background */
+.form-modal {
+display: flex;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0,0,0,0.5);
+justify-content: center;
+align-items: center;
+z-index: 1000;
+}
+
+/* Modal content box */
+.form-content {
+width: 500px;
+background: #FFFFFF;
+border-radius: 20px;
+position: relative;
+box-shadow: 0px 4px 10px rgba(0,0,0,0.25);
+overflow: hidden; /* ensures header rounded corners stay */
+}
+
+.privilege-title {
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0;
+  text-align: center;      /* ensures text inside the h2 is centered */
+  width: 100%;             /* make it fill the header width */
+}
+
+
+.priviliges {
+width: 100%;
+padding: 10px 20px;
+max-height: 400px; /* altura máxima del scroll */
+overflow-y: auto; /* activa scroll vertical */
+}
+
+.priviliges::-webkit-scrollbar {
+width: 8px;
+}
+
+.priviliges::-webkit-scrollbar-thumb {
+background-color: #2B6DAF;
+border-radius: 4px;
+}
+
+.priviliges::-webkit-scrollbar-track {
+background: #f1f1f1;
+border-radius: 4px;
+}
+
+.linea {
+border: none;
+border-top: 1px solid #ccc;
+}
+
+.privilege-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-size: 20px;
+padding: 10px; /* más espacio arriba/abajo (15px) y laterales (10px) */
+margin: 0 10px; /* separa los items de los bordes del contenedor */
+}
+
+.privilege-label {
+color: #000;
+}
+
+/* Checkbox wrapper */
+.checkbox-wrapper input {
+position: absolute;
+opacity: 0;
+cursor: pointer;
+}
+
+/* Custom checkbox */
+.checkmark {
+height: 22px;
+width: 22px;
+border: 2px solid #80838A;
+border-radius: 6px;
+background-color: white;
+position: relative;
+flex-shrink: 0;
+}
+
+.checkbox-wrapper input:checked ~ .checkmark {
+background-color: #2E9FD4;
+border: 2px solid #2E9FD4;
+}
+
+/* Tick mark */
+.checkmark:after {
+content: "";
+position: absolute;
+display: none;
+}
+
+.checkbox-wrapper input:checked ~ .checkmark:after {
+display: block;
+left: 7px;
+top: 3px;
+width: 5px;
+height: 10px;
+border: solid white;
+border-width: 0 2px 2px 0;
+transform: rotate(45deg);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 120px;
+  margin-top: 16px  ;
+  padding: 10px 20px;
+}
+
+/* Modal body for edit privileges */
+.edit-form-modal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content box */
+.edit-form-content {
+  width: 500px;
+  background: #FFFFFF;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden; /* ensures header rounded corners stay */
+}
+
+/* Modal header */
+.edit-modal-header {
+  background-color: #2B6DAF;
+  padding: 20px;
+  display: flex;
+  justify-content: center; /* horizontal centering */
+  align-items: center;     /* vertical centering */
+  position: relative;
+}
+
+.edit-privilege-title {
+  color: white;
+  font-size: 22px;
+  font-weight: bold;
+  margin: 0;
+  text-align: center;      /* ensures text inside the h2 is centered */
+  width: 100%; 
+}
+
+/* Privileges container */
+.edit-privileges-container {
+  width: 100%;
+  padding: 10px 20px;
+  max-height: 400px; /* scroll height */
+  overflow-y: auto;  /* vertical scroll */
+}
+
+/* Scrollbar styling */
+.edit-privileges-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.edit-privileges-container::-webkit-scrollbar-thumb {
+  background-color: #2B6DAF;
+  border-radius: 4px;
+}
+
+.edit-privileges-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+/* Horizontal line between privileges */
+.edit-line {
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+/* Individual privilege item */
+.edit-privilege-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 20px;
+  padding: 15px 10px; /* more vertical space */
+  margin: 0 10px; /* space from container edges */
+}
+
+.edit-privilege-label {
+  color: #000;
+}
+
+/* Checkbox wrapper */
+.edit-checkbox-wrapper input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Custom checkbox */
+.edit-checkmark {
+  height: 22px;
+  width: 22px;
+  border: 2px solid #80838A;
+  border-radius: 6px;
+  background-color: white;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.edit-checkbox-wrapper input:checked ~ .edit-checkmark {
+  background-color: #2E9FD4;
+  border: 2px solid #2E9FD4;
+}
+
+/* Tick mark */
+.edit-checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.edit-checkbox-wrapper input:checked ~ .edit-checkmark:after {
+  display: block;
+  left: 7px;
+  top: 3px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
