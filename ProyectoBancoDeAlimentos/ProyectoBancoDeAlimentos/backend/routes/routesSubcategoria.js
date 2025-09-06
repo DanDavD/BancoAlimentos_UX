@@ -2,6 +2,8 @@ const express = require('express');
 const router  = express.Router();
 const subcategoriaCtrl = require('../controllers/subcategoriaController');
 
+router.post('/compararProductos', subcategoriaCtrl.compararProductos);
+
 router
   .get('/',     subcategoriaCtrl.listar)
   .get('/:id',  subcategoriaCtrl.obtener)

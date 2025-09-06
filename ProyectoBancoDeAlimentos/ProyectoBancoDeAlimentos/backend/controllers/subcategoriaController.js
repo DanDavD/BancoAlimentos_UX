@@ -1,4 +1,5 @@
-const { subcategoria, producto, categoria } = require('../models');
+const { subcategoria, producto, categoria, sucursal_producto } = require("../models");
+const { Op } = require("sequelize");
 
 exports.listar = async (req, res) => {
   try {
@@ -58,4 +59,53 @@ exports.desactivarProductos = async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+};
+
+exports.compararProductos = async (req, res) => {
+    try {
+        const body = req.body || {};
+        const { productIds } = body;
+
+        if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
+            return res.status(400).json({ 
+                message: 'Se requiere un arreglo de productIds en el body. Ejemplo: { "productIds": [1,2,3] }' 
+            });
+        }
+
+        const productos = await producto.findAll({
+            where: { id_producto: { [Op.in]: productIds } },
+            attributes: ['id_producto', 'nombre', 'descripcion', 'precio_base', 'unidad_medida', 'id_marca'],
+            include: [
+                {
+                    model: sucursal_producto,
+                    attributes: ['stock_disponible']
+                }
+            ]
+        });
+
+        if (productos.length !== productIds.length) {
+            return res.status(404).json({ message: 'Algunos de los productos no fueron encontrados.' });
+        }
+
+        const comparacion = {};
+
+        productos.forEach(p => {
+            const stockTotal = p.sucursal_productos.reduce((acc, sp) => acc + sp.stock_disponible, 0);
+            comparacion[p.id_producto] = {
+                id_producto: p.id_producto,
+                nombre: p.nombre,
+                descripcion: p.descripcion,
+                precio_base: p.precio_base,
+                stock_total: stockTotal,
+                unidad_medida: p.unidad_medida,
+                marca: p.id_marca
+            };
+        });
+
+        return res.status(200).json(comparacion);
+
+    } catch (error) {
+        console.error('Error en compararProductos:', error);
+        return res.status(500).json({ message: 'Error interno al comparar los productos.' });
+    }
 };
