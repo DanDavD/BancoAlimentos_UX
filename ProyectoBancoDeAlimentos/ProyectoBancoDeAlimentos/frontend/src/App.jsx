@@ -1,5 +1,7 @@
+// src/App.jsx
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
+
 import Dashboard from "./dashboard.jsx";
 import Login from "./login.jsx";
 import Crear_cuenta from "./crear_cuenta.jsx";
@@ -16,9 +18,14 @@ import MisPedidos from "./misPedidos.jsx";
 import PedidoEmergente from "./components/pedidoEmergente.jsx";
 import MetodoPago from "./metodoPago.jsx";
 import TestAuth from "./pages/PruebaDeRoutes.jsx";
+
 import HistorialPedido from "./pages/HistorialPedido.jsx";
+import MisDirecciones from "./misDirecciones.jsx";
 import AgregarCarrito from "./components/agregarCarrito.jsx";
 import CompararProducto from "./components/compararProducto.jsx";
+import UserManagementViews from "./UserManagementViews.jsx";
+import MisCupones from "./misCupones.jsx";
+
 const HEADER_HEIGHT = 144; // px
 
 function App() {
@@ -41,15 +48,24 @@ function App() {
           <Route path="/miPerfil" element={<MiPerfil />} />
           <Route path="/misPedidos" element={<MisPedidos />} />
           <Route path="/pedidoEmergente" element={<PedidoEmergente />} />
+          <Route path="/misDirecciones" element={<MisDirecciones />} />
           <Route path="/metodoPago" element={<MetodoPago />} />
           <Route path="/Prueba" element={<TestAuth />} />
           <Route path="/producto/:id" element={<AgregarCarrito />} />
-          <Route path="/compararProductos/:id1/:id2" element={<CompararProducto />}/>
+          <Route
+            path="/compararProductos/:id1/:id2"
+            element={<CompararProducto />}
+          />
           <Route path="/historialPedidos" element={<HistorialPedido />} />
+          <Route path="/misCupones" element={<MisCupones />} />
+          <Route
+            path="/userManagementViews"
+            element={<UserManagementViews />}
+          />
         </Routes>
       </div>
     </div>
   );
 }
-//<Route path="/Histo" element={<Histo />} />
+
 export default App;

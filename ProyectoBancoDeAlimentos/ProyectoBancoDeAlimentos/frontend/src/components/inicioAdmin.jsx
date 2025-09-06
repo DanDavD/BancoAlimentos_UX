@@ -341,6 +341,10 @@ const InicioAdmin = () => {
           />
         </button>
       </div>
+      <img
+        src="/images/pinguino-pendejo-bailando-a-lo-focker.gif"
+        alt="Cargando"
+      />
     </div>
   );
 };
