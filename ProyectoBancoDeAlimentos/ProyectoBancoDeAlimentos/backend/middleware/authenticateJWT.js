@@ -21,6 +21,10 @@ async function verifyToken(req, res, next) {
       include: { model: rol, as: 'rol', attributes: ['nombre_rol'] },
     });
 
+    const crypto = require('crypto');
+const hash = crypto.createHash('sha256').update(JWT_SECRET).digest('hex').slice(0, 12);
+console.log('[JWT] secret hash:', hash);
+
     if (!usuario) return res.status(401).json({ msg: 'Usuario no existe' });
 
     req.user = usuario;             // tendrás req.user.id_usuario disponible

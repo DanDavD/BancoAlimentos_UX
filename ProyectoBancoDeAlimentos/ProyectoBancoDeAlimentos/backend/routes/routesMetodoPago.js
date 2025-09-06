@@ -1,17 +1,14 @@
-const express = require("express");
-const router = express.Router();
-const metodoPagoController = require("../controllers/metodoPagoController");
+// routes/routesMetodoPago.js
+const router = require('express').Router();
+const ctrl = require('../controllers/metodoPagoController');
+const verificarToken = require('../middleware/verificarToken'); // el mismo que usaste en /me
 
-// Obtener todos los métodos de pago del usuario autenticado
-router.get("/", metodoPagoController.getAllMetodosDePago);
+// Aplica auth a TODO este router
+router.use(verificarToken);
 
-// Crear un nuevo método de pago
-router.post("/", metodoPagoController.createNuevoMetodoPago);
-
-// Eliminar un método de pago por id
-router.delete("/:id", metodoPagoController.deleteMetodoPago);
-
-// Establecer un método de pago como predeterminado
-router.patch("/default/:id", metodoPagoController.establecerComoDefault);
+router.get('/',            ctrl.getAllMetodosDePago);
+router.post('/',           ctrl.createNuevoMetodoPago);
+router.delete('/:id',      ctrl.deleteMetodoPago);
+router.patch('/default/:id', ctrl.establecerComoDefault);
 
 module.exports = router;

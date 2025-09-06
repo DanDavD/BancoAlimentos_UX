@@ -2,6 +2,10 @@
 require('dotenv').config(); // Carga variables de entorno
 
 module.exports = {
+  JWT_SECRET: process.env.JWT_SECRET || 'dev-secret'
+};
+
+module.exports = {
   db: {
     user: process.env.DB_USER || 'usuario',
     password: process.env.DB_PASSWORD || 'contraseña_segura',
