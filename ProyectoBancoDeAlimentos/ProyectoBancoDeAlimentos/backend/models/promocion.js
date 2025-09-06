@@ -17,24 +17,5 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     underscored: true,
   });
-
-  /*
-  promocion.associate = (models) => {
-     promocion.belongsToMany(models.producto, {
-      through: models.promocion_producto,
-      foreignKey: 'id_promocion',
-      otherKey: 'id_producto',
-      as: 'productos',
-    });
-
-    // Si quieres promos por pedido también:
-    promocion.belongsToMany(models.pedido, {
-      through: models.promocion_pedido,
-      foreignKey: 'id_promocion',
-      otherKey: 'id_pedido',
-      as: 'pedidos',
-    });
-  };*/
-
   return promocion;
 };

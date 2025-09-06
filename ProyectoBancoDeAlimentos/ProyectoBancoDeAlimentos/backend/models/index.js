@@ -11,15 +11,14 @@ const models = {
   Usuario: require('./Usuario')
 };
 
-
-// Ejecutar asociaciones
+// Ejecutar asociaciones si el modelo tiene associate()
 Object.values(models).forEach(model => {
   if (model.associate) {
     model.associate(models);
   }
 });
 
-//Cargar todos los modelos 
+// Cargar todos los modelos
 const carrito               = require('./carrito.js')(sequelize, Sequelize.DataTypes);
 const carrito_detalle       = require('./carrito_detalle.js')(sequelize, Sequelize.DataTypes);
 const categoria             = require('./categoria.js')(sequelize, Sequelize.DataTypes);
@@ -27,8 +26,8 @@ const cupon                 = require('./cupon.js')(sequelize, Sequelize.DataTyp
 const departamento          = require('./departamento.js')(sequelize, Sequelize.DataTypes);
 const direccion             = require('./direccion.js')(sequelize, Sequelize.DataTypes);
 const historial_cupon       = require('./historial_cupon.js')(sequelize, Sequelize.DataTypes);
-const factura              = require('./factura')(sequelize, Sequelize.DataTypes);
-const factura_detalle = require('./factura_detalle.js')(sequelize, Sequelize.DataTypes);
+const factura               = require('./factura')(sequelize, Sequelize.DataTypes);
+const factura_detalle       = require('./factura_detalle.js')(sequelize, Sequelize.DataTypes);
 const imagen_producto       = require('./imagen_producto.js')(sequelize, Sequelize.DataTypes);
 const marca_producto        = require('./marca_producto.js')(sequelize, Sequelize.DataTypes);
 const municipio             = require('./municipio.js')(sequelize, Sequelize.DataTypes);
@@ -45,36 +44,35 @@ const sucursal              = require('./sucursal.js')(sequelize, Sequelize.Data
 const sucursal_producto     = require('./sucursal_producto.js')(sequelize, Sequelize.DataTypes);
 const Usuario               = require('./Usuario.js')(sequelize, Sequelize.DataTypes);
 const valoracion_producto   = require('./valoracion_producto.js')(sequelize, Sequelize.DataTypes);
-const metodo_pago           = require('./metodo_pago.js')(sequelize,Sequelize.DataTypes);
-const estado_pedido = require('./estado_pedido.js')(sequelize,Sequelize.DataTypes);
-const historial_accesos = require('./historial_accesos.js')(sequelize,Sequelize.DataTypes);
-const lista_deseos = require('./lista_deseos.js')(sequelize,Sequelize.DataTypes);
+const metodo_pago           = require('./metodo_pago.js')(sequelize, Sequelize.DataTypes);
+const estado_pedido         = require('./estado_pedido.js')(sequelize, Sequelize.DataTypes);
+const historial_accesos     = require('./historial_accesos.js')(sequelize, Sequelize.DataTypes);
+const lista_deseos          = require('./lista_deseos.js')(sequelize, Sequelize.DataTypes);
 
+// ================== ASOCIACIONES ================== //
 
 // --- Identity ---
-estado_pedido.hasMany(Usuario, { foreignKey: 'id_estado_pedido' });
-pedido.belongsTo(pedido, { foreignKey: 'id_estado_pedido' });
-
 Usuario.hasMany(historial_accesos, { foreignKey: 'id_usuario' });
 historial_accesos.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-
-estado_pedido.hasMany(pedido, { foreignKey: 'id_estado_pedido' });
-pedido.belongsTo(estado_pedido, { foreignKey: 'id_estado_pedido' });
-
-cupon.hasMany(pedido, { foreignKey: 'id_cupon' });
-pedido.belongsTo(cupon, { foreignKey: 'id_cupon' });
-
-Usuario.hasMany(lista_deseos, { foreignKey: 'id_usuario' });
-lista_deseos.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-
-producto.hasMany(lista_deseos, { foreignKey: 'id_producto' });
-lista_deseos.belongsTo(producto, { foreignKey: 'id_producto' });
 
 rol.hasMany(Usuario, { foreignKey: 'id_rol' });
 Usuario.belongsTo(rol, { foreignKey: 'id_rol' });
 
 rol.belongsToMany(privilegio, { through: rol_privilegio, foreignKey: 'id_rol', otherKey: 'id_privilegio' });
 privilegio.belongsToMany(rol, { through: rol_privilegio, foreignKey: 'id_privilegio', otherKey: 'id_rol' });
+
+// --- Pedidos / Estado ---
+estado_pedido.hasMany(pedido, { foreignKey: 'id_estado_pedido' });
+pedido.belongsTo(estado_pedido, { foreignKey: 'id_estado_pedido' });
+
+cupon.hasMany(pedido, { foreignKey: 'id_cupon' });
+pedido.belongsTo(cupon, { foreignKey: 'id_cupon' });
+
+Usuario.hasMany(pedido, { foreignKey: 'id_usuario' });
+pedido.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+
+sucursal.hasMany(pedido, { foreignKey: 'id_sucursal' });
+pedido.belongsTo(sucursal, { foreignKey: 'id_sucursal' });
 
 // --- Direcciones / Ubicación ---
 departamento.hasMany(municipio, { foreignKey: 'id_departamento' });
@@ -95,11 +93,12 @@ subcategoria.belongsTo(categoria, { foreignKey: 'id_categoria_padre' });
 
 subcategoria.hasMany(producto, { foreignKey: "id_subcategoria", as: 'productos' });
 producto.belongsTo(subcategoria, { foreignKey: "id_subcategoria", as: 'subcategoria' });
+
 // --- Producto ---
 marca_producto.hasMany(producto, { foreignKey: 'id_marca' });
 producto.belongsTo(marca_producto, { foreignKey: 'id_marca' });
 
-producto.hasMany(imagen_producto, { foreignKey: 'id_producto' });
+producto.hasMany(imagen_producto, { foreignKey: 'id_producto', as: 'imagenes' });
 imagen_producto.belongsTo(producto, { foreignKey: 'id_producto' });
 
 producto.hasMany(valoracion_producto, { foreignKey: 'id_producto' });
@@ -125,17 +124,7 @@ carrito_detalle.belongsTo(carrito, { foreignKey: 'id_carrito' });
 producto.hasMany(carrito_detalle, { foreignKey: 'id_producto' });
 carrito_detalle.belongsTo(producto, { foreignKey: 'id_producto' });
 
-// index.js
-producto.hasMany(imagen_producto, { foreignKey: 'id_producto', as: 'imagenes' });
-
-
-// --- Pedidos / Facturas ---
-Usuario.hasMany(pedido, { foreignKey: 'id_usuario' });
-pedido.belongsTo(Usuario, { foreignKey: 'id_usuario' });
-
-sucursal.hasMany(pedido, { foreignKey: 'id_sucursal' });
-pedido.belongsTo(sucursal, { foreignKey: 'id_sucursal' });
-
+// --- Facturas ---
 pedido.hasOne(factura, { foreignKey: 'id_pedido' });
 factura.belongsTo(pedido, { foreignKey: 'id_pedido' });
 
@@ -162,15 +151,21 @@ historial_cupon.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 pedido.hasMany(historial_cupon, { foreignKey: 'id_pedido' });
 historial_cupon.belongsTo(pedido, { foreignKey: 'id_pedido' });
 
-//direccion - metodo_pago
+// --- Direccion - Metodo Pago ---
 direccion.hasMany(metodo_pago, { foreignKey: 'id_direccion_facturacion' });
 metodo_pago.belongsTo(direccion, { foreignKey: 'id_direccion_facturacion' });
 
-// ---Metodos Pago---
-metodo_pago.belongsTo(Usuario,{foreigKey:'id_usuario'});
-Usuario.hasOne(metodo_pago,  { foreignKey: 'id_usuario' });
+metodo_pago.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+Usuario.hasOne(metodo_pago, { foreignKey: 'id_usuario' });
 
-// 3) Exportar todo
+// --- Lista deseos ---
+Usuario.hasMany(lista_deseos, { foreignKey: 'id_usuario' });
+lista_deseos.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+
+producto.hasMany(lista_deseos, { foreignKey: 'id_producto' });
+lista_deseos.belongsTo(producto, { foreignKey: 'id_producto' });
+
+// ================== EXPORT ================== //
 module.exports = {
   carrito,
   carrito_detalle,
@@ -199,5 +194,8 @@ module.exports = {
   valoracion_producto,
   sequelize,
   Sequelize,
-  metodo_pago
+  metodo_pago,
+  estado_pedido,
+  historial_accesos,
+  lista_deseos
 };

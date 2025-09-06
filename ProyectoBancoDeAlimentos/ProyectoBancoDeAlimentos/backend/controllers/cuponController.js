@@ -41,9 +41,43 @@ exports.allCupones = async (req, res) => {
     }
 };
 
-exports.addCupon = async (req,res) => {
-    const {} = req.body;
-}
+exports.addCupon = async (req, res) => {
+  const {codigo_cupon, id_pedido = null} = req.body;
+  const {id_usuario} = req.params;
+
+  try {
+    const cuponExistente = await models.cupon.findOne({
+      where: { codigo: codigo_cupon, activo: true }
+    });
+
+    if (!cuponExistente) {
+      return res.status(404).json({ message: 'Cupón no encontrado o inactivo' });
+    }
+
+    const usosUsuario = await models.historial_cupon.count({
+      where: { id_usuario, id_cupon: cuponExistente.id_cupon }
+    });
+
+    if (usosUsuario >= cuponExistente.uso_por_usuario) {
+      return res.status(400).json({ message: 'Ya alcanzó el límite de uso de este cupón' });
+    }
+
+    const historial = await models.historial_cupon.create({
+      id_usuario,
+      id_cupon: cuponExistente.id_cupon,
+      id_pedido,
+      fecha_usado: new Date()
+    });
+
+    return res.status(201).json({
+      message: 'Cupón agregado correctamente',
+      historial
+    });
+  } catch (error) {
+    console.error('Error agregando cupón:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
 
 exports.getAllCupones = async (req, res) => {
   try {

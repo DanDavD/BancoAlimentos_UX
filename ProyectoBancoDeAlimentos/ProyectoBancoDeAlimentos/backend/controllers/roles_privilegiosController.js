@@ -2,6 +2,13 @@ const sequelize = require('../config/db');
 const { DataTypes } = require('sequelize');
 const { Usuario, rol, privilegio, rol_privilegio } = require('../models');
 
+//falta probar add rol, ya se cambio el campo.
+//falta agregar cupon y eliminar.
+//ruta para activar verificacion de dos pasos.
+//Y una ruta para cuanfo inicie sesion si tiene activada 
+//la verificacion de dos pasos que le mande un codigo de verificación
+
+
 
 //no se puede aun porque en el model de rol, nombre_rol es un enum (tiene que ser un string)
 exports.addRol = async (req,res) => {
@@ -23,7 +30,6 @@ exports.addRol = async (req,res) => {
         await rol.create({
             nombre_rol
         });
-
         res.status(201).json({message : "rol creado exitosamente!"});
     }catch(error){
         console.error(error);
