@@ -1,5 +1,4 @@
-// ackend/controllers/productoController.js
-const { producto, imagen_producto,categoria, subcategoria} = require('../models');
+const { producto, imagen_producto, categoria, subcategoria, marca_producto  } = require('../models');
 
 // Productos destacados (últimos creados) con 1 imagen
 exports.destacados = async (req, res) => {
@@ -235,5 +234,67 @@ exports.productosRecomendados = async (req, res) => {
   }
 };
 
+exports.desactivarProducto = async (req,res) => {
+  try{
+    const {id_producto} = req.body;
 
+    const product = await producto.findByPk(id_producto);
 
+    if(!product){
+      return res.status(404).json({ message : "No se pudo encontrar el producto!"});
+    }
+
+    if (!product.activo) {
+      return res.status(400).json({ message: "El producto ya está inactivo" });
+    }
+
+    product.activo = false;
+
+    await product.save();
+    return res.status(200).json({ message: "Producto desactivado correctamente!" });
+
+  }catch(error){
+    console.error(error);
+    res.status(500).json({message : "Error al borrar producto!"});
+  }
+}
+
+exports.actualizarProducto = async (req, res) => {
+  try {
+    const { nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca } = req.body;
+    const { id_producto } = req.params;
+
+    const product = await producto.findByPk(id_producto);
+    if (!product) {
+      return res.status(404).json({ message: "No se pudo encontrar el producto!" });
+    }
+
+    const subcat = await subcategoria.findByPk(id_subcategoria);
+    if (!subcat) {
+      return res.status(400).json({ message: "La subcategoría no existe!" });
+    }
+
+    const marcaz = await marca_producto.findByPk(id_marca);
+    if (!marcaz) {
+      return res.status(400).json({ message: "La marca no existe!" });
+    }
+
+    product.nombre = nombre;
+    product.descripcion = descripcion;
+    product.precio_base = precio_base;
+    product.id_subcategoria = id_subcategoria;
+    product.porcentaje_ganancia = porcentaje_ganancia;
+    product.id_marca = id_marca;
+
+    await product.save();
+
+    return res.json({
+      message: "Producto actualizado correctamente",
+      product
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al actualizar producto!" });
+  }
+};
