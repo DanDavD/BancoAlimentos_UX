@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import Dashboard from "./dashboard.jsx";
 import Login from "./login.jsx";
 import Crear_cuenta from "./crear_cuenta.jsx";
-import Forgot_password from "./forgot_password.jsx";
+import ForgotPassword from "./forgot_password.jsx";
 import Cambiar_contraseña from "./cambiar_contraseña.jsx";
 import InicioUsuario from "./components/inicioUsuario.jsx";
 import InicioAdmin from "./components/inicioAdmin.jsx";
@@ -26,6 +26,7 @@ import UserManagementViews from "./UserManagementViews.jsx";
 import MisCupones from "./misCupones.jsx";
 import Verificacion from "./components/verificacion.jsx";
 
+import VerificarCodigo from "./verificarcodigo.jsx";
 const HEADER_HEIGHT = 144; // px
 
 function App() {
@@ -38,8 +39,8 @@ function App() {
           <Route path="/" element={<InicioUsuario />} />
           <Route path="/crear_cuenta" element={<Crear_cuenta />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/forgot_password" element={<Forgot_password />} />
-          <Route path="/cambiar_contraseña" element={<Cambiar_contraseña />} />
+          <Route path="/forgot_password" element={<ForgotPassword />} />
+          <Route path="/cambiar_contraseña" element={<Cambiar_contraseña/>} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/gestionProductos" element={<GestionProductos />} />
           <Route path="/inicioAdmin" element={<InicioAdmin />} />
@@ -58,6 +59,7 @@ function App() {
           />
           <Route path="/historialPedidos" element={<HistorialPedido />} />
           <Route path="/misCupones" element={<MisCupones />} />
+          <Route path="/verificar-codigo" element={<VerificarCodigo />} />
           <Route
             path="/userManagementViews"
             element={<UserManagementViews />}

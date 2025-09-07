@@ -18,7 +18,7 @@ export function RegistrarUser({ nombre, correo, contraseña, id_rol, telefono })
 }
 
 export function InformacionUser (id){
-  return axiosInstance.get('/api/MiPerfil/info/${id}');
+  return axiosInstance.get(`/api/MiPerfil/info/${id}`);
 }
 export function InformacionRole (id_role){
   return axiosInstance.get(`/api/MiPerfil/info/role/${id_role}`);
