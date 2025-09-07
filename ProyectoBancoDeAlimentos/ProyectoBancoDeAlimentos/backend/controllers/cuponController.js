@@ -1,44 +1,42 @@
-const sequelize = require('../config/db');
-const { DataTypes } = require('sequelize');
-const { historial_cupon, cupon } = require('../models');
-const { Op, fn, col } = require('sequelize');
+const sequelize = require("../config/db");
+const { DataTypes } = require("sequelize");
+const { historial_cupon, cupon } = require("../models");
+const { Op, fn, col } = require("sequelize");
 
 exports.allCupones = async (req, res) => {
-    try {
-        const { id_usuario } = req.params;
+  try {
+    const { id_usuario } = req.params;
 
-        const cuponesUsuario = await historial_cupon.findAll({
-            where: { id_usuario },
-            include: [
-                {
-                    model: cupon,
-                    as: 'cupon',
-                    attributes: ['código', 'descripción', 'activo']
-                }
-            ],
-            order: [['fecha_usado']]
-        });
+    const cuponesUsuario = await historial_cupon.findAll({
+      where: { id_usuario },
+      include: [
+        {
+          model: cupon,
+          as: "cupon",
+          attributes: ["codigo", "descripcion", "activo"], // usar sin tildes
+        },
+      ],
+      order: [["fecha_usado"]],
+    });
 
-        if (cuponesUsuario.length === 0) {
-            return res.status(404).json({ message: 'No se encontraron cupones!' });
-        }
-
-        const resultado = [];
-        for (const hc of cuponesUsuario) {
-            resultado.push({
-                codigo: hc.cupon.código,
-                descripcion: hc.cupon.descripción,
-                activo: hc.cupon.activo,
-                fecha_usado: hc.fecha_usado
-            });
-        }
-
-        return res.json(resultado);
-
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Error al obtener los cupones del usuario' });
+    if (cuponesUsuario.length === 0) {
+      return res.status(404).json({ message: "No se encontraron cupones!" });
     }
+
+    const resultado = cuponesUsuario.map((hc) => ({
+      codigo: hc.cupon.codigo, // sin tilde
+      descripcion: hc.cupon.descripcion, // sin tilde
+      activo: hc.cupon.activo,
+      fecha_usado: hc.fecha_usado,
+    }));
+
+    return res.json(resultado);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Error al obtener los cupones del usuario" });
+  }
 };
 
 exports.addCupon = async (req, res) => {
@@ -77,14 +75,14 @@ exports.getAllCupones = async (req, res) => {
     // Traer todos los cupones
     const cupones = await cupon.findAll({
       attributes: [
-        'id_cupon',
-        'codigo',
-        'descripcion',
-        'tipo',
-        'valor',
-        'uso_por_usuario',
-        'termina_en',
-        'activo',
+        "id_cupon",
+        "codigo",
+        "descripcion",
+        "tipo",
+        "valor",
+        "uso_por_usuario",
+        "termina_en",
+        "activo",
         // Subquery para contar cuántas veces se ha usado cada cupón
         [
           sequelize.literal(`(
@@ -92,25 +90,25 @@ exports.getAllCupones = async (req, res) => {
             FROM historial_cupon AS h
             WHERE h.id_cupon = cupon.id_cupon
           )`),
-          'usos_actuales'
-        ]
+          "usos_actuales",
+        ],
       ],
-      order: [['id_cupon', 'ASC']]
+      order: [["id_cupon", "ASC"]],
     });
 
     if (!cupones || cupones.length === 0) {
-      return res.status(404).json({ message: 'No se encontraron cupones.' });
+      return res.status(404).json({ message: "No se encontraron cupones." });
     }
 
-    const resultado = cupones.map(c => {
+    const resultado = cupones.map((c) => {
       const ahora = new Date();
       const fechaExpiracion = new Date(c.termina_en);
       const usosActuales = parseInt(c.dataValues.usos_actuales) || 0;
 
-      let estado = 'activo';
-      if (!c.activo) estado = 'inactivo';
-      else if (fechaExpiracion < ahora) estado = 'expirado';
-      else if (usosActuales >= c.uso_por_usuario) estado = 'usado';
+      let estado = "activo";
+      if (!c.activo) estado = "inactivo";
+      else if (fechaExpiracion < ahora) estado = "expirado";
+      else if (usosActuales >= c.uso_por_usuario) estado = "usado";
 
       return {
         id_cupon: c.id_cupon,
@@ -122,13 +120,12 @@ exports.getAllCupones = async (req, res) => {
         usos_actuales: usosActuales,
         fecha_expiracion: c.termina_en,
         activo: c.activo,
-        estado
+        estado,
       };
     });
 
     return res.status(200).json(resultado);
-
   } catch (error) {
-    return res.status(500).json({ message: 'Error al obtener cupones.' });
+    return res.status(500).json({ message: "Error al obtener cupones." });
   }
 };
