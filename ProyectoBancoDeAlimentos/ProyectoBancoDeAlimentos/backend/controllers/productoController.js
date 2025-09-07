@@ -227,7 +227,7 @@ exports.productosRecomendados = async (req, res) => {
         }
       ],
       order: [['estrellas', 'DESC'], ['id_producto', 'DESC']],
-      limit: 10
+      
     });
     res.json(products);
   } catch (err) {

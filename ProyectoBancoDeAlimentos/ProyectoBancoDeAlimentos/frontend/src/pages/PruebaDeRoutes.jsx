@@ -7,7 +7,7 @@ import LoginUser, {
   EditProfile,
   updateUserById,
 } from "../api/Usuario.Route";
-import { getAllProducts, getAllSucursales } from "../api/InventarioApi";
+import { getAllPorcentajeGanancia, getProductosRecomendados,updatePorcentajeGanancia } from "../api/InventarioApi";
 import { forgetPassword, validarCodigo, changePassword } from "../api/Usuario.Route";
 
 export default function TestAuth() {
@@ -16,7 +16,9 @@ export default function TestAuth() {
   useEffect(() => {
     const productos = async () => {
       try {
-        const res = await InformacionUser(1);
+        const id_producto=1;
+        const porcentaje_ganancia=0.15;
+        const res = await getProductosRecomendados( );
         console.log(res.data);
         setProducts(res.data); // Guarda productos en el estado
       } catch (err) {
@@ -32,7 +34,9 @@ export default function TestAuth() {
 
   const handleRegister = async () => {
     try {
-      const res = await InformacionUser(3);
+      const id_producto=1;
+      const porcentaje_ganancia=0.15;
+      const res = await getProductosRecomendados( );
       console.log("[REGISTER] status:", res.status);
       console.log("[REGISTER] data:", res.data);
     } catch (err) {
@@ -54,9 +58,9 @@ export default function TestAuth() {
 
       {/* Mostrar lista de productos */}
       <h3>Productos:</h3>
-      {products.length === 0 ? (
+      {Array.isArray(products) && products.length === 0 ? (
         <p>No hay productos cargados</p>
-      ) : (
+      ) : Array.isArray(products) ? (
         <ul>
           {products.map((prod, idx) => (
             <li key={idx}>
@@ -64,6 +68,8 @@ export default function TestAuth() {
             </li>
           ))}
         </ul>
+      ) : (
+        <p>Error: la respuesta no es una lista de productos</p>
       )}
     </div>
   );

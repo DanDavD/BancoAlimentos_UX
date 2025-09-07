@@ -24,4 +24,13 @@ export function getProductoById(id){
 }
 export function getImagenesProducto(id){   
     return axiosInstance.get(`/api/producto/${id}/imagenes`);
-}   
+}
+export function getAllPorcentajeGanancia(){   
+    return axiosInstance.get('/api/producto/porcentaje-ganancia');
+}
+export function updatePorcentajeGanancia(id, porcentaje_ganancia){
+    return axiosInstance.put(`/api/producto/${id}/porcentaje-ganancia`, {porcentaje_ganancia});
+}
+export function getProductosRecomendados(){
+    return axiosInstance.get('/api/producto/recomendados');
+}

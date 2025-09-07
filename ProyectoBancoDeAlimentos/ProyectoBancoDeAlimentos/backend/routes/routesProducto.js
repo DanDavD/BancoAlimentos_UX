@@ -9,9 +9,10 @@ router.get('/porcentaje-ganancia', productoCtrl.getAllPorcentajeGanancia);
 
 router.post('/', verificarToken, productoCtrl.addproducto);
 router.get('/', verificarToken, productoCtrl.listarProductos);
+router.put('/:id/porcentaje-ganancia', productoCtrl.putPorcentajeGanancia);
+
 router.get('/:id', verificarToken, productoCtrl.obtenerProductoPorId);
 router.get('/:id/imagenes', verificarToken, productoCtrl.imagenesProducto);
-router.put('/:id/porcentaje-ganancia', productoCtrl.putPorcentajeGanancia);
 
 
 module.exports = router;
