@@ -29,6 +29,7 @@ import CampanaPromocional from "./components/campanaPromocional.jsx";
 import Carrito from "./carrito.jsx";
 import VerificarCodigoAuth from "./verificarCofigoAthenticador.jsx";
 import VerificarCodigo from "./verificarcodigo.jsx";
+import { UserProvider } from "./components/userContext";
 const HEADER_HEIGHT = 144; // px
 
 function App() {
