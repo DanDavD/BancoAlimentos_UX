@@ -55,3 +55,7 @@ export function asignarPrivilegioARol (id_usuario, id_rol, id_privilegio){
 export function getRoles (){
   return axiosInstance.get('/api/roles-privilegios/mostrar-roles');
 } 
+
+export function getAllInformacionUsuario (){
+  return axiosInstance.get('/api/auth/GetAllUser');
+} 

@@ -1,5 +1,5 @@
 // controllers/usuario-info.controller.js
-const { getInformacionUsuario, getRoleWithPrivileges} = require('../services/serviceMiPerfil');
+const { getInformacionUsuario, getRoleWithPrivileges,getAllInformacionUsuario} = require('../services/serviceMiPerfil');
 const { editPerfil } = require('../services/serviceMiPerfil');
 
 function getAuthUserId(req) {
@@ -103,4 +103,19 @@ exports.updateById = async (req, res) => {
   }
 
 
+};
+
+
+
+exports.GetAllUser = async (req, res) => {
+  try {
+    const data = await getAllInformacionUsuario();
+    return res.status(200).json(data);
+  } catch (e) {
+    const msg = String(e?.message || e);
+    if (msg.includes('Usuario no encontrado')) {
+      return res.status(404).json({ message: msg });
+    }
+    return res.status(400).json({ message: msg });
+  }
 };

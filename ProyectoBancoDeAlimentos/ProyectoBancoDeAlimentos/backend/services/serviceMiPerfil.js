@@ -114,4 +114,17 @@ async function editPerfil(id_usuario, payload = {}, options = {}) {
   return toSafeUser(reloaded);
 }
 
-module.exports = { getInformacionUsuario,getRoleWithPrivileges,editPerfil };
+async function getAllInformacionUsuario() {
+  const user = Usuario.findAll({
+    attributes: { exclude: ['contraseña'] },
+    include: [
+      { model: rol, attributes: ['id_rol', 'nombre_rol'] },
+      { model: direccion, attributes: ['id_direccion','calle','ciudad','codigo_postal','predeterminada'] },
+    ],
+    order: [[direccion, 'id_direccion', 'ASC']]
+  });
+
+  if (!user) throw new Error('Usuario no encontrado.');
+  return user;
+}
+module.exports = { getInformacionUsuario,getRoleWithPrivileges,editPerfil,getAllInformacionUsuario };

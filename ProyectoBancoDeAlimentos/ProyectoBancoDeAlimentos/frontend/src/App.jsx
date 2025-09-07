@@ -50,7 +50,7 @@ function App() {
             />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/gestionProductos" element={<GestionProductos />} />
-            <Route path="/inicioAdmin" element={<InicioAdmin />} />
+            <Route path="/inicio" element={<InicioAdmin />} />
             <Route path="/inventario" element={<Inventario />} />
             <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
             <Route path="/miPerfil" element={<MiPerfil />} />
