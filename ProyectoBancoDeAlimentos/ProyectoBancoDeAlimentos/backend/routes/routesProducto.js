@@ -5,12 +5,12 @@ const verificarToken = require('../middleware/verificarToken'); // si quieres pr
 
 router.get('/destacados', productoCtrl.destacados);
 router.get('/tendencias', productoCtrl.tendencias);
-router.get('/', verificarToken, productoCtrl.listarProductos);
-router.get('/:id', verificarToken, productoCtrl.obtenerProductoPorId);
+router.get('/', productoCtrl.listarProductos);
+router.get('/:id', productoCtrl.obtenerProductoPorId);
 
 router.post('/', verificarToken, productoCtrl.addproducto);
 
-router.get('/:id/imagenes', verificarToken, productoCtrl.imagenesProducto);
+router.get('/:id/imagenes', productoCtrl.imagenesProducto);
 
 
 

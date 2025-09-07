@@ -2,9 +2,13 @@
 const { getInformacionUsuario, getRoleWithPrivileges} = require('../services/serviceMiPerfil');
 const { editPerfil } = require('../services/serviceMiPerfil');
 
+function getAuthUserId(req) {
+  return req.user?.id_usuario ?? req.auth?.userId ?? null;
+}
+
 exports.infoMe = async (req, res) => {
   try {
-    const id = req.auth?.userId;
+    const id = getAuthUserId(req);
     if (!id) return res.status(401).json({ message: 'No autenticado' });
 
     const data = await getInformacionUsuario({ id_usuario: Number(id) });
@@ -25,7 +29,7 @@ exports.infoMe = async (req, res) => {
  */
 exports.infoById = async (req, res) => {
   try {
-    const id = Number(req.params.id);
+    const id = getAuthUserId(req);
     if (!Number.isInteger(id) || id <= 0) {
       return res.status(400).json({ message: 'id inválido' });
     }
@@ -43,7 +47,7 @@ exports.infoById = async (req, res) => {
 
 exports.infoRoleById = async (req, res) => {
   try {
-    const id = parseInt(req.params.id_role, 10);
+    const id = getAuthUserId(req);
     if (!Number.isFinite(id) || id <= 0) {
       return res.status(400).json({ message: 'id inválido' });
     }
@@ -62,7 +66,7 @@ exports.infoRoleById = async (req, res) => {
 
 exports.updateMe = async (req, res) => {
   try {
-    const id = req.auth?.userId ?? req.user?.id_usuario;
+    const id = getAuthUserId(req);
     if (!id) return res.status(401).json({ message: 'No autenticado' });
 
     // calcula isAdmin desde el token o el usuario cargado por el middleware
@@ -79,7 +83,7 @@ exports.updateMe = async (req, res) => {
 
 exports.updateById = async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
+    const id = getAuthUserId(req);
     if (!Number.isFinite(id) || id <= 0) {
       return res.status(400).json({ message: 'id inválido' });
     }
