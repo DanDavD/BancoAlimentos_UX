@@ -1,5 +1,5 @@
-// backend/controllers/productoController.js
-const { producto, imagen_producto } = require('../models');
+// ackend/controllers/productoController.js
+const { producto, imagen_producto,categoria, subcategoria} = require('../models');
 
 // Productos destacados (últimos creados) con 1 imagen
 exports.destacados = async (req, res) => {
@@ -171,3 +171,69 @@ exports.imagenesProducto = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// PUT /api/productos/:id/porcentaje-ganancia
+exports.putPorcentajeGanancia = async (req, res) => {
+  try {
+    const { porcentaje_ganancia } = req.body;
+    if (porcentaje_ganancia === undefined || porcentaje_ganancia < 0)
+      return res.status(400).json({ msg: 'porcentaje_ganancia debe ser >= 0' });
+
+    const [rows] = await producto.update(
+      { porcentaje_ganancia },
+      { where: { id_producto: req.params.id } }
+    );
+    if (!rows) return res.status(404).json({ msg: 'Producto no encontrado' });
+    res.json({ msg: 'Margen actualizado', porcentaje_ganancia });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /api/productos/porcentaje-ganancia
+exports.getAllPorcentajeGanancia = async (_req, res) => {
+  try {
+    const cats = await categoria.findAll({
+      attributes: ["id_categoria", "nombre", "PorcentajeDeGananciaMinimo"]
+    });
+    return res.json(cats);
+  } catch (err) {
+    console.error("GetAllPorcentajeDeGananciasEnCategoria error:", err);
+    return res.status(500).json({ error: "No se pudieron obtener los porcentajes." });
+  }
+};
+
+exports.productosRecomendados = async (req, res) => {
+  try {
+    const products = await producto.findAll({
+      where: { activo: true },
+      attributes: [
+        'id_producto',
+        'nombre',
+        'descripcion',
+        'precio_base',
+        'unidad_medida',
+        'estrellas',
+        'id_subcategoria'
+      ],
+      include: [
+        {
+          model: imagen_producto,
+          as: 'imagenes',                 
+          attributes: ['url_imagen'],
+          limit: 1,                       
+          separate: true,                 
+          order: [['orden_imagen', 'ASC']]
+        }
+      ],
+      order: [['estrellas', 'DESC'], ['id_producto', 'DESC']],
+      limit: 10
+    });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+
