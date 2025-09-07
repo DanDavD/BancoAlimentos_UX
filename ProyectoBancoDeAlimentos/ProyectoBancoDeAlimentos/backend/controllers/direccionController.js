@@ -2,6 +2,7 @@ const sequelize = require('../config/db');
 const { DataTypes } = require('sequelize');
 const direccion = require('../models/direccion')(sequelize, DataTypes);
 const Usuario = require('../models/Usuario')(sequelize, DataTypes);
+const { municipio, departamento } = require('../models');
 
 //esta funcion tiene un sequel interno, no crea si la pk ya existe
 exports.addDirection = async (req,res) => {
@@ -159,4 +160,29 @@ exports.eliminarDireccion = async (req, res) => {
         console.error(error);
         return res.status(500).json({ message: 'Error al eliminar la direccion!' });
     }
+};
+
+
+// Obtener todos los municipios
+exports.getAllMunicipios = async (req, res) => {
+  try {
+    const municipios = await municipio.findAll({
+      attributes: ['id_municipio', 'nombre_municipio', 'id_departamento']
+    });
+    res.json(municipios);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Obtener todos los departamentos
+exports.getAllDepartamentos = async (req, res) => {
+  try {
+    const departamentos = await departamento.findAll({
+      attributes: ['id_departamento', 'nombre_departamento']
+    });
+    res.json(departamentos);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

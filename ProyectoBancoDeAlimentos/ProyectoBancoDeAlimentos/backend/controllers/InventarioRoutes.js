@@ -37,7 +37,6 @@ exports.putAbastecerPorSucursalProducto = async (req, res) => {
       id_producto,
       cantidad,
       modo,       // 'sumar' (default en service) | 'reemplazar'
-      etiquetas   // opcional
     });
 
     return res.status(200).json(data);
@@ -54,8 +53,8 @@ exports.putAbastecerPorBody = async (req, res) => {
       id_sucursal,
       id_producto,
       cantidad,
-      modo,
-      etiquetas
+      modo
+
     });
 
     return res.status(200).json(data);

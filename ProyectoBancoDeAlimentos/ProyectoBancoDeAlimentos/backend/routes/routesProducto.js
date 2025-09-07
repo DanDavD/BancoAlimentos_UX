@@ -14,7 +14,7 @@ router.put('/:id/porcentaje-ganancia', productoCtrl.putPorcentajeGanancia);
 router.get('/:id', verificarToken, productoCtrl.obtenerProductoPorId);
 router.get('/:id/imagenes', verificarToken, productoCtrl.imagenesProducto);
 
-router.patch('/desactivar', productoCtrl.desactivarProducto);
+router.patch('/desactivar/:id_producto', productoCtrl.desactivarProducto);
 router.put('/actualizar-producto/:id_producto', productoCtrl.actualizarProducto);
 
 

@@ -3,6 +3,9 @@ const router = express.Router();
 
 const direccionController = require('../controllers/direccionController');
 
+
+router.get('/municipios', direccionController.getAllMunicipios);
+router.get('/departamentos', direccionController.getAllDepartamentos);
 router.post('/:id_usuario',direccionController.addDirection);
 router.get('/:id_usuario', direccionController.allDirections);
 router.patch('/:id_usuario', direccionController.direccionDefault);

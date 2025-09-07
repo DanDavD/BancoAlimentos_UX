@@ -32,6 +32,12 @@ export function addDireccion({id_usuario,calle,ciudad,codigo_postal,predetermina
 export function getDirecciones(id_usuario) {
   return axiosInstance.get(`/api/direcciones/${id_usuario}`);
 }
+export function getAllMunicipios() {
+  return axiosInstance.get(`/api/direcciones/municipios`);
+}
+export function getAllDepartamentos() {
+  return axiosInstance.get(`/api/direcciones/departamentos`);
+}
 
 export function setDireccionDefault({ id_usuario, id_direccion }) {
   return axiosInstance.put(`/api/direcciones/${id_usuario}/${id_direccion}`);
@@ -39,3 +45,4 @@ export function setDireccionDefault({ id_usuario, id_direccion }) {
 export function eliminarDireccionApi({ id_usuario, id_direccion }) {
   return axiosInstance.delete(`/api/direcciones/${id_usuario}/${id_direccion}`);
 }
+

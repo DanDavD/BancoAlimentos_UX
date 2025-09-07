@@ -11,14 +11,15 @@ exports.destacados = async (req, res) => {
         'descripcion',
         'precio_base',
         'unidad_medida',
-        'estrellas'
+        'estrellas',
+        'etiquetas'
       ],
       include: [
         {
           model: imagen_producto,
           attributes: ['url_imagen'],
           limit: 1,
-          separate: true,          // asegura que el limit funcione por asociación
+          separate: true,          
           order: [['orden_imagen', 'ASC']]
         }
       ],
@@ -41,7 +42,9 @@ exports.tendencias = async (req, res) => {
         'nombre',
         'descripcion',
         'precio_base',
-        'estrellas'
+        'estrellas',
+        'etiquetas'
+
       ],
       include: [
         {
@@ -72,10 +75,13 @@ exports.listarProductos = async (req, res) => {
         'descripcion',
         'precio_base',
         'unidad_medida',
-        'estrellas'
+        'estrellas',
+        'etiquetas'
       ],
       include: [
-        { model: imagen_producto, attributes: ['url_imagen', 'orden_imagen'] }
+        { model: imagen_producto, as: 'imagenes', attributes: ['url_imagen', 'orden_imagen'] },
+        { model: subcategoria, as: 'subcategoria', attributes: ['id_subcategoria', 'nombre'] },
+        { model: marca_producto, as: 'marca_producto', attributes: ['id_marca_producto', 'nombre'] }
       ],
       order: [['id_producto', 'DESC']]
     });
@@ -97,7 +103,8 @@ exports.obtenerProductoPorId = async (req, res) => {
         'descripcion',
         'precio_base',
         'unidad_medida',
-        'estrellas'
+        'estrellas',
+        'etiquetas'
       ],
       include: [
         { model: imagen_producto, attributes: ['url_imagen', 'orden_imagen'] }
@@ -213,6 +220,7 @@ exports.productosRecomendados = async (req, res) => {
         'precio_base',
         'unidad_medida',
         'estrellas',
+        'etiquetas',
         'id_subcategoria'
       ],
       include: [
@@ -233,15 +241,16 @@ exports.productosRecomendados = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+// PATCH /api/producto/desactivar/:id_producto
 
-exports.desactivarProducto = async (req,res) => {
-  try{
-    const {id_producto} = req.body;
+exports.desactivarProducto = async (req, res) => {
+  try {
+    const { id_producto } = req.params; // <-- Corrige req.params para obtener el ID del producto
 
     const product = await producto.findByPk(id_producto);
 
-    if(!product){
-      return res.status(404).json({ message : "No se pudo encontrar el producto!"});
+    if (!product) {
+      return res.status(404).json({ message: "No se pudo encontrar el producto!" });
     }
 
     if (!product.activo) {
@@ -253,21 +262,24 @@ exports.desactivarProducto = async (req,res) => {
     await product.save();
     return res.status(200).json({ message: "Producto desactivado correctamente!" });
 
-  }catch(error){
+  } catch (error) {
     console.error(error);
-    res.status(500).json({message : "Error al borrar producto!"});
+    res.status(500).json({ message: "Error al borrar producto!" });
   }
-}
-
+};
+//PUT /api/producto/actualizar-producto/:id_producto
 exports.actualizarProducto = async (req, res) => {
   try {
-    const { nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca } = req.body;
+    const { nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida, activo } = req.body;
     const { id_producto } = req.params;
 
     const product = await producto.findByPk(id_producto);
     if (!product) {
       return res.status(404).json({ message: "No se pudo encontrar el producto!" });
     }
+    const cat = await categoria.findOne({
+      include: [{ model: subcategoria, where: { id_subcategoria } }]
+    });
 
     const subcat = await subcategoria.findByPk(id_subcategoria);
     if (!subcat) {
@@ -282,9 +294,13 @@ exports.actualizarProducto = async (req, res) => {
     product.nombre = nombre;
     product.descripcion = descripcion;
     product.precio_base = precio_base;
+    product.cat = cat;
+    product.unidad_medida = unidad_medida;
     product.id_subcategoria = id_subcategoria;
     product.porcentaje_ganancia = porcentaje_ganancia;
     product.id_marca = id_marca;
+    product.etiquetas = etiquetas;
+    product.activo = activo;
 
     await product.save();
 

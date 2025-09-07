@@ -7,8 +7,8 @@ export function getAllSucursales(){
     return axiosInstance.get('/api/Inventario/sucursales');
 }
 
-export function abastecerPorSucursalProducto(id_sucursal, id_producto, cantidad, modo='sumar', etiquetas){
-    return axiosInstance.put(`/api/Inventario/abastecer/sucursal/${id_sucursal}/producto/${id_producto}`, {cantidad, modo, etiquetas});
+export function abastecerPorSucursalProducto(id_sucursal, id_producto, cantidad, modo='sumar'){
+    return axiosInstance.put(`/api/Inventario/abastecer/sucursal/${id_sucursal}/producto/${id_producto}`, {cantidad, modo});
 }   
 
 export function getProductosDestacados(){
@@ -45,8 +45,8 @@ export function getCuponesByUser(id_usuario){
     return axiosInstance.get(`/api/cupones/${id_usuario}`);
 }
 export function desactivarProducto(id_producto){
-    return axiosInstance.patch('/api/producto/desactivar', {id_producto});
+    return axiosInstance.patch(`/api/producto/desactivar/${id_producto}`);
 }
-export function actualizarProducto(id_producto, nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca){
-    return axiosInstance.put(`/api/producto/actualizar-producto/${id_producto}`, {nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca});
+export function actualizarProducto(id_producto, nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida, activo){
+    return axiosInstance.put(`/api/producto/actualizar-producto/${id_producto}`, {nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida, activo});
 }
