@@ -3,7 +3,7 @@ import "./misDirecciones.css";
 import PerfilSidebar from "./components/perfilSidebar";
 import * as Icon from "lucide-react";
 import EditarDireccionModal from "./editarDireccionModal";
-import { getDirecciones, addDireccion, setDireccionDefault } from "./api/DireccionesApi";
+import { getDirecciones, addDireccion, setDireccionDefault, eliminarDireccionApi } from "./api/DireccionesApi";
 import { jwtDecode } from "jwt-decode";
 
 export default function MisDirecciones() {
@@ -126,7 +126,7 @@ export default function MisDirecciones() {
   const removeRow = async (id) => {
     try {
       const id_usuario = getUserId();
-      await deleteDireccion({ id_usuario, id_direccion: id });
+      await eliminarDireccionApi({ id_usuario, id_direccion: id });
       const res = await getDirecciones(id_usuario);
       setDirecciones(res.data);
     } catch (err) {

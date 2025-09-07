@@ -1,4 +1,3 @@
-import { eliminarDireccion } from '../../../backend/controllers/direccionController';
 import axiosInstance from './axiosInstance';
 
 
@@ -37,6 +36,6 @@ export function getDirecciones(id_usuario) {
 export function setDireccionDefault({ id_usuario, id_direccion }) {
   return axiosInstance.put(`/api/direcciones/${id_usuario}/${id_direccion}`);
 }
-export function eliminarDireccion({ id_usuario, id_direccion }) {
+export function eliminarDireccionApi({ id_usuario, id_direccion }) {
   return axiosInstance.delete(`/api/direcciones/${id_usuario}/${id_direccion}`);
 }
