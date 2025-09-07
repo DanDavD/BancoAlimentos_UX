@@ -33,46 +33,57 @@ const HEADER_HEIGHT = 144; // px
 
 function App() {
   return (
-    <div className="App">
-      <Headerr />
+    <UserProvider>
+      <div className="App">
+        <Headerr />
 
-      <div style={{ marginTop: `${HEADER_HEIGHT}px` }}>
-        <Routes>
-          <Route path="/" element={<InicioUsuario />} />
-          <Route path="/crear_cuenta" element={<Crear_cuenta />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/forgot_password" element={<ForgotPassword />} />
-          <Route path="/cambiar_contraseña" element={<Cambiar_contraseña/>} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/gestionProductos" element={<GestionProductos />} />
-          <Route path="/inicioAdmin" element={<InicioAdmin />} />
-          <Route path="/inventario" element={<Inventario />} />
-          <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
-          <Route path="/miPerfil" element={<MiPerfil />} />
-          <Route path="/misPedidos" element={<MisPedidos />} />
-          <Route path="/pedidoEmergente" element={<PedidoEmergente />} />
-          <Route path="/misDirecciones" element={<MisDirecciones />} />
-          <Route path="/metodoPago" element={<MetodoPago />} />
-          <Route path="/Prueba" element={<TestAuth />} />
-          <Route path="/producto/:id" element={<AgregarCarrito />} />
-          <Route
-            path="/compararProductos/:id1/:id2"
-            element={<CompararProducto />}
-          />
-          <Route path="/historialPedidos" element={<HistorialPedido />} />
-          <Route path="/misCupones" element={<MisCupones />} />
-          <Route path="/verificar-codigo" element={<VerificarCodigo />} />
-          <Route
-            path="/userManagementViews"
-            element={<UserManagementViews />}
-          />
-          <Route path="/verificacion" element={<Verificacion />} />
-          <Route path="/campanaPromocional" element={<CampanaPromocional />} />
-          <Route path="/carrito" element={<Carrito />} />
-          <Route path="/verificar-codigoAuth" element={<VerificarCodigoAuth />} />
-        </Routes>
+        <div style={{ marginTop: `${HEADER_HEIGHT}px` }}>
+          <Routes>
+            <Route path="/" element={<InicioUsuario />} />
+            <Route path="/crear_cuenta" element={<Crear_cuenta />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot_password" element={<ForgotPassword />} />
+            <Route
+              path="/cambiar_contraseña"
+              element={<Cambiar_contraseña />}
+            />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/gestionProductos" element={<GestionProductos />} />
+            <Route path="/inicioAdmin" element={<InicioAdmin />} />
+            <Route path="/inventario" element={<Inventario />} />
+            <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
+            <Route path="/miPerfil" element={<MiPerfil />} />
+            <Route path="/misPedidos" element={<MisPedidos />} />
+            <Route path="/pedidoEmergente" element={<PedidoEmergente />} />
+            <Route path="/misDirecciones" element={<MisDirecciones />} />
+            <Route path="/metodoPago" element={<MetodoPago />} />
+            <Route path="/Prueba" element={<TestAuth />} />
+            <Route path="/producto/:id" element={<AgregarCarrito />} />
+            <Route
+              path="/compararProductos/:id1/:id2"
+              element={<CompararProducto />}
+            />
+            <Route path="/historialPedidos" element={<HistorialPedido />} />
+            <Route path="/misCupones" element={<MisCupones />} />
+            <Route path="/verificar-codigo" element={<VerificarCodigo />} />
+            <Route
+              path="/userManagementViews"
+              element={<UserManagementViews />}
+            />
+            <Route path="/verificacion" element={<Verificacion />} />
+            <Route
+              path="/campanaPromocional"
+              element={<CampanaPromocional />}
+            />
+            <Route path="/carrito" element={<Carrito />} />
+            <Route
+              path="/verificar-codigoAuth"
+              element={<VerificarCodigoAuth />}
+            />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </UserProvider>
   );
 }
 

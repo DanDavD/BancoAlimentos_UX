@@ -2,47 +2,40 @@ import "./login.css";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import LoginUser from "./api/Usuario.Route";
-import { InformacionUser,forgetPassword } from "./api/Usuario.Route";
 
 const Login = () => {
-
-const [correo, setCorreo] = useState("");
+  const [correo, setCorreo] = useState("");
   const [contraseña, setContrasena] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  
-  async function tiene2FAPorId(id) {
-  const { data } = await InformacionUser(id); // p.ej. 2
-  return Boolean(data?.autenticacion_dos_pasos);
-  }
 
-  async function enviarCodigo() {
-      try {
-        await forgetPassword(correo);
-        console.log("correox2:", correo);
-        alert("Te enviamos un código a tu correo.");
-        navigate("/verificar-codigoAuth", { state: { correo } });
-      } catch (err) {
-        alert(err?.response?.data?.error || "No se pudo enviar el correo.");
-      } finally {
-        setLoading(false);
-      }
-    }
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!correo || !contraseña) return alert("Ingresa correo y contraseña.");
+
+    // Validación básica
+    if (!correo || !contraseña) {
+      return alert("Ingresa correo y contraseña.");
+    }
+
     try {
       setLoading(true);
 
+      // Llamada al backend
       const res = await LoginUser({ correo, contraseña });
-      if (res.data?.token) localStorage.setItem("token", res.data.token);
+
+      // Guardar token si existe
+      if (res.data?.token) {
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("rol", res.data.user.rol); // Guardamos el rol
+      }
+
       console.log("LOGIN OK:", res.data);
 
-      const enabled = await tiene2FAPorId(2);
-      if (enabled) {
-        await enviarCodigo();
+      // Redirigir según rol
+      if (res.data.user.rol === "ADMINISTRADOR") {
+        navigate("/inicioAdmin"); // admin
       } else {
-        navigate("/"); // Ir a página principal
+        navigate("/inicioUsuario"); // cliente
       }
     } catch (err) {
       console.error(err?.response?.data || err);
@@ -60,8 +53,8 @@ const [correo, setCorreo] = useState("");
         Inicia sesion para comprar facil, rapido y seguro
       </p>
 
-      <hr class="linea"></hr>
-      
+      <hr className="linea"></hr>
+
       <form onSubmit={onSubmit}>
         <div className="input-wrapper" style={{ marginLeft: 100 }}>
           <input
@@ -86,17 +79,19 @@ const [correo, setCorreo] = useState("");
           />
         </div>
 
-      <Link
-        to="/forgot_password"
-        className="forgot-pass-link"
-        rel="noopener noreferrer"
-      >
-        Olvidaste tu contraseña?
-      </Link>
+        <Link
+          to="./forgot_password"
+          className="forgot-pass-link"
+          rel="noopener noreferrer"
+        >
+          Olvidaste tu contraseña?
+        </Link>
 
-      <button className="login-button">Inicia Sesión</button>
-    </form>
-      <Link to="/crear_cuenta" className="new-link" rel="noopener noreferrer">
+        <button className="login-button" disabled={loading}>
+          {loading ? "Cargando..." : "Inicia Sesión"}
+        </button>
+      </form>
+      <Link to="./crear_cuenta" className="new-link" rel="noopener noreferrer">
         Nuevo aquí?
       </Link>
     </div>

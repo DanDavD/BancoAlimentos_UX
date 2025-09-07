@@ -11,16 +11,15 @@ import checkout from "../images/checkout.png";
 import soporte from "../images/soporte.png";
 import idioma from "../images/idioma.png";
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "./userContext";
 
 const Headerr = ({ isAdminPage }) => {
-  const navigate = useNavigate();
-
   const [logMenu, setLogOpen] = useState(false);
+  const { userRole, loading } = useContext(UserContext);
+  const isAdmin = userRole === "admin";
 
-  const handleCarritoClick = () => {
-    navigate(`/carrito`);
-  };
+  if (loading) return null;
 
   return (
     <div style={{ ...styles.fixedShell, boxShadow: "none" }}>
@@ -42,7 +41,7 @@ const Headerr = ({ isAdminPage }) => {
             </button>
           </div>
 
-          <button style={styles.SmallWrapper} onClick={handleCarritoClick}>
+          <button style={styles.SmallWrapper}>
             <img src={CartIcon} alt="CartIcon" style={styles.icon} />
           </button>
         </div>
@@ -110,93 +109,96 @@ const Headerr = ({ isAdminPage }) => {
         </div>
       </div>
 
-      <div style={styles.bottomBar}>
-        <nav style={styles.nav} aria-label="Categorías">
-          <a
-            href="#"
-            style={styles.navLink}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#D8572F")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
-          >
-            <img src={historialAct} alt="" style={styles.navIcon} />
-            Historial
-          </a>
+      {/* ⬇️ BottomBar solo se renderiza si NO es admin */}
+      {!isAdmin && (
+        <div style={styles.bottomBar}>
+          <nav style={styles.nav} aria-label="Categorías">
+            <a
+              href="#"
+              style={styles.navLink}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#D8572F")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              <img src={historialAct} alt="" style={styles.navIcon} />
+              Historial
+            </a>
 
-          <a
-            href="#"
-            style={styles.navLink}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#D8572F")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
-          >
-            <img src={sistemaVal} alt="" style={styles.navIcon} />
-            Sistema de Valoración
-          </a>
+            <a
+              href="#"
+              style={styles.navLink}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#D8572F")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              <img src={sistemaVal} alt="" style={styles.navIcon} />
+              Sistema de Valoración
+            </a>
 
-          <a
-            href="#"
-            style={styles.navLink}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#D8572F")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
-          >
-            <img src={reportesPer} alt="" style={styles.navIcon} />
-            Reportes Personales
-          </a>
+            <a
+              href="#"
+              style={styles.navLink}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#D8572F")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              <img src={reportesPer} alt="" style={styles.navIcon} />
+              Reportes Personales
+            </a>
 
-          <a
-            href="#"
-            style={styles.navLink}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#D8572F")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
-          >
-            <img src={checkout} alt="" style={styles.navIcon} />
-            Checkout
-          </a>
+            <a
+              href="#"
+              style={styles.navLink}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#D8572F")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              <img src={checkout} alt="" style={styles.navIcon} />
+              Checkout
+            </a>
 
-          <a
-            href="#"
-            style={styles.navLink}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#D8572F")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
-          >
-            <img src={soporte} alt="" style={styles.navIcon} />
-            Soporte
-          </a>
+            <a
+              href="#"
+              style={styles.navLink}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#D8572F")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              <img src={soporte} alt="" style={styles.navIcon} />
+              Soporte
+            </a>
 
-          <a
-            href="#"
-            style={styles.navLink}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "#D8572F")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.backgroundColor = "transparent")
-            }
-          >
-            <img src={idioma} alt="" style={styles.navIcon} />
-            Idioma
-          </a>
-        </nav>
-      </div>
+            <a
+              href="#"
+              style={styles.navLink}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = "#D8572F")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
+            >
+              <img src={idioma} alt="" style={styles.navIcon} />
+              Idioma
+            </a>
+          </nav>
+        </div>
+      )}
     </div>
   );
 };
