@@ -1,32 +1,42 @@
-const { Op } = require('sequelize');
-const {sequelize,producto, categoria, subcategoria, sucursal_producto, sucursal,carrito, carrito_detalle,marca_producto,imagen_producto} = require('../models');
-
+const { Op } = require("sequelize");
+const {
+  sequelize,
+  producto,
+  categoria,
+  subcategoria,
+  sucursal_producto,
+  sucursal,
+  carrito,
+  carrito_detalle,
+  marca_producto,
+  imagen_producto,
+} = require("../models");
 
 async function GetAllProductos() {
   const productosList = await producto.findAll({
     attributes: [
-      'id_producto',
-      'nombre',
-      'descripcion',
-      'precio_base',
-      'unidad_medida',
-      'activo',
-      'id_marca',
-      'id_subcategoria',
-      'porcentaje_ganancia',
-      'estrellas',
+      "id_producto",
+      "nombre",
+      "descripcion",
+      "precio_base",
+      "unidad_medida",
+      "activo",
+      "id_marca",
+      "id_subcategoria",
+      "porcentaje_ganancia",
+      "estrellas",
     ],
     include: [
       // producto -> subcategoria (alias definido en producto.associate)
       {
         model: subcategoria,
-        as: 'subcategoria',
-        attributes: ['id_subcategoria', 'nombre', 'id_categoria_padre'],
+        as: "subcategoria",
+        attributes: ["id_subcategoria", "nombre", "id_categoria_padre"],
         // subcategoria -> categoria (SIN alias en tus asociaciones globales)
         include: [
           {
             model: categoria,
-            attributes: ['id_categoria', 'nombre', 'icono_categoria'],
+            attributes: ["id_categoria", "nombre", "icono_categoria"],
           },
         ],
       },
@@ -34,44 +44,52 @@ async function GetAllProductos() {
       // producto -> marca_producto (alias 'marca' en producto.associate)
       {
         model: marca_producto,
-        attributes: ['id_marca_producto', 'nombre'],
+        attributes: ["id_marca_producto", "nombre"],
       },
 
       // producto -> imagen_producto (alias 'imagenes')
       {
-  model: imagen_producto,
-  attributes: ['id_imagen','url_imagen','orden_imagen'],
-  separate: true,
-  order: [['orden_imagen','ASC']]
-}
-,
-
+        model: imagen_producto,
+        as: "imagenes",
+        attributes: ["id_imagen", "url_imagen", "orden_imagen"],
+        separate: true,
+        order: [["orden_imagen", "ASC"]],
+      },
       // producto -> sucursal_producto (alias 'stock_sucursales')
       {
         model: sucursal_producto,
-        attributes: ['id_sucursal_producto', 'id_sucursal', 'etiquetas', 'stock_disponible'],
+        attributes: [
+          "id_sucursal_producto",
+          "id_sucursal",
+          "etiquetas",
+          "stock_disponible",
+        ],
         include: [
           // sucursal_producto -> sucursal (SIN alias)
-          { model: sucursal, attributes: ['id_sucursal', 'nombre_sucursal', 'activo'] },
+          {
+            model: sucursal,
+            attributes: ["id_sucursal", "nombre_sucursal", "activo"],
+          },
         ],
-        separate: true,                 // hasMany: ideal si quieres ordenar/paginar hijos
-        order: [['id_sucursal_producto', 'ASC']],
+        separate: true, // hasMany: ideal si quieres ordenar/paginar hijos
+        order: [["id_sucursal_producto", "ASC"]],
       },
     ],
-    order: [['id_producto', 'ASC']],
+    order: [["id_producto", "ASC"]],
   });
 
   if (!productosList || productosList.length === 0) {
-    throw new Error('No se encontraron productos.');
+    throw new Error("No se encontraron productos.");
   }
   return productosList;
 }
 
-async function GetSucursales(){
-    const sucursales = await sucursal.findAll();
-    if (!sucursales || sucursales.length === 0) {
-    throw new Error('No se encontro ninguna sucursal.');}
-    return sucursales;
+async function GetSucursales() {
+  const sucursales = await sucursal.findAll();
+  if (!sucursales || sucursales.length === 0) {
+    throw new Error("No se encontro ninguna sucursal.");
+  }
+  return sucursales;
 }
 
 function toInt(v) {
@@ -79,37 +97,38 @@ function toInt(v) {
   return Number.isInteger(n) ? n : NaN;
 }
 
-
 async function abastecerPorProductoSucursal({
   id_sucursal,
   id_producto,
   cantidad,
-  modo = 'sumar',
-  etiquetas
+  modo = "sumar",
+  etiquetas,
 }) {
   const sid = toInt(id_sucursal);
   const pid = toInt(id_producto);
 
   if (Number.isNaN(sid) || Number.isNaN(pid)) {
-    throw new Error('id_sucursal o id_producto inválido');
+    throw new Error("id_sucursal o id_producto inválido");
   }
 
   const c = Number(cantidad);
-  if (!Number.isFinite(c)) throw new Error('cantidad inválida');
+  if (!Number.isFinite(c)) throw new Error("cantidad inválida");
 
-  if (modo === 'sumar') {
+  if (modo === "sumar") {
     if (!Number.isInteger(c) || c <= 0) {
       throw new Error('cantidad inválida: en "sumar" debe ser entero > 0');
     }
-  } else if (modo === 'reemplazar') {
+  } else if (modo === "reemplazar") {
     if (!Number.isInteger(c) || c < 0) {
-      throw new Error('cantidad inválida: en "reemplazar" debe ser entero >= 0');
+      throw new Error(
+        'cantidad inválida: en "reemplazar" debe ser entero >= 0'
+      );
     }
   } else {
     throw new Error('modo inválido: usa "sumar" o "reemplazar"');
   }
 
-  if (etiquetas != null && !['Nuevo', 'En oferta'].includes(etiquetas)) {
+  if (etiquetas != null && !["Nuevo", "En oferta"].includes(etiquetas)) {
     throw new Error('etiquetas inválida: usa "Nuevo" o "En oferta"');
   }
 
@@ -122,12 +141,14 @@ async function abastecerPorProductoSucursal({
     });
 
     if (!sp) {
-      throw new Error('No existe relación producto-sucursal (sucursal_producto) para esos IDs');
+      throw new Error(
+        "No existe relación producto-sucursal (sucursal_producto) para esos IDs"
+      );
     }
 
     // 2) Actualizar stock según el modo
-    if (modo === 'sumar') {
-      await sp.increment('stock_disponible', { by: c, transaction: t });
+    if (modo === "sumar") {
+      await sp.increment("stock_disponible", { by: c, transaction: t });
       if (etiquetas != null) {
         sp.etiquetas = etiquetas;
         await sp.save({ transaction: t });
@@ -141,8 +162,11 @@ async function abastecerPorProductoSucursal({
     // 3) Recargar con includes útiles (si tienes asociaciones definidas)
     await sp.reload({
       include: [
-        { model: producto, attributes: ['id_producto', 'nombre', 'precio_base', 'unidad_medida'] },
-        { model: sucursal, attributes: ['id_sucursal', 'nombre_sucursal'] },
+        {
+          model: producto,
+          attributes: ["id_producto", "nombre", "precio_base", "unidad_medida"],
+        },
+        { model: sucursal, attributes: ["id_sucursal", "nombre_sucursal"] },
       ],
       transaction: t,
     });
@@ -161,8 +185,7 @@ async function abastecerPorProductoSucursal({
   });
 }
 
-
-const UNIDADES_PERMITIDAS = ['unidad', 'libra', 'litro'];
+const UNIDADES_PERMITIDAS = ["unidad", "libra", "litro"];
 
 async function crearProductoConStockEnSucursales(payload = {}) {
   const {
@@ -170,55 +193,64 @@ async function crearProductoConStockEnSucursales(payload = {}) {
     descripcion = null,
     precio_base,
     id_subcategoria,
-    id_marca,                 // referencia a marca_producto.id_marca_producto
-    unidad_medida = 'unidad',
+    id_marca, // referencia a marca_producto.id_marca_producto
+    unidad_medida = "unidad",
     activo = true,
   } = payload;
 
   // Validaciones básicas
-  if (!nombre || typeof nombre !== 'string') throw new Error('nombre es requerido');
+  if (!nombre || typeof nombre !== "string")
+    throw new Error("nombre es requerido");
   const precio = Number(precio_base);
-  if (!Number.isFinite(precio) || precio <= 0) throw new Error('precio_base inválido');
+  if (!Number.isFinite(precio) || precio <= 0)
+    throw new Error("precio_base inválido");
   const subId = toInt(id_subcategoria);
   const marcaId = toInt(id_marca);
-  if (Number.isNaN(subId) || subId <= 0) throw new Error('id_subcategoria inválido');
-  if (Number.isNaN(marcaId) || marcaId <= 0) throw new Error('id_marca inválido');
+  if (Number.isNaN(subId) || subId <= 0)
+    throw new Error("id_subcategoria inválido");
+  if (Number.isNaN(marcaId) || marcaId <= 0)
+    throw new Error("id_marca inválido");
   if (!UNIDADES_PERMITIDAS.includes(unidad_medida)) {
-    throw new Error(`unidad_medida inválida. Usa: ${UNIDADES_PERMITIDAS.join(', ')}`);
+    throw new Error(
+      `unidad_medida inválida. Usa: ${UNIDADES_PERMITIDAS.join(", ")}`
+    );
   }
 
   return await sequelize.transaction(async (t) => {
     // Verificar FK existentes
     const sub = await subcategoria.findByPk(subId, { transaction: t });
-    if (!sub) throw new Error('La subcategoría no existe');
+    if (!sub) throw new Error("La subcategoría no existe");
 
     const marca = await marca_producto.findByPk(marcaId, { transaction: t });
-    if (!marca) throw new Error('La marca no existe');
+    if (!marca) throw new Error("La marca no existe");
 
     // 1) Crear producto
-    const prod = await producto.create({
-      nombre: nombre.trim(),
-      descripcion,
-      precio_base: precio,
-      id_subcategoria: subId,
-      id_marca: marcaId,
-      unidad_medida,
-      activo: !!activo,
-    }, { transaction: t });
+    const prod = await producto.create(
+      {
+        nombre: nombre.trim(),
+        descripcion,
+        precio_base: precio,
+        id_subcategoria: subId,
+        id_marca: marcaId,
+        unidad_medida,
+        activo: !!activo,
+      },
+      { transaction: t }
+    );
 
     // 2) Buscar TODAS las sucursales
     const sucursales = await sucursal.findAll({
-      attributes: ['id_sucursal'],
+      attributes: ["id_sucursal"],
       transaction: t,
       lock: t.LOCK.SHARE,
     });
 
     // 3) Crear sucursal_producto con stock = 0 para cada sucursal
     if (sucursales.length) {
-      const filas = sucursales.map(s => ({
+      const filas = sucursales.map((s) => ({
         id_sucursal: s.id_sucursal,
         id_producto: prod.id_producto,
-        stock_disponible: 0,     // ← requisito
+        stock_disponible: 0, // ← requisito
         // etiquetas: null         // opcional, si quisieras setear algo
       }));
       await sucursal_producto.bulkCreate(filas, { transaction: t });
@@ -228,11 +260,19 @@ async function crearProductoConStockEnSucursales(payload = {}) {
     const creado = await producto.findByPk(prod.id_producto, {
       transaction: t,
       include: [
-        { model: subcategoria, as: 'subcategoria', attributes: ['id_subcategoria', 'nombre'] },
-        { model: marca_producto, attributes: ['id_marca_producto', 'nombre'] }, // sin alias en tu index
+        {
+          model: subcategoria,
+          as: "subcategoria",
+          attributes: ["id_subcategoria", "nombre"],
+        },
+        { model: marca_producto, attributes: ["id_marca_producto", "nombre"] }, // sin alias en tu index
         {
           model: sucursal_producto,
-          attributes: ['id_sucursal_producto', 'id_sucursal', 'stock_disponible'],
+          attributes: [
+            "id_sucursal_producto",
+            "id_sucursal",
+            "stock_disponible",
+          ],
         },
       ],
     });
@@ -249,5 +289,5 @@ module.exports = {
   GetAllProductos,
   GetSucursales,
   abastecerPorProductoSucursal,
-  crearProductoConStockEnSucursales
+  crearProductoConStockEnSucursales,
 };

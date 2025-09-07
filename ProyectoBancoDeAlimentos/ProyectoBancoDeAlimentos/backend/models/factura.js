@@ -21,12 +21,5 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     underscored: true,
   });
-
-  /*
-  factura.associate = (models) => {
-    factura.belongsTo(models.pedido, { foreignKey: 'id_pedido', as: 'pedido' });
-    factura.hasMany(models.factura_detalle, { foreignKey: 'id_factura', as: 'detalles' });
-  };*/
-
   return factura;
 };

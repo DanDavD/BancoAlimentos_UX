@@ -41,3 +41,17 @@ export function validarCodigo (correo, codigo){
 export function changePassword (mail, new_password){
   return axiosInstance.patch('/api/forget-password/cambiar-password', {mail, new_password});
 }
+export function addRol (id_usuario, nombre_rol){
+  return axiosInstance.post(`/api/roles-privilegios/agregar-rol/${id_usuario}`, {nombre_rol});
+}
+export function addPrivilegio (id_usuario, nombre_privilegio){
+  return axiosInstance.post(`/api/roles-privilegios/agregar-privilegio/${id_usuario}`, {nombre_privilegio});
+}
+
+export function asignarPrivilegioARol (id_usuario, id_rol, id_privilegio){
+  return axiosInstance.post(`/api/roles-privilegios/asignar-rol-privilegio/${id_usuario}`, {id_rol, id_privilegio});
+}
+
+export function getRoles (){
+  return axiosInstance.get('/api/roles-privilegios/mostrar-roles');
+} 

@@ -52,45 +52,5 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     }
   );
-  /*
-  producto.associate = (models) => {
-    producto.belongsTo(models.subcategoria, {
-      foreignKey: "id_subcategoria",
-      as: "subcategoria",
-    });
-
-    producto.belongsTo(models.marca_producto, {
-      foreignKey: "id_marca",
-      as: "marca",
-    });
-
-    producto.hasMany(models.imagen_producto, {
-      foreignKey: "id_producto",
-      as: "imagenes",
-    });
-
-    producto.hasMany(models.valoracion_producto, {
-      foreignKey: "id_producto",
-      as: "valoraciones",
-    });
-
-    producto.hasMany(models.sucursal_producto, {
-      foreignKey: "id_producto",
-      as: "stock_sucursales",
-    });
-
-    producto.hasMany(models.factura_detalle, {
-      foreignKey: "id_producto",
-      as: "facturas_detalle",
-    });
-
-    producto.belongsToMany(models.promocion, {
-      through: models.promocion_producto,
-      foreignKey: "id_producto",
-      otherKey: "id_promocion",
-      as: "promociones",
-    });
-  };*/
-
   return producto;
 };

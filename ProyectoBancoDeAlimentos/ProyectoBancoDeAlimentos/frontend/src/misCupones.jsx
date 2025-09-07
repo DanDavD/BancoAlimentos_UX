@@ -1,44 +1,39 @@
-// misCupones.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { GetALLCupones } from "./api/CuponesApi";
 import "./misCupones.css";
 
 const MisCupones = () => {
-  const cuponesNoUtilizados = [
-    { id: 1, descuento: "15% DE DESCUENTO", pedidos: 29, expira: "23/11/2025" },
-    { id: 2, descuento: "10% DE DESCUENTO", pedidos: 10, expira: "30/09/2025" },
-    { id: 3, descuento: "15% DE DESCUENTO", pedidos: 29, expira: "23/11/2025" },
-    { id: 4, descuento: "10% DE DESCUENTO", pedidos: 10, expira: "30/09/2025" },
-    { id: 5, descuento: "15% DE DESCUENTO", pedidos: 29, expira: "23/11/2025" },
-    { id: 6, descuento: "10% DE DESCUENTO", pedidos: 10, expira: "30/09/2025" },
-    { id: 7, descuento: "15% DE DESCUENTO", pedidos: 29, expira: "23/11/2025" },
-    { id: 8, descuento: "10% DE DESCUENTO", pedidos: 10, expira: "30/09/2025" },
-    { id: 9, descuento: "15% DE DESCUENTO", pedidos: 29, expira: "23/11/2025" },
-    {
-      id: 10,
-      descuento: "10% DE DESCUENTO",
-      pedidos: 10,
-      expira: "30/09/2025",
-    },
-  ];
+  const [cuponesNoUtilizados, setCuponesNoUtilizados] = useState([]);
+  const [cuponesUsados, setCuponesUsados] = useState([]);
+  const [cuponesCaducados, setCuponesCaducados] = useState([]);
+  const [cuponesMostrados, setCuponesMostrados] = useState([]);
 
-  const cuponesUsados = [
-    { id: 3, descuento: "5% DE DESCUENTO", pedidos: 5, expira: "15/08/2025" },
-  ];
+  const usuarioActivo = localStorage.getItem("id_usuario");
 
-  const cuponesCaducados = [
-    { id: 4, descuento: "20% DE DESCUENTO", pedidos: 50, expira: "01/01/2025" },
-  ];
+  useEffect(() => {
+    if (!usuarioActivo) return;
 
-  const [cuponesMostrados, setCuponesMostrados] = useState(cuponesNoUtilizados);
+    GetALLCupones(usuarioActivo)
+      .then(res => {
+        const hoy = new Date();
+        hoy.setHours(0,0,0,0);
+
+        const noUsados = res.filter(c => c.fecha_usado === null && c.activo);
+        const usados = res.filter(c => c.fecha_usado !== null && new Date(c.fecha_usado) < hoy && c.activo);
+        const caducados = res.filter(c => !c.activo || (c.fecha_usado !== null && new Date(c.fecha_usado) < hoy));
+
+        setCuponesNoUtilizados(noUsados);
+        setCuponesUsados(usados);
+        setCuponesCaducados(caducados);
+        setCuponesMostrados(noUsados);
+      })
+      .catch(err => console.error("Error al traer los cupones:", err));
+  }, [usuarioActivo]);
 
   const mostrarCupones = (tipo) => {
-    if (tipo === "Cupones no utilizados") {
-      setCuponesMostrados(cuponesNoUtilizados);
-    } else if (tipo === "Usados") {
-      setCuponesMostrados(cuponesUsados);
-    } else {
-      setCuponesMostrados(cuponesCaducados);
-    }
+    if (tipo === "Cupones no utilizados") setCuponesMostrados(cuponesNoUtilizados);
+    else if (tipo === "Usados") setCuponesMostrados(cuponesUsados);
+    else setCuponesMostrados(cuponesCaducados);
   };
 
   return (
@@ -49,29 +44,30 @@ const MisCupones = () => {
       </div>
 
       <div className="titulos_secundarios">
-        <p onClick={() => mostrarCupones("Cupones no utilizados")}>
-          Cupones no utilizados
-        </p>
+        <p onClick={() => mostrarCupones("Cupones no utilizados")}>Cupones no utilizados</p>
         <p onClick={() => mostrarCupones("Usados")}>Usados</p>
-        <p onClick={() => mostrarCupones("Cupones caducados")}>
-          Cupones caducados
-        </p>
+        <p onClick={() => mostrarCupones("Cupones caducados")}>Cupones caducados</p>
       </div>
 
       <div className="cupones_reporte">
         <div className="lista_reportes">
-          {cuponesMostrados.map((cupon) => (
-            <div key={cupon.id} className="cupones_categoria">
-              <button className="boton_cupon">
-                <span className="texto_cupon1">{cupon.descuento}</span>
-                <br />
-                Pedidos +{cupon.pedidos}
-                <br />
-                <br />
-                <span className="texto_cupon2">Expira el: {cupon.expira}</span>
-              </button>
-            </div>
-          ))}
+          {cuponesMostrados.length === 0 ? (
+            <p>No hay cupones en esta categoría</p>
+          ) : (
+            cuponesMostrados.map((cupon) => (
+              <div key={cupon.codigo} className="cupones_categoria">
+                <button className="boton_cupon">
+                  <span className="texto_cupon1">{cupon.codigo}</span>
+                  <br />
+                  {cupon.descripcion}
+                  <br /><br />
+                  <span className="texto_cupon2">
+                    {cupon.fecha_usado ? `Usado el: ${cupon.fecha_usado}` : `Vence el: ${cupon.termina_en || "N/A"}`}
+                  </span>
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

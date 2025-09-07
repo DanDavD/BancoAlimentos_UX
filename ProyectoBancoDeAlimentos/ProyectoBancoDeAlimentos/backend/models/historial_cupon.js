@@ -10,13 +10,5 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     underscored: true,
   });
-
-  /*
-  historial_cupon.associate = (models) => {
-    historial_cupon.belongsTo(models.cupon, { foreignKey: 'id_cupon', as: 'cupon' });
-    historial_cupon.belongsTo(models.Usuario, { foreignKey: 'id_usuario', as: 'usuario' });
-    historial_cupon.belongsTo(models.pedido, { foreignKey: 'id_pedido', as: 'pedido' });
-  };*/
-
   return historial_cupon;
 };

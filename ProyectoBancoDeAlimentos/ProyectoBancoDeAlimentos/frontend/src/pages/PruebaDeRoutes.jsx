@@ -8,6 +8,7 @@ import LoginUser, {
   updateUserById,
 } from "../api/Usuario.Route";
 import { getAllProducts, getAllSucursales } from "../api/InventarioApi";
+import { forgetPassword, validarCodigo, changePassword } from "../api/Usuario.Route";
 
 export default function TestAuth() {
   const [products, setProducts] = React.useState([]);
@@ -15,7 +16,7 @@ export default function TestAuth() {
   useEffect(() => {
     const productos = async () => {
       try {
-        const res = await getAllProducts();
+        const res = await InformacionUser(1);
         console.log(res.data);
         setProducts(res.data); // Guarda productos en el estado
       } catch (err) {
@@ -31,7 +32,7 @@ export default function TestAuth() {
 
   const handleRegister = async () => {
     try {
-      const res = await getAllSucursales();
+      const res = await InformacionUser(3);
       console.log("[REGISTER] status:", res.status);
       console.log("[REGISTER] data:", res.data);
     } catch (err) {

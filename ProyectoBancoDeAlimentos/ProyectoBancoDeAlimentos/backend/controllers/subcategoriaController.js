@@ -26,15 +26,50 @@ exports.obtener = async (req, res) => {
   }
 };
 
+
 exports.crear = async (req, res) => {
   try {
-    const { nombre, id_categoria_padre } = req.body;
-    if (!nombre || !id_categoria_padre)
+    const {
+      nombre,
+      id_categoria_padre,
+      url_icono_subcategoria = null,
+      porcentaje_ganancias = null,
+    } = req.body;
+
+    if (!nombre || !id_categoria_padre) {
       return res.status(400).json({ msg: 'nombre y id_categoria_padre requeridos' });
-    const created = await subcategoria.create({ nombre, id_categoria_padre });
-    res.status(201).json(created);
+    }
+
+    // 1) Validar FK: que exista la categoría padre
+    const parent = await categoria.findByPk(id_categoria_padre);
+    if (!parent) {
+      return res.status(400).json({ msg: 'La categoría padre no existe' });
+    }
+
+    // 2) Evitar duplicados lógicos (opcional pero recomendado)
+    const yaExiste = await subcategoria.findOne({ where: { nombre, id_categoria_padre } });
+    if (yaExiste) {
+      return res.status(409).json({ msg: 'La subcategoría ya existe en esa categoría' });
+    }
+
+    // 3) Crear
+    const created = await subcategoria.create({
+      nombre,
+      id_categoria_padre,
+      url_icono_subcategoria,
+      porcentaje_ganancias
+    });
+
+    return res.status(201).json(created);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    // Mensajes más explícitos según el tipo de error
+    if (e.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(400).json({ msg: 'id_categoria_padre inválido (FK)' });
+    }
+    if (e.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ msg: 'Registro duplicado (único)' });
+    }
+    return res.status(500).json({ msg: 'Error al crear subcategoría', detail: e.message });
   }
 };
 

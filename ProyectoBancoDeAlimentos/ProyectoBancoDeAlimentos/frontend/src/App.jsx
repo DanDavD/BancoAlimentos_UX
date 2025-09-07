@@ -25,6 +25,7 @@ import CompararProducto from "./components/compararProducto.jsx";
 import UserManagementViews from "./UserManagementViews.jsx";
 import MisCupones from "./misCupones.jsx";
 import Verificacion from "./components/verificacion.jsx";
+import CampanaPromocional from "./components/campanaPromocional.jsx";
 
 import VerificarCodigo from "./verificarcodigo.jsx";
 const HEADER_HEIGHT = 144; // px
@@ -65,6 +66,7 @@ function App() {
             element={<UserManagementViews />}
           />
           <Route path="/verificacion" element={<Verificacion />} />
+          <Route path="/campanaPromocional" element={<CampanaPromocional />} />
         </Routes>
       </div>
     </div>
