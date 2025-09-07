@@ -7,7 +7,7 @@ import LoginUser, {
   EditProfile,
   updateUserById,
 } from "../api/Usuario.Route";
-import { getAllPorcentajeGanancia, getProductosRecomendados,updatePorcentajeGanancia } from "../api/InventarioApi";
+import { getAllPorcentajeGanancia, getProductosRecomendados,addCupon,getCuponesByUser,getAllCupones } from "../api/InventarioApi";
 import { forgetPassword, validarCodigo, changePassword } from "../api/Usuario.Route";
 
 export default function TestAuth() {
@@ -16,9 +16,9 @@ export default function TestAuth() {
   useEffect(() => {
     const productos = async () => {
       try {
-        const id_producto=1;
-        const porcentaje_ganancia=0.15;
-        const res = await getProductosRecomendados( );
+        const id_usuario = 3;
+        const codigo_cupon = "DESCUENTO152";
+        const res = await getCuponesByUser(id_usuario);
         console.log(res.data);
         setProducts(res.data); // Guarda productos en el estado
       } catch (err) {
@@ -34,9 +34,9 @@ export default function TestAuth() {
 
   const handleRegister = async () => {
     try {
-      const id_producto=1;
-      const porcentaje_ganancia=0.15;
-      const res = await getProductosRecomendados( );
+      const id_usuario = 3
+      const codigo_cupon = "DESCUENTO152";
+      const res = await getCuponesByUser(id_usuario);
       console.log("[REGISTER] status:", res.status);
       console.log("[REGISTER] data:", res.data);
     } catch (err) {

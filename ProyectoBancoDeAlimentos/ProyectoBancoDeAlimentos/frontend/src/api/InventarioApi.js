@@ -34,3 +34,13 @@ export function updatePorcentajeGanancia(id, porcentaje_ganancia){
 export function getProductosRecomendados(){
     return axiosInstance.get('/api/producto/recomendados');
 }
+//cupones
+export function addCupon(id_usuario, codigo_cupon){
+    return axiosInstance.post(`/api/cupones/agregar/${id_usuario}`, {codigo: codigo_cupon});
+}
+export function getAllCupones(){
+    return axiosInstance.get('/api/cupones/cupones');
+}
+export function getCuponesByUser(id_usuario){
+    return axiosInstance.get(`/api/cupones/${id_usuario}`);
+}
