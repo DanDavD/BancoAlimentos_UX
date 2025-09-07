@@ -5,6 +5,15 @@
   box-sizing: border-box;
 }
 
+.perfil-container {
+  width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.editar-boton {
+  margin-left: 10px;
+}
 .perfil-container .editar-boton {
   height: 30px;
   align-items: center;
@@ -40,6 +49,7 @@
 .perfil-content {
   display: flex;
   gap: 20px;
+  align-items: flex-start;
 }
 
 /* Sidebar */
@@ -49,6 +59,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 20px;
 }
 
 .perfil-avatar {
@@ -88,7 +99,7 @@
 
 /* Card principal */
 .perfil-container {
-  flex: 2;
+  flex: 0;
   background: white;
   padding: 20px;
   border-radius: 1rem;
@@ -96,25 +107,31 @@
 }
 
 .perfil-card {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
   background: white;
-  padding: 20px;
   border-radius: 1rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
 }
 
 .perfil-container .boton-guardar {
   position: inherit;
   margin-left: 320px;
   margin-top: 20px;
-  height: 30px;
+  height: 40px;
   justify-content: center;
-  width: 105px;
+  width: 115px;
   display: flex;
   background-color: #f0833e;
-  border-radius: 3rem;
+  padding: 5px 20px;
+  border-radius: 1rem;
   font-weight: bold;
   color: white;
-  font-size: 0.8rem;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 .configuracion-container {
