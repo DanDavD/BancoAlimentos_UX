@@ -1,23 +1,12 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./categoria.css";
 import Slider from "@mui/material/Slider";
 import Checkbox from "@mui/material/Checkbox";
-import appleImage from "./images/appleImage.png";
+import { getAllProducts } from "./api/InventarioApi";
 function Categoria() {
   const subcategories = ["Hellmans", "Campofresco", "Naturas"];
   const prodRefRecomendados = useRef(null);
-  const [products, setProducts] = useState([
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-  ]);
+  const [products, setProducts] = useState([]);
   const [orderby, setOrder] = useState("");
   const [stateProducto, setState] = useState("Agregar");
   const [btnCompare, setCompare] = useState("COMPARAR");
@@ -34,6 +23,38 @@ function Categoria() {
     setState("Agregar");
     setCompare("COMPARAR");
   }
+  useEffect(() => {
+    const productos = async () => {
+      try {
+        const res = await getAllProducts();
+        console.log(res.data);
+        setProducts(res.data);
+        res.data.forEach((p) => {
+          console.log("Producto:", p.nombre);
+          console.log("Precio:", p.precio_base);
+          console.log("Subcategoría:", p.subcategoria?.nombre);
+          console.log("Categoría:", p.subcategoria?.categoria?.nombre);
+          console.log("Marca:", p.marca?.nombre);
+          console.log("Imagen 1:", p.imagenes[0].url_imagen);
+          //Obtener primera imagen
+          if (p.imagenes?.length > 0) {
+            console.log("Imagen principal:", p.imagenes[0].url_imagen);
+          }
+          //Obtener todas
+          p.imagenes.forEach((img) => {
+            console.log("🖼️ Imagen URL:", img.url_imagen);
+          });
+        });
+      } catch (err) {
+        console.error("[REGISTER] error:", err?.response?.data || err);
+        alert(err?.response?.data?.message || "Error");
+      }
+    };
+    productos();
+
+    return () => {};
+  }, []);
+
   return (
     <div className="bg-gray-100 w-screen min-h-screen py-2 px-2">
       <div className="flex flex-row">
@@ -193,9 +214,13 @@ function Categoria() {
                   </div>
                 </div>
 
-                <img src={p.img} alt={p.name} style={styles.productImg} />
-                <p style={styles.productName}>{p.name}</p>
-                <p style={styles.productPrice}>{p.price}</p>
+                <img
+                  src={p.imagenes[0].url_imagen}
+                  alt={p.nombre}
+                  style={styles.productImg}
+                />
+                <p style={styles.productName}>{p.nombre}</p>
+                <p style={styles.productPrice}>{p.precio_base}</p>
                 <button
                   style={{
                     ...styles.addButton,

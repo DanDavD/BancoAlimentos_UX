@@ -374,11 +374,8 @@ export default function Inventario() {
         <div className="mt-4 overflow-hidden rounded-2xl shadow-sm border border-[#d8dadc] bg-white">
           <div className="overflow-x-auto">
             <table className="w-full text-sm table-auto">
-              <thead>
-                <tr
-                  className="text-white"
-                  style={{ backgroundColor: "#2b6daf" }}
-                >
+              <thead className="">
+                <tr className="text-white">
                   <Th
                     label="ID de Producto"
                     sortKey="id"
@@ -430,7 +427,9 @@ export default function Inventario() {
                     onSort={toggleSort}
                     className="w-28"
                   />
-                  <th className="px-3 py-2 text-left w-36">Opciones</th>
+                  <th className="px-3 py-2 text-left w-36 bg-[#2B6DAF]">
+                    Opciones
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -615,7 +614,7 @@ export default function Inventario() {
 function Th({ label, className = "", sortKey, sort, onSort }) {
   const active = sort.key === sortKey;
   return (
-    <th className={"px-3 py-2 text-left " + className}>
+    <th className={"px-3 py-2 text-left bg-[#2B6DAF] " + className}>
       <button
         onClick={() => onSort(sortKey)}
         className="inline-flex items-center gap-2 text-white"
@@ -659,7 +658,7 @@ function ThFilter({ label, filterKey, value, onChange }) {
   };
 
   return (
-    <th className="px-3 py-2 text-left relative">
+    <th className="px-3 py-2 text-left relative bg-[#2B6DAF]">
       <div className="flex items-center gap-2">
         <span className="font-medium text-white">{label}</span>
         <button

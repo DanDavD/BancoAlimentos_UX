@@ -1,26 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import carrito from "./images/carrito_icon.png";
-import appleImage from "./images/appleImage.png";
+
 import { useRef } from "react";
 import arrowL from "./images/arrowL.png";
 import arrowR from "./images/arrowR.png";
 import React from "react";
+import { getAllProducts } from "./api/InventarioApi";
 //Agregar Parametro que diga cuantos productos en carrito?
 function Carrito() {
   //Objeto de producto
 
-  //Productos de pagina de inicio //necesita id, n_stars
-  const [products, setProducts] = useState([
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-    { name: "Manzana", price: "L. 10.00", img: appleImage, quantity: 4 },
-  ]);
+  //Productos de pagina de inicio //necesita cantidad, imagen
+  const [products, setProducts] = useState([]);
   //Scroll
   const scroll = (direction, ref, itemWidth) => {
     if (ref.current) {
@@ -43,12 +34,27 @@ function Carrito() {
   const updateQuantity = (name, n) => {
     if (n < 0) return;
     setProducts((prev) =>
-      prev.map((p) => (p.name === name ? { ...p, quantity: n } : p))
+      prev.map((p) => (p.nombre === name ? { ...p, cantidad: n } : p))
     );
   };
   //Verifica si el cupon es valido
   function checkCupon() {}
   function realizarCompra() {}
+  useEffect(() => {
+    const productos = async () => {
+      try {
+        const res = await getAllProducts();
+        console.log(res.data);
+        setProducts(res.data);
+      } catch (err) {
+        console.error("[REGISTER] error:", err?.response?.data || err);
+        alert(err?.response?.data?.message || "Error");
+      }
+    };
+    productos();
+
+    return () => {};
+  }, []);
   return (
     <div className="bg-gray-100 w-screen min-h-screen py-4">
       <div className="px-32">
@@ -85,15 +91,15 @@ function Carrito() {
                         <div className="flex flex-row gap-8">
                           <img
                             className="object-cover w-28 h-28"
-                            src={prod.img}
+                            src={prod.imagenes[0].url_imagen}
                           ></img>
 
                           <div className="flex flex-col w-full text-left font-medium">
-                            <p className="py-2 text-xl">{prod.name}</p>
+                            <p className="py-2 text-xl">{prod.nombre}</p>
                             <div className="flex flex-row gap-1">
                               <button
                                 onClick={() =>
-                                  updateQuantity(prod.name, prod.quantity - 1)
+                                  updateQuantity(prod.nombre, 5 - 1)
                                 }
                                 className=" bg-[#114C87] text-white rounded-md h-9 px-1"
                               >
@@ -103,11 +109,11 @@ function Carrito() {
                               </button>
                               <input
                                 className="border-2 border-black rounded-md text-center"
-                                value={prod.quantity}
+                                value={5}
                               ></input>
                               <button
                                 onClick={() =>
-                                  updateQuantity(prod.name, prod.quantity + 1)
+                                  updateQuantity(prod.nombre, 5 + 1)
                                 }
                                 className="bg-[#114C87] text-white rounded-md h-9 px-1"
                               >
@@ -116,7 +122,9 @@ function Carrito() {
                                 </span>
                               </button>
                               <div className="flex justify-center w-full">
-                                <p className="text-xl pl-6">{prod.price}</p>
+                                <p className="text-xl pl-6">
+                                  {prod.precio_base}
+                                </p>
                               </div>
                             </div>
                           </div>
@@ -272,9 +280,13 @@ function Carrito() {
                     </div>
                   </div>
 
-                  <img src={p.img} alt={p.name} style={styles.productImg} />
-                  <p style={styles.productName}>{p.name}</p>
-                  <p style={styles.productPrice}>{p.price}</p>
+                  <img
+                    src={p.imagenes[0].url_imagen}
+                    alt={p.nombre}
+                    style={styles.productImg}
+                  />
+                  <p style={styles.productName}>{p.nombre}</p>
+                  <p style={styles.productPrice}>{p.precio_base}</p>
                   <button
                     style={{
                       ...styles.addButton,
