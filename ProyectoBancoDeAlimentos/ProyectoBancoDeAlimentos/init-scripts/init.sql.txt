@@ -1,210 +1,229 @@
+-- Habilita bcrypt vía pgcrypto (solo una vez por BD)
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 BEGIN;
 
--- ===== ROLES / PRIVILEGIOS =====
+-- =========================================================
+-- ROLES, PRIVILEGIOS, RELACIONES
+-- =========================================================
 INSERT INTO rol (id_rol, nombre_rol) VALUES
-  (1,'administrador'),
-  (2,'cliente')
-ON CONFLICT (id_rol) DO NOTHING;
+  (1, 'administrador'),
+  (2, 'cliente')
+ON CONFLICT DO NOTHING;
 
 INSERT INTO privilegio (id_privilegio, nombre_privilegio) VALUES
-  (1,'ver_reportes'),
-  (2,'gestionar_productos'),
-  (3,'ver_catalogo')
-ON CONFLICT (id_privilegio) DO NOTHING;
+  (1, 'gestionar_productos'),
+  (2, 'ver_dashboard'),
+  (3, 'gestionar_usuarios')
+ON CONFLICT DO NOTHING;
 
 INSERT INTO rol_privilegio (id_rol, id_privilegio) VALUES
-  (1,1),(1,2),(1,3),   -- admin todo
-  (2,3)                -- cliente ver catálogo
+  (1,1),(1,2),(1,3),   -- admin: todos
+  (2,2)                -- cliente: ver_dashboard
 ON CONFLICT DO NOTHING;
 
--- ===== UBICACIÓN =====
+-- =========================================================
+-- UBICACIÓN: DEPARTAMENTOS / MUNICIPIOS / SUCURSALES
+-- =========================================================
 INSERT INTO departamento (id_departamento, nombre_departamento) VALUES
-  (1,'Central'),
-  (2,'Norte')
-ON CONFLICT (id_departamento) DO NOTHING;
+  (1,'Cortés'),
+  (2,'Francisco Morazán')
+ON CONFLICT DO NOTHING;
 
 INSERT INTO municipio (id_municipio, id_departamento, nombre_municipio) VALUES
-  (1,1,'San Pedro'),
-  (2,1,'Villa Centro'),
-  (3,2,'La Montaña')
-ON CONFLICT (id_municipio) DO NOTHING;
+  (1,1,'San Pedro Sula'),
+  (2,1,'Puerto Cortés'),
+  (3,1,'Choloma'),
+  (4,2,'Tegucigalpa'),
+  (5,2,'Comayagüela')
+ON CONFLICT DO NOTHING;
 
--- ===== CATEGORÍAS / SUBCATEGORÍAS =====
-INSERT INTO categoria (id_categoria, nombre, icono_categoria, "PorcentajeDeGananciaMinimo") VALUES
-  (1,'Bebidas','/icons/bebidas.svg',0.05),
-  (2,'Lácteos','/icons/lacteos.svg',0.05),
-  (3,'Granos','/icons/granos.svg',0.05)
-ON CONFLICT (id_categoria) DO NOTHING;
+INSERT INTO sucursal (id_sucursal, id_municipio, nombre_sucursal, activo) VALUES
+  (1,1,'Sucursal Centro SPS', TRUE),
+  (2,4,'Sucursal Tegucigalpa', TRUE)
+ON CONFLICT DO NOTHING;
 
-INSERT INTO subcategoria (id_subcategoria, nombre, id_categoria_padre, url_icono_subcategoria, porcentaje_ganancias) VALUES
-  (1,'Jugos',1,'/icons/jugos.svg',0.10),
-  (2,'Gaseosas',1,'/icons/gaseosas.svg',0.10),
-  (3,'Leche',2,'/icons/leche.svg',0.12),
-  (4,'Yogurt',2,'/icons/yogurt.svg',0.12),
-  (5,'Arroz',3,'/icons/arroz.svg',0.08)
-ON CONFLICT (id_subcategoria) DO NOTHING;
+-- =========================================================
+-- CATEGORÍAS / SUBCATEGORÍAS / MARCAS / PRODUCTOS / IMÁGENES
+-- =========================================================
+INSERT INTO categoria (id_categoria, nombre, icono_categoria) VALUES
+  (1,'Granos','grain'),
+  (2,'Lácteos','milk'),
+  (3,'Enlatados','can')
+ON CONFLICT DO NOTHING;
 
--- ===== MARCAS / PRODUCTOS / IMÁGENES =====
+INSERT INTO subcategoria (id_subcategoria, nombre, id_categoria_padre) VALUES
+  (1,'Arroz',1),
+  (2,'Leche',2),
+  (3,'Atún',3),
+  (4,'Frijoles',1),
+  (5,'Yogurt',2)
+ON CONFLICT DO NOTHING;
+
 INSERT INTO marca_producto (id_marca_producto, nombre) VALUES
-  (1,'Fresca'),
-  (2,'Lactoland'),
-  (3,'Granero')
-ON CONFLICT (id_marca_producto) DO NOTHING;
+  (1,'LaPradera'),
+  (2,'DosPinos'),
+  (3,'Sula'),
+  (4,'MarAzul')
+ON CONFLICT DO NOTHING;
 
-INSERT INTO producto
-  (id_producto,nombre,descripcion,precio_base,id_subcategoria,activo,unidad_medida,id_marca,porcentaje_ganancia,estrellas)
-VALUES
-  (1,'Jugo Naranja 1L','Jugo natural',1.80,1,TRUE,'litro',1,0.15,4.6),
-  (2,'Cola 600ml','Gaseosa cola',1.20,2,TRUE,'unidad',1,0.20,4.1),
-  (3,'Leche Entera 1L','Leche entera',1.10,3,TRUE,'litro',2,0.12,4.4),
-  (4,'Yogurt Fresa 1L','Yogurt sabor fresa',1.50,4,TRUE,'litro',2,0.18,4.3),
-  (5,'Arroz 5kg','Arroz grano largo',4.50,5,TRUE,'unidad',3,0.10,4.2),
-  (6,'Arroz 1kg','Arroz grano largo',1.10,5,TRUE,'unidad',3,0.10,4.0)
-ON CONFLICT (id_producto) DO NOTHING;
+-- Productos (enum unidad_medida: 'unidad' | 'libra' | 'litro')
+INSERT INTO producto (id_producto, nombre, descripcion, precio_base, id_subcategoria, activo, unidad_medida, id_marca) VALUES
+  (1,'Arroz Blanco 1kg','Arroz de grano largo', 45.00, 1, TRUE, 'unidad', 1),
+  (2,'Leche Entera 1L','Leche entera UHT',     32.50, 2, TRUE, 'litro',  2),
+  (3,'Atún en Agua 140g','Lata de atún',       28.00, 3, TRUE, 'unidad', 4),
+  (4,'Frijol Rojo 1lb','Grano básico',         40.00, 4, TRUE, 'libra',  1),
+  (5,'Yogurt Fresa 200ml','Yogurt sabor fresa',18.75, 5, TRUE, 'unidad', 3),
+  (6,'Leche Deslactosada 1L','UHT',            34.00, 2, TRUE, 'litro',  3)
+ON CONFLICT DO NOTHING;
 
 INSERT INTO imagen_producto (id_imagen, id_producto, url_imagen, orden_imagen) VALUES
-  (1,1,'/img/p1.jpg',1),
-  (2,2,'/img/p2.jpg',1),
-  (3,3,'/img/p3.jpg',1),
-  (4,4,'/img/p4.jpg',1),
-  (5,5,'/img/p5.jpg',1),
-  (6,6,'/img/p6.jpg',1)
-ON CONFLICT (id_imagen) DO NOTHING;
+  (1,1,'https://ejemplo/img/arroz1.png',0),
+  (2,2,'https://ejemplo/img/leche1.png',0),
+  (3,3,'https://ejemplo/img/atun1.png',0),
+  (4,4,'https://ejemplo/img/frijol1.png',0),
+  (5,5,'https://ejemplo/img/yogurt1.png',0),
+  (6,6,'https://ejemplo/img/leche2.png',0)
+ON CONFLICT DO NOTHING;
 
--- ===== USUARIOS =====
--- Hash usado para todos:
--- $2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa
-INSERT INTO usuario
-  (id_usuario, nombre, correo, "contraseña", id_rol, activo, fecha_creacion, telefono, foto_perfil_url, tema, autenticacion_dos_pasos)
-VALUES
-  (1,'Kenny',   'kenny@example.com',   '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 1, TRUE, NOW(), '9999-0001', NULL, TRUE, FALSE),
-  (2,'Jeffrey', 'jeffrey@example.com', '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 1, TRUE, NOW(), '9999-0002', NULL, TRUE, FALSE),
-  (3,'Ana',     'ana@example.com',     '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0003', NULL, TRUE, FALSE),
-  (4,'Allison', 'allison@example.com', '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0004', NULL, TRUE, FALSE),
-  (5,'Andres',  'andres@example.com',  '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0005', NULL, TRUE, FALSE),
-  (6,'Ruth',    'ruth@example.com',    '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0006', NULL, TRUE, FALSE),
-  (7,'Daniel',  'daniel@example.com',  '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0007', NULL, TRUE, FALSE),
-  (8,'Sandro',  'sandro@example.com',  '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0008', NULL, TRUE, FALSE),
-  (9,'Abraham', 'abraham@example.com', '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0009', NULL, TRUE, FALSE),
-  (10,'Eleana', 'eleana@example.com',  '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0010', NULL, TRUE, FALSE),
-  (11,'Armando','armando@example.com', '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0011', NULL, TRUE, FALSE),
-  (12,'Harold', 'harold@example.com',  '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0012', NULL, TRUE, FALSE),
-  (13,'Elisa',  'elisa@example.com',   '$2b$10$xYFvQMbnKk.if4L3zmOPkueMmn2GTdbwdMTWlRFfgQjqxJU075FXa', 2, TRUE, NOW(), '9999-0013', NULL, TRUE, FALSE)
-ON CONFLICT (id_usuario) DO NOTHING;
-
--- ===== HISTORIAL ACCESOS (ejemplos) =====
-INSERT INTO historial_accesos (id_historial_accesos, id_usuario, fecha_de_ingreso) VALUES
-  (1,1,NOW()-INTERVAL '2 days'),
-  (2,1,NOW()-INTERVAL '1 days'),
-  (3,3,NOW())
-ON CONFLICT (id_historial_accesos) DO NOTHING;
-
--- ===== DIRECCIONES =====
-INSERT INTO direccion (id_direccion, id_usuario, calle, ciudad, codigo_postal, predeterminada, id_municipio) VALUES
-  (1,1,'Av. Central 123','San Pedro','11001',TRUE,1),
-  (2,1,'Calle Secundaria 45','Villa Centro','11002',FALSE,2),
-  (3,3,'Boulevard Norte 10','La Montaña','22001',TRUE,3)
-ON CONFLICT (id_direccion) DO NOTHING;
-
--- ===== SUCURSALES / STOCK =====
-INSERT INTO sucursal (id_sucursal, id_municipio, nombre_sucursal, activo) VALUES
-  (1,1,'Sucursal Centro',TRUE),
-  (2,3,'Sucursal Norte',TRUE)
-ON CONFLICT (id_sucursal) DO NOTHING;
-
+-- Stock por sucursal
 INSERT INTO sucursal_producto (id_sucursal_producto, id_sucursal, id_producto, etiquetas, stock_disponible) VALUES
-  (1,1,1,'Nuevo',120),
-  (2,1,2,'En oferta',200),
-  (3,1,3,'Nuevo',150),
-  (4,2,4,'Nuevo',90),
-  (5,2,5,'En oferta',60),
-  (6,2,6,'Nuevo',180)
-ON CONFLICT (id_sucursal_producto) DO NOTHING;
+  (1,1,1,'Nuevo',      120),
+  (2,1,2,'Nuevo',       90),
+  (3,1,3,'En oferta',  150),
+  (4,1,4,'Nuevo',       70),
+  (5,2,2,'Nuevo',       80),
+  (6,2,3,'En oferta',  110),
+  (7,2,5,'Nuevo',       60)
+ON CONFLICT DO NOTHING;
 
--- ===== CARRITOS =====
-INSERT INTO carrito (id_carrito, id_usuario, fecha_creacion, descuento) VALUES
-  (1,1,NOW(),0.00),
-  (2,3,NOW(),0.00)
-ON CONFLICT (id_carrito) DO NOTHING;
+-- =========================================================
+-- USUARIOS (13) + DIRECCIONES + MÉTODOS DE PAGO
+-- Contraseña: crypt('Prueba123*', gen_salt('bf',10))
+-- =========================================================
+-- Roles: 1=admin (Kenny, Jeffrey) / 2=cliente (resto)
+INSERT INTO usuario
+  (id_usuario, nombre, correo, "contraseña", id_rol, activo, fecha_creacion, telefono, foto_perfil_url, tema)
+VALUES
+  (1,'Kenny',   'kenny@example.com',   '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 1, TRUE, NOW(), '9999-0001', NULL, TRUE),
+  (2,'Jeffrey', 'jeffrey@example.com', '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 1, TRUE, NOW(), '9999-0002', NULL, TRUE),
+  (3,'Ana',     'ana@example.com',     '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0003', NULL, TRUE),
+  (4,'Allison', 'allison@example.com', '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK' , 2, TRUE, NOW(), '9999-0004', NULL, TRUE),
+  (5,'Andres',  'andres@example.com',  '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0005', NULL, TRUE),
+  (6,'Ruth',    'ruth@example.com',    '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0006', NULL, TRUE),
+  (7,'Daniel',  'daniel@example.com',  '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0007', NULL, TRUE),
+  (8,'Sandro',  'sandro@example.com',  '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0008', NULL, TRUE),
+  (9,'Abraham', 'abraham@example.com', '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0009', NULL, TRUE),
+  (10,'Eleana', 'eleana@example.com',  '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0010', NULL, TRUE),
+  (11,'Armando','armando@example.com', '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0011', NULL, TRUE),
+  (12,'Harold', 'harold@example.com',  '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0012', NULL, TRUE),
+  (13,'Elisa',  'elisa@example.com',   '$2b$10$7FGd3IV6vXp78W0/RqlOw.w6SFzL8CIKFne5Kqh0kCPJpFzpP4IqK', 2, TRUE, NOW(), '9999-0013', NULL, TRUE)
+ON CONFLICT DO NOTHING;
+
+-- Direcciones (una por usuario, alternando municipios)
+INSERT INTO direccion (id_direccion, id_usuario, calle, ciudad, codigo_postal, predeterminada, id_municipio) VALUES
+  (1,1,'Av. Principal 101','SPS','21101',TRUE,1),
+  (2,2,'Col. Centro 202','TGU','11101',TRUE,4),
+  (3,3,'Barrio 3','SPS','21102',TRUE,1),
+  (4,4,'Barrio 4','TGU','11102',TRUE,4),
+  (5,5,'Barrio 5','Puerto Cortés','21103',TRUE,2),
+  (6,6,'Barrio 6','Comayagüela','12101',TRUE,5),
+  (7,7,'Barrio 7','Choloma','21104',TRUE,3),
+  (8,8,'Barrio 8','SPS','21105',TRUE,1),
+  (9,9,'Barrio 9','TGU','11103',TRUE,4),
+  (10,10,'Barrio 10','SPS','21106',TRUE,1),
+  (11,11,'Barrio 11','TGU','11104',TRUE,4),
+  (12,12,'Barrio 12','Choloma','21107',TRUE,3),
+  (13,13,'Barrio 13','Comayagüela','12102',TRUE,5)
+ON CONFLICT DO NOTHING;
+
+-- Método de pago (uno de ejemplo para 3 usuarios)
+INSERT INTO metodo_pago (id_metodo_pago, id_usuario, brand_tarjeta, tarjeta_ultimo, vencimiento_mes, vencimiento_ano, nombre_en_tarjeta, id_direccion_facturacion, token_pago, metodo_predeterminado, fecha_creacion)
+VALUES
+  (1,3,'VISA','4242',12,2027,'Ana Ejemplo', 3,'tok_test_ana', TRUE, NOW()),
+  (2,5,'MC','4444', 11,2026,'Andres Cliente', 5,'tok_test_andres', TRUE, NOW()),
+  (3,10,'VISA','1881', 6,2028,'Eleana E', 10,'tok_test_eleana', TRUE, NOW())
+ON CONFLICT DO NOTHING;
+
+-- =========================================================
+-- CARRITOS Y DETALLES
+-- =========================================================
+INSERT INTO carrito (id_carrito, id_usuario, fecha_creacion) VALUES
+  (1,3,NOW()), (2,4,NOW()), (3,5,NOW()), (4,6,NOW()),
+  (5,7,NOW()), (6,8,NOW()), (7,9,NOW()), (8,10,NOW()),
+  (9,11,NOW()), (10,12,NOW()), (11,13,NOW())
+ON CONFLICT DO NOTHING;
 
 INSERT INTO carrito_detalle (id_carrito_detalle, id_carrito, id_producto, cantidad_unidad_medida, subtotal_detalle) VALUES
-  (1,1,1,2,3.60),    -- 2 x 1.80
-  (2,1,5,1,4.50),    -- 1 x 4.50
-  (3,2,3,3,3.30)     -- 3 x 1.10
-ON CONFLICT (id_carrito_detalle) DO NOTHING;
+  (1,1,1, 2,  90.00),
+  (2,1,2, 1,  32.50),
+  (3,2,3, 3,  84.00),
+  (4,3,4, 1,  40.00),
+  (5,4,5, 2,  37.50),
+  (6,5,2, 2,  65.00)
+ON CONFLICT DO NOTHING;
 
--- ===== CUPONES =====
-INSERT INTO cupon (id_cupon, codigo, descripcion, tipo, valor, uso_por_usuario, termina_en, activo) VALUES
-  (1,'OFERTA10','10% en todo','porcentaje',10,1,'2025-12-31',TRUE),
-  (2,'ENVIOFREE','Envío gratis','fijo',0,5,'2026-01-31',TRUE)
-ON CONFLICT (id_cupon) DO NOTHING;
-
--- ===== ESTADOS DE PEDIDO =====
-INSERT INTO estado_pedido (id_estado_pedido, nombre_pedido) VALUES
-  (1,'Pendiente'),
-  (2,'Pagado'),
-  (3,'Enviado')
-ON CONFLICT (id_estado_pedido) DO NOTHING;
-
--- ===== PEDIDOS =====
-INSERT INTO pedido
-  (id_pedido, id_estado, id_usuario, fecha_pedido, direccion_envio, id_sucursal, descuento, id_cupon, id_estado_pedido)
+-- =========================================================
+-- CUPONES / HISTORIAL
+-- =========================================================
+INSERT INTO cupon (id_cupon, "código", "descripción", tipo, valor, uso_max, uso_por_usuario, compra_min, inicia_en, termina_en, activo, creado_en)
 VALUES
-  (1,2,1,NOW()-INTERVAL '1 days','Av. Central 123, San Pedro',1,0.50,1,2),
-  (2,1,3,NOW(),'Boulevard Norte 10, La Montaña',2,0.00,NULL,1)
-ON CONFLICT (id_pedido) DO NOTHING;
+  (1, 'BIENVENIDO10', '10% primera compra', 'porcentaje', 10,  1000, 1,  0, CURRENT_DATE, CURRENT_DATE + INTERVAL '90 day', TRUE, CURRENT_DATE),
+  (2, 'ENVIO50',      'L50 de envío',       'fijo',       50,   500, 2, 200, CURRENT_DATE, CURRENT_DATE + INTERVAL '60 day', TRUE, CURRENT_DATE)
+ON CONFLICT DO NOTHING;
 
--- ===== FACTURAS / DETALLES =====
-INSERT INTO factura (id_factura, id_pedido, fecha_emision, total) VALUES
-  (1,1,NOW()-INTERVAL '1 days', 8.10),  -- (3.60 + 4.50) - 0.00, total de ejemplo
-  (2,2,NOW(), 3.30)
-ON CONFLICT (id_factura) DO NOTHING;
-
-INSERT INTO factura_detalle (id_factura_detalle, id_factura, id_producto, cantidad_unidad_medida, subtotal_producto) VALUES
-  (1,1,1,2,3.60),
-  (2,1,5,1,4.50),
-  (3,2,3,3,3.30)
-ON CONFLICT (id_factura_detalle) DO NOTHING;
-
--- ===== PROMOS =====
-INSERT INTO promocion
-  (id_promocion, id_tipo_promo, nombre_promocion, "descripción", valor_fijo, valor_porcentaje, compra_min, fecha_inicio, activa, banner_url, fecha_termina, creado_en)
+-- =========================================================
+-- PROMOCIONES / PUENTES
+-- =========================================================
+INSERT INTO promocion (id_promocion, id_tipo_promo, nombre_promocion, "descripción", valor_fijo, valor_porcentaje, compra_min, fecha_inicio, activa, banner_url, fecha_termina, creado_en)
 VALUES
-  (1,1,'Promo Bebidas','% en bebidas',NULL,15.00,2,'2025-01-01',TRUE,NULL,'2025-12-31',NOW())
-ON CONFLICT (id_promocion) DO NOTHING;
+  (1, 1, '2x1 Yogurt', 'Promo 50% en yogurt', NULL, 50.00, 0, CURRENT_DATE, TRUE, NULL, CURRENT_DATE + INTERVAL '30 day', CURRENT_DATE),
+  (2, 2, 'Arroz - L10', 'Descuento fijo en arroz', 10, NULL, 0, CURRENT_DATE, TRUE, NULL, CURRENT_DATE + INTERVAL '15 day', CURRENT_DATE)
+ON CONFLICT DO NOTHING;
 
 INSERT INTO promocion_producto (id_producto, id_promocion) VALUES
-  (1,1),(2,1)
+  (5,1),   -- Yogurt en promo %
+  (1,2)    -- Arroz con descuento fijo
 ON CONFLICT DO NOTHING;
 
-INSERT INTO promocion_pedido (id_promocion_pedido, id_promocion, id_pedido, monto_descuento) VALUES
-  (1,1,1,0.30)
-ON CONFLICT (id_promocion_pedido) DO NOTHING;
-
--- ===== HISTORIAL CUPÓN =====
-INSERT INTO historial_cupon (id_historial_cupon, id_cupon, id_usuario, id_pedido, fecha_usado) VALUES
-  (1,1,1,1,NOW()-INTERVAL '1 days')
-ON CONFLICT (id_historial_cupon) DO NOTHING;
-
--- ===== MÉTODOS DE PAGO =====
-INSERT INTO metodo_pago
-  (id_metodo_pago, id_usuario, brand_tarjeta, tarjeta_ultimo, vencimiento_mes, vencimiento_ano, nombre_en_tarjeta, id_direccion_facturacion, token_pago, metodo_predeterminado, fecha_creacion)
+-- =========================================================
+-- PEDIDOS / FACTURAS / DETALLES / HISTORIAL_CUPON
+-- =========================================================
+-- 3 pedidos de ejemplo (usuarios: Ana=3, Andres=5, Eleana=10)
+INSERT INTO pedido (id_pedido, id_estado, id_usuario, fecha_pedido, direccion_envio, id_sucursal, descuento)
 VALUES
-  (1,1,'visa','4242',12,2027,'Kenny Example',1,'tok_test_visa',TRUE, NOW()),
-  (2,1,'mastercard','4444',11,2026,'Kenny Example',2,'tok_test_mc',FALSE, NOW())
-ON CONFLICT (id_metodo_pago) DO NOTHING;
-
--- ===== LISTA DESEOS =====
-INSERT INTO lista_deseos (id_usuario, id_producto) VALUES
-  (2,3),
-  (2,5),
-  (3,1)
+  (1, NULL, 3, NOW(), 'Av. Principal 101', 1,  0.00),
+  (2, NULL, 5, NOW(), 'Barrio 5',          1, 10.00),
+  (3, NULL,10, NOW(), 'Barrio 10',         2,  5.00)
 ON CONFLICT DO NOTHING;
 
--- ===== VALORACIONES =====
-INSERT INTO valoracion_producto
-  (id_valoracion_producto, id_producto, id_usuario, puntuacion, comentario, fecha_creacion)
+INSERT INTO factura (id_factura, id_pedido, fecha_emision, total)
 VALUES
-  (1,1,3,5,'Muy buen jugo', NOW()),
-  (2,5,2,4,'Buen arroz', NOW())
-ON CONFLICT (id_valoracion_producto) DO NOTHING;
+  (1,1,NOW(),  122.50),  -- (2x arroz + 1x leche)
+  (2,2,NOW(),   68.00),  -- (2x atún + desc)
+  (3,3,NOW(),   37.50)   -- (2x yogurt)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO factura_detalle (id_factura_detalle, id_factura, id_producto, cantidad_unidad_medida, subtotal_producto) VALUES
+  (1,1,1,2,  90.00),
+  (2,1,2,1,  32.50),
+  (3,2,3,2,  56.00),
+  (4,3,5,2,  37.50)
+ON CONFLICT DO NOTHING;
+
+-- Usuario Ana usa cupón BIENVENIDO10 en su pedido 1
+INSERT INTO historial_cupon (id_historial_cupon, id_cupon, id_usuario, id_pedido, fecha_usado)
+VALUES
+  (1,1,3,1, CURRENT_DATE)
+ON CONFLICT DO NOTHING;
+
+-- =========================================================
+-- VALORACIONES
+-- =========================================================
+INSERT INTO valoracion_producto (id_valoracion_producto, id_producto, id_usuario, puntuacion, comentario, fecha_creacion) VALUES
+  (1,1,3,5,'Muy buen arroz', NOW()),
+  (2,2,5,4,'Buena leche', NOW()),
+  (3,3,10,5,'Atún fresco', NOW())
+ON CONFLICT DO NOTHING;
+
+COMMIT;

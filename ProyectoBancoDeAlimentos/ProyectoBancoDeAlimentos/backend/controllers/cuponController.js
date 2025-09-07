@@ -42,36 +42,29 @@ exports.allCupones = async (req, res) => {
 };
 
 exports.addCupon = async (req, res) => {
-  const {codigo_cupon, id_pedido = null} = req.body;
-  const {id_usuario} = req.params;
+  const { codigo, descripcion, tipo, valor, uso_por_usuario, termina_en, activo } = req.body;
 
   try {
-    const cuponExistente = await models.cupon.findOne({
-      where: { codigo: codigo_cupon, activo: true }
-    });
-
-    if (!cuponExistente) {
-      return res.status(404).json({ message: 'Cupón no encontrado o inactivo' });
+    // Verificar si ya existe un cupón con el mismo código
+    const cuponExistente = await cupon.findOne({ where: { codigo } });
+    if (cuponExistente) {
+      return res.status(400).json({ message: 'Ya existe un cupón con ese código' });
     }
 
-    const usosUsuario = await models.historial_cupon.count({
-      where: { id_usuario, id_cupon: cuponExistente.id_cupon }
-    });
-
-    if (usosUsuario >= cuponExistente.uso_por_usuario) {
-      return res.status(400).json({ message: 'Ya alcanzó el límite de uso de este cupón' });
-    }
-
-    const historial = await models.historial_cupon.create({
-      id_usuario,
-      id_cupon: cuponExistente.id_cupon,
-      id_pedido,
-      fecha_usado: new Date()
+    // Crear nuevo cupón
+    const nuevoCupon = await cupon.create({
+      codigo,
+      descripcion,
+      tipo,        // nuevo
+      valor,       // nuevo
+      uso_por_usuario,
+      termina_en,  // nuevo
+      activo: activo !== undefined ? activo : true
     });
 
     return res.status(201).json({
       message: 'Cupón agregado correctamente',
-      historial
+      cupon: nuevoCupon
     });
   } catch (error) {
     console.error('Error agregando cupón:', error);

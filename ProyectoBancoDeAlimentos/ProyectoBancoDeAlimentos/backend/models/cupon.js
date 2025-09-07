@@ -13,10 +13,5 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     underscored: true,
   });
-/*
-  cupon.associate = (models) => {
-    cupon.hasMany(models.historial_cupon, { foreignKey: 'id_cupon', as: 'historial' });
-  };*/
-
   return cupon;
 };

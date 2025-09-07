@@ -10,12 +10,5 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false,
     underscored: true,
   });
-
-  /*
-  factura_detalle.associate = (models) => {
-    factura_detalle.belongsTo(models.factura, { foreignKey: 'id_factura', as: 'factura' });
-    factura_detalle.belongsTo(models.producto, { foreignKey: 'id_producto', as: 'producto' });
-  };*/
-
   return factura_detalle;
 };
