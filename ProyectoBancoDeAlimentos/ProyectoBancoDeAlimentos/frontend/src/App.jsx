@@ -26,6 +26,7 @@ import UserManagementViews from "./UserManagementViews.jsx";
 import MisCupones from "./misCupones.jsx";
 import Verificacion from "./components/verificacion.jsx";
 import CampanaPromocional from "./components/campanaPromocional.jsx";
+import Carrito from "./carrito.jsx";
 
 import VerificarCodigo from "./verificarcodigo.jsx";
 const HEADER_HEIGHT = 144; // px
@@ -67,6 +68,7 @@ function App() {
           />
           <Route path="/verificacion" element={<Verificacion />} />
           <Route path="/campanaPromocional" element={<CampanaPromocional />} />
+          <Route path="/carrito" element={<Carrito />} />
         </Routes>
       </div>
     </div>

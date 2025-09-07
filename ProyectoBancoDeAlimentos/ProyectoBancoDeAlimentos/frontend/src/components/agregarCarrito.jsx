@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Minus, Plus, Heart } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getAllProducts } from "../api/InventarioApi";
+import { AddNewCarrito, ViewCar, SumarItem } from "../api/CarritoApi";
 
 function AgregarCarrito() {
   const { id } = useParams();
@@ -10,7 +11,6 @@ function AgregarCarrito() {
   const [quantity, setQuantity] = useState(1);
   const [products, setProducts] = useState([]);
 
-  // Cargar productos desde la API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -33,6 +33,76 @@ function AgregarCarrito() {
 
     fetchProducts();
   }, [id, navigate]);
+
+  const [carrito, setCarrito] = useState(null);
+
+  const handleAgregar = async (id_producto) => {
+    if (!id_producto) {
+      alert("ID de producto no válido");
+      return;
+    }
+
+    try {
+      console.log("Agregando producto:", id_producto);
+
+      let carritoActual = null;
+      let carritoVacio = false;
+
+      try {
+        carritoActual = await ViewCar();
+        console.log("Carrito actual:", carritoActual.data);
+      } catch (error) {
+        if (error?.response?.status === 404) {
+          console.log("Carrito vacío - usuario nuevo");
+          carritoVacio = true;
+        } else {
+          throw error;
+        }
+      }
+
+      let existe = false;
+      if (!carritoVacio && carritoActual?.data) {
+        const items = carritoActual.data.carrito_detalles || carritoActual.data;
+        existe = Array.isArray(items)
+          ? items.find((item) => item.id_producto === id_producto)
+          : false;
+      }
+
+      let response;
+
+      if (existe) {
+        console.log("Producto existe, sumando cantidad...");
+        response = await SumarItem(id_producto, quantity);
+        console.log("Sumado", response.data);
+        alert(`Se aumentó la cantidad del producto`);
+      } else {
+        console.log("Producto nuevo o carrito vacío, agregando...");
+        response = await AddNewCarrito(id_producto, quantity);
+        console.log("Agregado", response.data);
+        alert(`Producto agregado al carrito`);
+      }
+
+      try {
+        const actualizado = await ViewCar();
+        setCarrito(actualizado.data);
+      } catch (error) {
+        console.log(
+          "No se pudo recargar el carrito, pero el producto se agregó"
+        );
+      }
+    } catch (error) {
+      console.error("Error completo:", error);
+      console.error("Respuesta del servidor:", error?.response?.data);
+
+      const errorMessage =
+        error?.response?.data?.msg ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "No se pudo procesar el carrito";
+
+      alert(errorMessage);
+    }
+  };
 
   const incrementQuantity = () => setQuantity(quantity + 1);
   const decrementQuantity = () => {
@@ -95,7 +165,8 @@ function AgregarCarrito() {
                     style={styles.addButton}
                     onClick={(e) => {
                       e.stopPropagation();
-                      // lógica carrito
+                      setQuantity(1);
+                      handleAgregar(p.id_producto, quantity);
                     }}
                   >
                     Agregar
@@ -145,7 +216,7 @@ function AgregarCarrito() {
                   <button
                     style={styles.cartBtn}
                     onClick={() => {
-                      // lógica carrito
+                      handleAgregar(product.id_producto, quantity);
                     }}
                   >
                     AGREGAR AL CARRITO

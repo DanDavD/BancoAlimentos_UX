@@ -11,9 +11,16 @@ import checkout from "../images/checkout.png";
 import soporte from "../images/soporte.png";
 import idioma from "../images/idioma.png";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Headerr = ({ isAdminPage }) => {
+  const navigate = useNavigate();
+
   const [logMenu, setLogOpen] = useState(false);
+
+  const handleCarritoClick = () => {
+    navigate(`/carrito`);
+  };
 
   return (
     <div style={{ ...styles.fixedShell, boxShadow: "none" }}>
@@ -35,7 +42,7 @@ const Headerr = ({ isAdminPage }) => {
             </button>
           </div>
 
-          <button style={styles.SmallWrapper}>
+          <button style={styles.SmallWrapper} onClick={handleCarritoClick}>
             <img src={CartIcon} alt="CartIcon" style={styles.icon} />
           </button>
         </div>

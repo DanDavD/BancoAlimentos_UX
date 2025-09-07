@@ -4,6 +4,7 @@ import { EffectCoverflow, Autoplay } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
 import { getAllProducts } from "../api/InventarioApi";
 import { ObtenerCategoria, ListarCategoria } from "../api/CategoriaApi";
+import { AddNewCarrito, ViewCar, SumarItem } from "../api/CarritoApi";
 
 import "swiper/css";
 import "swiper/css/effect-coverflow";
@@ -91,9 +92,94 @@ const InicioUsuario = () => {
     fetchCategories();
   }, []);
 
+  const [carrito, setCarrito] = useState([]);
+
+  useEffect(() => {
+    const fetchCar = async () => {
+      try {
+        const res = await ViewCar();
+        setCarrito(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.error("[Carrito] error:", err?.response?.data || err);
+        alert(err?.response?.data?.message || "Error al cargar carrito");
+      }
+    };
+    fetchCar();
+  }, []);
+
+  const handleAgregar = async (id_producto) => {
+    if (!id_producto) {
+      alert("ID de producto no válido");
+      return;
+    }
+
+    try {
+      console.log("Agregando producto:", id_producto);
+
+      let carritoActual = null;
+      let carritoVacio = false;
+
+      try {
+        carritoActual = await ViewCar();
+        console.log("Carrito actual:", carritoActual.data);
+      } catch (error) {
+        if (error?.response?.status === 404) {
+          console.log("Carrito vacío - usuario nuevo");
+          carritoVacio = true;
+        } else {
+          throw error;
+        }
+      }
+
+      let existe = false;
+      if (!carritoVacio && carritoActual?.data) {
+        const items = carritoActual.data.carrito_detalles || carritoActual.data;
+        existe = Array.isArray(items)
+          ? items.find((item) => item.id_producto === id_producto)
+          : false;
+      }
+
+      let response;
+
+      if (existe) {
+        console.log("Producto existe, sumando cantidad...");
+        response = await SumarItem(id_producto, 1);
+        console.log("Sumado", response.data);
+        alert(`Se aumentó la cantidad del producto`);
+      } else {
+        console.log("Producto nuevo o carrito vacío, agregando...");
+        response = await AddNewCarrito(id_producto, 1);
+        console.log("Agregado", response.data);
+        alert(`Producto agregado al carrito`);
+      }
+
+      try {
+        const actualizado = await ViewCar();
+        setCarrito(actualizado.data);
+      } catch (error) {
+        console.log(
+          "No se pudo recargar el carrito, pero el producto se agregó"
+        );
+      }
+    } catch (error) {
+      console.error("Error completo:", error);
+      console.error("Respuesta del servidor:", error?.response?.data);
+
+      const errorMessage =
+        error?.response?.data?.msg ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "No se pudo procesar el carrito";
+
+      alert(errorMessage);
+    }
+  };
+
   const handleProductClick = (productId) => {
     navigate(`/producto/${productId}`);
   };
+
   const handleCategoryClick = (categoryId) => {
     navigate(`/categoria/${categoryId}`);
   };
@@ -259,6 +345,7 @@ const InicioUsuario = () => {
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
+                  handleAgregar(p.id_producto, 1);
                 }}
               >
                 Agregar
@@ -341,7 +428,7 @@ const InicioUsuario = () => {
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  //lógica del carrito
+                  handleAgregar(p.id_producto, 1);
                 }}
               >
                 Agregar
