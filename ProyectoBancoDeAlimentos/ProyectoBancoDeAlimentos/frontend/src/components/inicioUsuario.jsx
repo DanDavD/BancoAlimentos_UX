@@ -30,22 +30,6 @@ import banner1 from "../images/banner1.png";
 import banner2 from "../images/banner2.png";
 import banner3 from "../images/banner3.png";
 
-const categories = [
-  { name: "Lácteos", icon: milk },
-  { name: "Farmacia", icon: pharmacy },
-  { name: "Electrónico", icon: phone },
-  { name: "Deportes", icon: soccer },
-  { name: "Limpieza", icon: clean },
-  { name: "Bebidas", icon: juice },
-  { name: "Panadería", icon: bread },
-  { name: "Repostería", icon: cake },
-  { name: "Embutidos", icon: ham },
-  { name: "Mascotas", icon: pet },
-  { name: "Frutas", icon: apple },
-  { name: "Verduras", icon: carrot },
-  { name: "Granos", icon: coffee },
-];
-
 const banners = [banner1, banner3, banner2];
 
 const InicioUsuario = () => {
@@ -93,20 +77,6 @@ const InicioUsuario = () => {
   }, []);
 
   const [carrito, setCarrito] = useState([]);
-
-  useEffect(() => {
-    const fetchCar = async () => {
-      try {
-        const res = await ViewCar();
-        setCarrito(res.data);
-        console.log(res.data);
-      } catch (err) {
-        console.error("[Carrito] error:", err?.response?.data || err);
-        alert(err?.response?.data?.message || "Error al cargar carrito");
-      }
-    };
-    fetchCar();
-  }, []);
 
   const handleAgregar = async (id_producto) => {
     if (!id_producto) {
