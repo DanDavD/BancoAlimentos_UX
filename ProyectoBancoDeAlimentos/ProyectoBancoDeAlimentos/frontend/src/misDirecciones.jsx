@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./misDirecciones.css";
 import PerfilSidebar from "./components/perfilSidebar";
-import * as Icon from "lucide-react"; // para los íconos
+import * as Icon from "lucide-react";
 import EditarDireccionModal from "./editarDireccionModal";
+import { getDirecciones, addDireccion, setDireccionDefault, eliminarDireccionApi } from "./api/DireccionesApi";
+import { jwtDecode } from "jwt-decode";
 
 export default function MisDirecciones() {
   const [showModal, setShowModal] = useState(false);
+  const [direcciones, setDirecciones] = useState([]);
+  const [editId, setEditId] = useState(null);
 
   const [form, setForm] = useState({
     codigoPostal: "",
@@ -15,10 +19,30 @@ export default function MisDirecciones() {
     predeterminada: false,
   });
 
-  const [direcciones, setDirecciones] = useState([]);
-  const [editId, setEditId] = useState(null);
+  // Estado para errores de validación
+  const [errores, setErrores] = useState({});
 
-  // Manejar cambios en inputs
+  const getUserId = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode(token);
+      return decoded.id;
+    } catch (err) {
+      console.error("Error decodificando token:", err);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const id_usuario = getUserId();
+    if (!id_usuario) return;
+
+    getDirecciones(id_usuario)
+      .then((res) => setDirecciones(res.data))
+      .catch((err) => console.error("Error al obtener direcciones:", err));
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm({
@@ -27,51 +51,87 @@ export default function MisDirecciones() {
     });
   };
 
-  // Guardar nueva dirección o actualizar existente
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
 
-    if (
-      !form.codigoPostal ||
-      !form.departamento ||
-      !form.ciudad ||
-      !form.calle
-    ) {
-      alert("Por favor completa todos los campos obligatorios.");
+    // VALIDACIONES
+    let nuevosErrores = {};
+    if (!form.calle.trim()) nuevosErrores.calle = "La calle es obligatoria";
+    if (!form.ciudad.trim()) nuevosErrores.ciudad = "La ciudad es obligatoria";
+    if (!form.departamento.trim()) nuevosErrores.departamento = "El departamento es obligatorio";
+    if (!/^\d{5}$/.test(form.codigoPostal)) nuevosErrores.codigoPostal = "El código postal debe tener 5 dígitos";
+
+    if (Object.keys(nuevosErrores).length > 0) {
+      setErrores(nuevosErrores);
       return;
-    }
-
-    if (editId) {
-      // Editar
-      setDirecciones(
-        direcciones.map((d) => (d.id === editId ? { ...d, ...form } : d))
-      );
-      setEditId(null);
     } else {
-      // Agregar nueva
-      const nuevaDireccion = { id: Date.now(), ...form };
-      setDirecciones([...direcciones, nuevaDireccion]);
+      setErrores({});
     }
 
-    // Reset form
-    setForm({
-      codigoPostal: "",
-      departamento: "",
-      ciudad: "",
-      calle: "",
-      predeterminada: false,
-    });
+    try {
+      const id_usuario = getUserId();
+      if (!id_usuario) {
+        console.error("No se encontró usuario logueado");
+        return;
+      }
+
+      if (editId) {
+        // Editar solo local por ahora
+        setDirecciones(
+          direcciones.map((d) =>
+            d.id === editId ? { ...d, ...form } : d
+          )
+        );
+        setEditId(null);
+      } else {
+        const payload = {
+          calle: form.calle,
+          ciudad: form.ciudad,
+          codigo_postal: form.codigoPostal,
+          predeterminada: form.predeterminada,
+          departamento: form.departamento,
+        };
+
+        await addDireccion({ id_usuario, ...payload });
+
+        // Refrescar tabla
+        const res = await getDirecciones(id_usuario);
+        setDirecciones(res.data);
+      }
+
+      // Reset form
+      setForm({
+        codigoPostal: "",
+        departamento: "",
+        ciudad: "",
+        calle: "",
+        predeterminada: false,
+      });
+    } catch (err) {
+      console.error("Error al guardar dirección:", err);
+    }
   };
 
-  // Editar fila
   const openEdit = (row) => {
-    setForm(row);
-    setEditId(row.id);
+    setForm({
+      codigoPostal: row.codigo_postal,
+      departamento: row.departamento || "",
+      ciudad: row.ciudad,
+      calle: row.calle,
+      predeterminada: row.predeterminada,
+    });
+    setEditId(row.id_direccion);
   };
 
-  // Eliminar fila
-  const removeRow = (id) => {
-    setDirecciones(direcciones.filter((d) => d.id !== id));
+  const removeRow = async (id) => {
+    try {
+      const id_usuario = getUserId();
+      await eliminarDireccionApi({ id_usuario, id_direccion: id });
+      const res = await getDirecciones(id_usuario);
+      setDirecciones(res.data);
+    } catch (err) {
+      console.error("Error al eliminar dirección:", err);
+    }
   };
 
   return (
@@ -83,7 +143,6 @@ export default function MisDirecciones() {
       <h1 className="titulo">Mis Direcciones</h1>
       <hr className="separador" />
 
-      {/* ---------- FORMULARIO ---------- */}
       <div className="formulario-direccion">
         <form onSubmit={handleSave}>
           <div className="fila">
@@ -96,9 +155,10 @@ export default function MisDirecciones() {
                 value={form.codigoPostal}
                 onChange={handleChange}
               />
+              {errores.codigoPostal && <p className="error">{errores.codigoPostal}</p>}
             </div>
             <div className="campo">
-              <label>Departamento</label>
+              <label>Departamento*</label>
               <select
                 name="departamento"
                 value={form.departamento}
@@ -109,19 +169,21 @@ export default function MisDirecciones() {
                 <option>Atlántida</option>
                 <option>Yoro</option>
               </select>
+              {errores.departamento && <p className="error">{errores.departamento}</p>}
             </div>
           </div>
 
           <div className="fila">
             <div className="campo">
-              <label>Ciudad*</label>
+              <label>Municipio*</label>
               <input
                 type="text"
-                name="ciudad"
+                name="municipio"
                 placeholder="Ej: Lima"
-                value={form.ciudad}
+                value={form.municipio}
                 onChange={handleChange}
               />
+              {errores.municipio && <p className="error">{errores.municipio}</p>}
             </div>
             <div className="campo">
               <label>Calle, casa/apartamento*</label>
@@ -132,6 +194,7 @@ export default function MisDirecciones() {
                 value={form.calle}
                 onChange={handleChange}
               />
+              {errores.calle && <p className="error">{errores.calle}</p>}
             </div>
           </div>
 
@@ -164,6 +227,7 @@ export default function MisDirecciones() {
                   predeterminada: false,
                 });
                 setEditId(null);
+                setErrores({});
               }}
             >
               Cancelar
@@ -172,7 +236,6 @@ export default function MisDirecciones() {
         </form>
       </div>
 
-      {/* ---------- TABLA ---------- */}
       <div className="tabla-direcciones">
         <table className="table">
           <thead>
@@ -189,18 +252,15 @@ export default function MisDirecciones() {
           <tbody>
             {direcciones.length === 0 ? (
               <tr>
-                <td
-                  colSpan="7"
-                  style={{ textAlign: "center", padding: "15px" }}
-                >
+                <td colSpan="7" style={{ textAlign: "center", padding: "15px" }}>
                   No hay direcciones registradas.
                 </td>
               </tr>
             ) : (
               direcciones.map((d) => (
-                <tr key={d.id}>
-                  <td>{d.id}</td>
-                  <td>{d.codigoPostal}</td>
+                <tr key={d.id_direccion}>
+                  <td>{d.id_direccion}</td>
+                  <td>{d.codigo_postal}</td>
                   <td>{d.departamento}</td>
                   <td>{d.calle}</td>
                   <td>{d.ciudad}</td>
@@ -218,7 +278,7 @@ export default function MisDirecciones() {
                         <Icon.Edit className="text-[#2ca9e3]" size={16} />
                       </button>
                       <button
-                        onClick={() => removeRow(d.id)}
+                        onClick={() => removeRow(d.id_direccion)}
                         className="p-2 rounded-xl border border-[#d8dadc] hover:bg-red-50"
                         title="Eliminar"
                       >

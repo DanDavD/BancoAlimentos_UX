@@ -169,9 +169,7 @@ const CampanaPromocional = () => {
 
               <label style={styles.label}>Subcategoría</label>
               <select style={styles.select}>
-                <option>Fruta</option>
-                <option>Verdura</option>
-                <option>Bebida</option>
+                <option>seleccione</option>
               </select>
 
               <label style={styles.label}>Producto</label>

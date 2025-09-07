@@ -44,3 +44,9 @@ export function getAllCupones(){
 export function getCuponesByUser(id_usuario){
     return axiosInstance.get(`/api/cupones/${id_usuario}`);
 }
+export function desactivarProducto(id_producto){
+    return axiosInstance.patch('/api/producto/desactivar', {id_producto});
+}
+export function actualizarProducto(id_producto, nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca){
+    return axiosInstance.put(`/api/producto/actualizar-producto/${id_producto}`, {nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca});
+}
