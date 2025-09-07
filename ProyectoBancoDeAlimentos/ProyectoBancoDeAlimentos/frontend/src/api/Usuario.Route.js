@@ -30,3 +30,14 @@ export function EditProfile (payload){
 export function updateUserById (id, payload){
   return axiosInstance.put(`/api/MiPerfil/perfil/${id}`, payload);
 }
+
+export function forgetPassword (correo){
+  return axiosInstance.post('/api/forget-password/', {correo});
+}
+
+export function validarCodigo (correo, codigo){
+  return axiosInstance.post('/api/validar-codigo/', {correo, codigo});
+}
+export function changePassword (mail, new_password){
+  return axiosInstance.patch('/api/forget-password/cambiar-password', {mail, new_password});
+}

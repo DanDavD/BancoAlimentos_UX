@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     nombre_pedido : DataTypes.STRING
   }, {
-    tableName: "direccion",
+    tableName: "estado_pedido",
     timestamps: false
   });
 

@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
     icono_categoria :{
         type : DataTypes.STRING,
         allowNull : false
+    },
+    PorcentajeDeGananciaMinimo:{
+      type: DataTypes.FLOAT,
+      defaultValue: 0.0
     } 
   }, {
     tableName: "categoria",
