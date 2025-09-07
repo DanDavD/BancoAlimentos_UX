@@ -2,8 +2,11 @@ import React from "react";
 import "./sidebar.css";
 import logo from "./images/logo_sidebar.png";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
   const [show, showSubList] = useState(false);
   const handleClick = () => {
     showSubList(!show);
@@ -52,12 +55,15 @@ const Sidebar = () => {
           </a>
         </li>
         <li>
-          <a href="/mensajeria" className="sidebar_item">
+          <button
+            onClick={() => navigate("/campanaPromocional")}
+            className="sidebar_item text-left"
+          >
             <span className="material-symbols-outlined text-[42px] text-white">
               percent_discount
             </span>
             Promociones y descuentos
-          </a>
+          </button>
         </li>
         <li>
           <a href="/mensajeria" className="sidebar_item">
