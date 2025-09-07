@@ -10,7 +10,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar  min-h-screen pt-1">
+    <div className="sidebar min-h-screen pt-1">
       {
         //<img src={logo} className="w-40 h-12 object-cover ml-4 my-4"></img>
       }
