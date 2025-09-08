@@ -3,6 +3,7 @@ import "./categoria.css";
 import Slider from "@mui/material/Slider";
 import Checkbox from "@mui/material/Checkbox";
 import { getAllProducts } from "./api/InventarioApi";
+import { useParams } from "react-router-dom";
 function Categoria() {
   const subcategories = ["Hellmans", "Campofresco", "Naturas"];
   const prodRefRecomendados = useRef(null);
@@ -10,6 +11,7 @@ function Categoria() {
   const [orderby, setOrder] = useState("");
   const [stateProducto, setState] = useState("Agregar");
   const [btnCompare, setCompare] = useState("COMPARAR");
+  const { id } = useParams();
 
   const [hoveredProductDest, setHoveredProductDest] = React.useState(null);
 
@@ -28,21 +30,28 @@ function Categoria() {
       try {
         const res = await getAllProducts();
         console.log(res.data);
-        setProducts(res.data);
+        //setProducts(res.data);
         res.data.forEach((p) => {
-          console.log("Producto:", p.nombre);
-          console.log("Precio:", p.precio_base);
-          console.log("Subcategoría:", p.subcategoria?.nombre);
-          console.log("Categoría:", p.subcategoria?.categoria?.nombre);
-          console.log("Marca:", p.marca?.nombre);
-          console.log("Imagen 1:", p.imagenes[0].url_imagen);
+          //console.log("Producto:", p.nombre);
+          // console.log("Precio:", p.precio_base);
+          //console.log("Subcategoría:", p.subcategoria?.nombre);
+          //console.log("Categoría:", p.subcategoria?.categoria?.nombre);
+          p.subcategoria.categoria.forEach((cat) => {
+            if (cat.id_categoria === id) {
+              console.log("CATEGORIA: ", id);
+              console.log("PRODUCTO: ", p);
+              setProducts((prev) => [...prev, p]);
+            }
+          });
+          // console.log("Marca:", p.marca?.nombre);
+          //console.log("Imagen 1:", p.imagenes[0].url_imagen);
           //Obtener primera imagen
           if (p.imagenes?.length > 0) {
-            console.log("Imagen principal:", p.imagenes[0].url_imagen);
+            // console.log("Imagen principal:", p.imagenes[0].url_imagen);
           }
           //Obtener todas
           p.imagenes.forEach((img) => {
-            console.log("🖼️ Imagen URL:", img.url_imagen);
+            //console.log("🖼️ Imagen URL:", img.url_imagen);
           });
         });
       } catch (err) {
@@ -215,7 +224,7 @@ function Categoria() {
                 </div>
 
                 <img
-                  src={p.imagenes[0].url_imagen}
+                  src={`/images/categorias/${p.imagenes[0].url_imagen}`}
                   alt={p.nombre}
                   style={styles.productImg}
                 />

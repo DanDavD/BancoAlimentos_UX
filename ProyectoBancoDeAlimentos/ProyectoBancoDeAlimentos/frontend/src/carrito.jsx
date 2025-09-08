@@ -6,6 +6,7 @@ import arrowL from "./images/arrowL.png";
 import arrowR from "./images/arrowR.png";
 import React from "react";
 import { getAllProducts } from "./api/InventarioApi";
+import { useParams } from "react-router-dom"; 
 //Agregar Parametro que diga cuantos productos en carrito?
 function Carrito() {
   //Objeto de producto
@@ -21,6 +22,8 @@ function Carrito() {
       });
     }
   };
+  //carrito id
+  const { id } = useParams();
   //Referencia de los productos recomendados para scroll
   const prodRefRecomendados = useRef(null);
 

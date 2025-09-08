@@ -199,9 +199,9 @@ const InicioUsuario = () => {
                 onMouseLeave={() => setHoveredIndex(null)}
                 onClick={() => handleCategoryClick(cat.id_categoria)}
               >
-                {cat.icono_categoria ? (
+                {cat.imagenes[0].url_imagen ? (
                   <img
-                    src={`/images/categorias/${cat.icono_categoria}`}
+                    src={`/images/categorias/${cat.imagenes[0].url_imagen}`}
                     alt={cat.nombre}
                     style={{
                       width: "70px",
