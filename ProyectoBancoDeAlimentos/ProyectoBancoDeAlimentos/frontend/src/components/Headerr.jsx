@@ -31,11 +31,10 @@ const Headerr = ({ isAdminPage }) => {
   };
 
   const fotoUrl = user?.foto_perfil_url ? user.foto_perfil_url : UserIcon; // icono por defecto
-
   return (
     <div style={{ ...styles.fixedShell, boxShadow: "none" }}>
       <div style={styles.topBar}>
-        <img src={logo} alt="Logo" style={styles.logo} />
+        <img src={logo} alt="Logo" style={styles.logo} onClick={() => navigate('/')}/>
 
         <div style={styles.divBar}>
           <div style={styles.searchWrapper}>
@@ -213,6 +212,7 @@ const styles = {
     height: "60px",
     margin: "0 50px",
     objectFit: "contain",
+    cursor: "pointer",
   },
   searchWrapper: {
     display: "flex",
