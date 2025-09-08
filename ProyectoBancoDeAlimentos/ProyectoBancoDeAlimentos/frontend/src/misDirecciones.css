@@ -70,7 +70,7 @@
 }
 
 .btn-cancelar {
-  background: #e74c3c;
+  background: #ffffff;
   color: #ffffff;
   padding: 10px 18px;
   border-radius: 6px;
@@ -166,7 +166,7 @@ tbody tr:hover {
   color: #ffffff;
 }
 .modal-close:hover {
-  color: #e74c3c;
+  color: #fbfbfb;
 }
 
 /* ---------- TOAST ---------- */
@@ -174,24 +174,18 @@ tbody tr:hover {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #f0833e; /* color principal */
+  background-color: #f0833e; /* color base */
   color: white;
   padding: 10px 20px;
   border-radius: 8px;
   box-shadow: 0 3px 6px rgba(0,0,0,0.2);
   z-index: 1000;
   animation: fadein 0.3s, fadeout 0.5s 2.5s;
+  font-size: 14px;
 }
 
 .toast.error { background-color: #f0833e; }
-.toast.success { background-color: #2ca9e3; }
+.toast.success { background-color: #2b6daf; }
 
 @keyframes fadein { from {opacity:0;} to {opacity:1;} }
 @keyframes fadeout { from {opacity:1;} to {opacity:0;} }
-
-/* Mensajes de error debajo de inputs */
-.error {
-  color: black;
-  font-size: 0.8rem;
-  margin-top: 3px;
-}

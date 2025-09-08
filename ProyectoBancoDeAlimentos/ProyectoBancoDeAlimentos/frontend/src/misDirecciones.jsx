@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import "./misDirecciones.css";
 import PerfilSidebar from "./components/perfilSidebar";
 import * as Icon from "lucide-react";
@@ -29,6 +29,15 @@ export default function MisDirecciones() {
   });
 
   const [errores, setErrores] = useState({});
+  
+  // ✅ Estado para los toasts
+  const [toast, setToast] = useState({ mensaje: "", tipo: "" });
+
+  // ✅ Función para mostrar toast
+  const showToast = (mensaje, tipo = "error") => {
+    setToast({ mensaje, tipo });
+    setTimeout(() => setToast({ mensaje: "", tipo: "" }), 3000);
+  };
 
   const getUserId = () => {
     const token = localStorage.getItem("token");
@@ -46,17 +55,14 @@ export default function MisDirecciones() {
     const id_usuario = getUserId();
     if (!id_usuario) return;
 
-    // Obtener las direcciones del usuario
     getDirecciones(id_usuario)
       .then((res) => setDirecciones(res.data))
       .catch((err) => console.error("Error al obtener direcciones:", err));
     
-    // Obtener la lista de municipios del backend
     getAllMunicipios()
       .then((res) => setMunicipios(res.data))
       .catch((err) => console.error("Error al obtener municipios:", err));
       
-    // Obtener la lista de departamentos del backend
     getAllDepartamentos()
       .then((res) => setDepartamentos(res.data))
       .catch((err) => console.error("Error al obtener departamentos:", err));
@@ -81,6 +87,7 @@ export default function MisDirecciones() {
 
     if (Object.keys(nuevosErrores).length > 0) {
       setErrores(nuevosErrores);
+      showToast("Por favor completa todos los campos obligatorios", "error");
       return;
     } else {
       setErrores({});
@@ -89,21 +96,21 @@ export default function MisDirecciones() {
     try {
       const id_usuario = getUserId();
       if (!id_usuario) {
-        console.error("No se encontró usuario logueado");
+        showToast("No se encontró usuario logueado", "error");
         return;
       }
       const municipioSeleccionado = municipios.find(m => m.id_municipio == form.id_municipio);
       const payload = {
-      id_usuario,
-      calle: form.calle,
-      codigo_postal: form.codigoPostal,
-      predeterminada: form.predeterminada,
-      id_municipio: form.id_municipio,
-      id_departamento: form.id_departamento,
-      ciudad: municipioSeleccionado ? municipioSeleccionado.nombre_municipio : null,
-    };
+        id_usuario,
+        calle: form.calle,
+        codigo_postal: form.codigoPostal,
+        predeterminada: form.predeterminada,
+        id_municipio: form.id_municipio,
+        id_departamento: form.id_departamento,
+        ciudad: municipioSeleccionado ? municipioSeleccionado.nombre_municipio : null,
+      };
 
-await addDireccion(payload);
+      await addDireccion(payload);
 
       const res = await getDirecciones(id_usuario);
       setDirecciones(res.data);
@@ -115,8 +122,11 @@ await addDireccion(payload);
         id_municipio: "",
         id_departamento: "",
       });
+
+      showToast("Dirección guardada con éxito ✅", "success");
     } catch (err) {
       console.error("Error al guardar dirección:", err.response ? err.response.data : err);
+      showToast("Error al guardar dirección", "error");
     }
   };
 
@@ -126,7 +136,6 @@ await addDireccion(payload);
       calle: row.calle,
       predeterminada: row.predeterminada,
       id_municipio: row.id_municipio,
-      // ✅ Aquí tienes que encontrar el departamento basándote en el municipio
       id_departamento: municipios.find(m => m.id_municipio === row.id_municipio)?.id_departamento || "",
     });
     setEditId(row.id_direccion);
@@ -138,20 +147,16 @@ await addDireccion(payload);
       await eliminarDireccionApi({ id_usuario, id_direccion: id });
       const res = await getDirecciones(id_usuario);
       setDirecciones(res.data);
+      showToast("Dirección eliminada correctamente 🗑️", "success");
     } catch (err) {
       console.error("Error al eliminar dirección:", err);
+      showToast("Error al eliminar dirección", "error");
     }
   };
 
-  // ✅ FUNCIONES PARA BUSCAR LOS NOMBRES
   const getMunicipioById = (id) => {
     const municipio = municipios.find(m => m.id_municipio === id);
     return municipio ? municipio.nombre_municipio : "";
-  };
-
-  const getDepartamentoById = (id) => {
-    const departamento = departamentos.find(d => d.id_departamento === id);
-    return departamento ? departamento.nombre_departamento : "";
   };
 
   const getDeptoPorMunicipio = (idMunicipio) => {
@@ -170,7 +175,8 @@ await addDireccion(payload);
       <h1 className="titulo">Mis Direcciones</h1>
       <hr className="separador" />
 
-      <div className="formulario-direccion">
+      {/* 📌 Formulario más ancho */}
+      <div className="formulario-direccion ancho">
         <form onSubmit={handleSave}>
           <div className="fila">
             <div className="campo">
@@ -198,7 +204,6 @@ await addDireccion(payload);
                   </option>
                 ))}
               </select>
-              {errores.departamento && <p className="error">{errores.departamento}</p>}
             </div>
           </div>
 
@@ -209,17 +214,16 @@ await addDireccion(payload);
                 name="id_municipio"
                 value={form.id_municipio}
                 onChange={handleChange}
-                // ✅ Agregamos un "key" para forzar la actualización del select cuando cambia el departamento
                 key={form.id_departamento}
               >
                 <option value="">Seleccionar</option>
                 {municipios
-                    .filter(m => m.id_departamento == form.id_departamento)
-                    .map(m => (
+                  .filter(m => m.id_departamento == form.id_departamento)
+                  .map(m => (
                     <option key={m.id_municipio} value={m.id_municipio}>
-                        {m.nombre_municipio}
+                      {m.nombre_municipio}
                     </option>
-                ))}
+                  ))}
               </select>
               {errores.id_municipio && <p className="error">{errores.id_municipio}</p>}
             </div>
@@ -274,7 +278,8 @@ await addDireccion(payload);
         </form>
       </div>
 
-      <div className="tabla-direcciones">
+      {/* 📌 Tabla más ancha */}
+      <div className="tabla-direcciones ancho">
         <table className="table">
           <thead>
             <tr>
@@ -299,10 +304,8 @@ await addDireccion(payload);
                 <tr key={d.id_direccion}>
                   <td>{d.id_direccion}</td>
                   <td>{d.codigo_postal}</td>
-                  {/* ✅ Usamos la nueva función para mostrar el nombre del departamento */}
                   <td>{d.id_municipio ? getDeptoPorMunicipio(d.id_municipio) : "N/A"}</td>
                   <td>{d.calle}</td>
-                  {/* ✅ Usamos la nueva función para mostrar el nombre del municipio */}
                   <td>{d.id_municipio ? getMunicipioById(d.id_municipio) : "N/A"}</td>
                   <td>{d.predeterminada ? "Sí" : "No"}</td>
                   <td>
@@ -332,6 +335,7 @@ await addDireccion(payload);
           </tbody>
         </table>
       </div>
+
       <EditarDireccionModal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -339,6 +343,13 @@ await addDireccion(payload);
         handleChange={handleChange}
         handleSave={handleSave}
       />
+
+      {/* ✅ Toast */}
+      {toast.mensaje && (
+        <div className={`toast ${toast.tipo}`}>
+          {toast.mensaje}
+        </div>
+      )}
     </div>
   );
 }
