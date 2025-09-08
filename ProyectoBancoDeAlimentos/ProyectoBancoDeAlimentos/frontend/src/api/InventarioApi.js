@@ -9,7 +9,11 @@ export function getAllSucursales(){
 
 export function abastecerPorSucursalProducto(id_sucursal, id_producto, cantidad, modo='sumar'){
     return axiosInstance.put(`/api/Inventario/abastecer/sucursal/${id_sucursal}/producto/${id_producto}`, {cantidad, modo});
-}   
+}
+
+export function getMarcas(){
+    return axiosInstance.get('/api/producto/marcas');
+}
 
 export function getProductosDestacados(){
     return axiosInstance.get('/api/producto/destacados');
@@ -49,4 +53,8 @@ export function desactivarProducto(id_producto){
 }
 export function actualizarProducto(id_producto, nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida, activo){
     return axiosInstance.put(`/api/producto/actualizar-producto/${id_producto}`, {nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida, activo});
+}
+
+export function crearProducto(nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida){
+    return axiosInstance.post('/api/Inventario/productos', {nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida});
 }

@@ -80,12 +80,33 @@ exports.listarProductos = async (req, res) => {
       ],
       include: [
         { model: imagen_producto, as: 'imagenes', attributes: ['url_imagen', 'orden_imagen'] },
-        { model: subcategoria, as: 'subcategoria', attributes: ['id_subcategoria', 'nombre'] },
+        {
+          model: subcategoria,
+          as: 'subcategoria',
+          attributes: ['id_subcategoria', 'nombre', 'id_categoria_padre'],
+          include: [
+            {
+              model: categoria,
+              attributes: ['id_categoria', 'nombre', 'icono_categoria']
+            }
+          ]
+        },
         { model: marca_producto, as: 'marca_producto', attributes: ['id_marca_producto', 'nombre'] }
       ],
       order: [['id_producto', 'DESC']]
     });
     res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.listarMarcas = async (req, res) => {
+  try {
+    const marcas = await marca_producto.findAll({
+      attributes: ['id_marca_producto', 'nombre']
+    });
+    res.json(marcas);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

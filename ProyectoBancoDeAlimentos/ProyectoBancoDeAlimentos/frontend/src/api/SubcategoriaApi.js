@@ -23,3 +23,7 @@ export function actualizarSubcategoria(id, nombre, id_categoria_padre) {
 export function desactivarSubcategoria(id) {
   return axiosInstance.delete(`/api/subcategorias/${id}`);
 }
+
+export function listarPorCategoria(id_categoria_padre) {
+  return axiosInstance.get(`/api/subcategorias/por-categoria/${id_categoria_padre}`);
+}

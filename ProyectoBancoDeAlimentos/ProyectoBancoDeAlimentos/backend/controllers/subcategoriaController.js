@@ -1,5 +1,24 @@
-const { subcategoria, producto, categoria, sucursal_producto } = require("../models");
+const { subcategoria, producto, categoria, sucursal_producto,subcategory } = require("../models");
 const { Op } = require("sequelize");
+
+
+
+exports.listarPorCategoria = async (req, res) => {
+  try {
+    const { id_categoria_padre } = req.params; // <-- así es
+    if (!id_categoria_padre) {
+      return res.status(400).json({ message: "id_categoria_padre es requerido" });
+    }
+    const subcategorias = await subcategoria.findAll({
+      where: { id_categoria_padre }, // si es INT y necesitas, usa Number(id_categoria_padre)
+      attributes: ['id_subcategoria', 'nombre', 'id_categoria_padre'],
+      include: [{ model: categoria, attributes: ['nombre'] }]
+    });
+    res.json(subcategorias);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
 
 exports.listar = async (req, res) => {
   try {
@@ -12,6 +31,8 @@ exports.listar = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+
 
 exports.obtener = async (req, res) => {
   try {
