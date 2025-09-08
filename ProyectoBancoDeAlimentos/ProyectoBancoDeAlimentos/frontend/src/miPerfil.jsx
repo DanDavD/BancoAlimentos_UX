@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./miPerfil.css";
 import { Link } from "react-router-dom";
 import PerfilSidebar from "./components/perfilSidebar";
+
 import {
   InformacionUser,
   EditProfile,
@@ -82,18 +83,18 @@ export default function MiPerfil() {
   const [cargando, setCargando] = useState(true);
   const [datosValidos, setDatosValidos] = useState(true);
   const [editMode, setEditMode] = useState(false);
+  const [fotoBase64, setFotoBase64] = useState(null);
+
   //funcion para manejar la subida de la foto
 
-  const handleFotoChange = async (e) => {
-    if (!editMode) return; // 👈 bloquear si no está en modo edición
-    const file = e.target.files[0];
+  const handleFotoChange = (e) => {
+    if (!editMode) return;
+    const file = e.target.files?.[0];
     if (!file) return;
-    try {
-      const res = await uploadProfilePhoto(file);
-      setFotoUrl(res.data.url);
-    } catch (err) {
-      console.error("Error subiendo foto:", err);
-    }
+    setFotoUrl(URL.createObjectURL(file)); // preview
+    const reader = new FileReader();
+    reader.onload = () => setFotoBase64(reader.result); // data:image/...;base64,...
+    reader.readAsDataURL(file);
   };
 
   // carga la información del usuario autenticado
@@ -148,6 +149,13 @@ export default function MiPerfil() {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!passwordError) return;
+
+    const timer = setTimeout(() => setPasswordError(""), 2000);
+    return () => clearTimeout(timer);
+  }, [passwordError]);
 
   return (
     <div className="perfil-container">
@@ -256,13 +264,17 @@ export default function MiPerfil() {
                     const payload = {
                       telefono,
                       nombre,
-                      apellidos,
+                      apellido: apellidos,
                       correo,
                       genero,
+                      ...(fotoBase64 ? { foto_perfil: fotoBase64 } : {}),
                     };
-                    const res = await EditProfile(payload);
+                    const res = await axiosInstance.put(
+                      "/api/MiPerfil/perfil",
+                      payload
+                    );
                     console.log("Perfil actualizado", res.data);
-                    setEditMode(false); // 👈 salir del modo edición
+                    setEditMode(false);
                   } catch (err) {
                     console.error(
                       "Error guardando perfil:",
@@ -299,6 +311,7 @@ export default function MiPerfil() {
                 </div>
                 <div className="modal-body">
                   <label>Contraseña anterior</label>
+
                   <input
                     type="password"
                     value={oldPassword}
@@ -317,7 +330,11 @@ export default function MiPerfil() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   {passwordError && (
-                    <p style={{ color: "red", marginTop: 8 }}>
+                    <p
+                      className="password-error"
+                      role="alert"
+                      aria-live="assertive"
+                    >
                       {passwordError}
                     </p>
                   )}
@@ -329,8 +346,9 @@ export default function MiPerfil() {
                   >
                     Cancelar
                   </button>
+
                   <button
-                    className="btn-secondary"
+                    className="MPbtn-secondary"
                     onClick={async () => {
                       // validar nueva vs confirmacion
                       setPasswordError("");

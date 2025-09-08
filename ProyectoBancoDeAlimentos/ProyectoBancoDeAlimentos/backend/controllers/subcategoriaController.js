@@ -1,5 +1,35 @@
-const { subcategoria, producto, categoria, sucursal_producto } = require("../models");
+const { subcategoria, producto, categoria, sucursal_producto,subcategory } = require("../models");
 const { Op } = require("sequelize");
+
+
+// controllers/subcategoriaController.js
+
+exports.listarPorCategoria = async (req, res) => {
+  try {
+    const { id_categoria_padre } = req.params;              // ✅ así
+    if (!id_categoria_padre) {
+      return res.status(400).json({ message: "id_categoria_padre es requerido" });
+    }
+
+    const where = { id_categoria_padre: Number(id_categoria_padre) || id_categoria_padre };
+
+    const subcategorias = await subcategoria.findAll({
+      where,
+      attributes: ["id_subcategoria", "nombre", "id_categoria_padre"],
+      // Usa el mismo alias que definiste en tus modelos:
+      // p.ej. subcategoria.belongsTo(categoria, { foreignKey: 'id_categoria_padre', as: 'categoria' })
+
+      include: [{ model: categoria, as: "categoria", attributes: ["id_categoria", "nombre", "icono_categoria"] }]
+      
+    });
+
+    return res.json(subcategorias);
+  } catch (e) {
+    console.error("listarPorCategoria error:", e);
+    return res.status(500).json({ message: e.message || String(e) });
+  }
+};
+
 
 exports.listar = async (req, res) => {
   try {
@@ -12,6 +42,8 @@ exports.listar = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+
 
 exports.obtener = async (req, res) => {
   try {

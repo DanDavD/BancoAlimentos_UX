@@ -9,7 +9,7 @@ router.get('/', ctrl.listAll);
 router.get('/sucursales',ctrl.getSucursales);
 router.put('/abastecer/sucursal/:id_sucursal/producto/:id_producto',verificarToken,ctrl.putAbastecerPorSucursalProducto);
 router.post('/productos', verificarToken, ctrl.crear);
-// 
+
 // por body
 router.put(
   '/abastecer',

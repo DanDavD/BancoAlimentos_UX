@@ -12,6 +12,12 @@
 }
 
 .editar-boton {
+  margin-left: 10px;
+}
+.perfil-container .editar-boton {
+  height: 30px;
+  align-items: center;
+  width: 105px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,15 +189,16 @@
 
 .btn-danger {
   background: #e74c3c;
+  padding: 7px 20px;
+  border-radius: 1rem;
+  font-weight: bold;
   color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 10px 15px;
+  font-size: 1rem;
   cursor: pointer;
 }
 
 .btn-secondary {
-  background: #f0833e;
+  background: #3d7fc4;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -226,12 +233,11 @@
   align-items: center;
   position: relative;
   border-bottom: 2px solid #f0833e;
-  padding-bottom: 10px;
+  padding-bottom: 15px;
 }
 
 .modal-body {
-  padding-top: 30px;
-  display: flex;
+  padding-top: 35px;
   flex-direction: column;
   gap: 10px;
   margin: 15px 0;
@@ -254,9 +260,14 @@
   border-radius: 1.3rem;
 }
 
-.btn-secondary {
+.MPbtn-secondary {
   background-color: #f0833e;
-  border-radius: 1.3rem;
+  padding: 7px 20px;
+  border-radius: 1rem;
+  font-weight: bold;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 .configuracion-container .Config {
@@ -336,6 +347,18 @@
   font-size: 1rem;
   cursor: pointer;
 }
+
+.password-error {
+  color: #d93025;
+  font-size: 0.95rem;
+  margin: 8px 0 0 0;
+  line-height: 1.2;
+  text-align: center; /* centra el texto dentro del contenedor */
+  align-self: center; /* centra el elemento en el eje transversal del flex container */
+  max-width: 100%;
+  word-break: break-word;
+}
+
 .botones-accion .boton-cancelar:hover {
   background-color: #2b6daf;
 }
@@ -347,4 +370,5 @@
 }
 .editar-boton:disabled {
   background-color: #d96a1c;
+  cursor: not-allowed;
 }

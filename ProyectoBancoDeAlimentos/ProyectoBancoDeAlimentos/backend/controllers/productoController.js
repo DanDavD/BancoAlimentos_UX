@@ -64,28 +64,68 @@ exports.tendencias = async (req, res) => {
   }
 };
 
-// Listar todos (todas las imágenes)
 exports.listarProductos = async (req, res) => {
   try {
     const products = await producto.findAll({
       where: { activo: true },
       attributes: [
-        'id_producto',
-        'nombre',
-        'descripcion',
-        'precio_base',
-        'unidad_medida',
-        'estrellas',
-        'etiquetas'
+        'id_producto', 'nombre', 'descripcion', 'precio_base',
+        'unidad_medida', 'estrellas', 'etiquetas', 'porcentaje_ganancia'
       ],
       include: [
-        { model: imagen_producto, as: 'imagenes', attributes: ['url_imagen', 'orden_imagen'] },
-        { model: subcategoria, as: 'subcategoria', attributes: ['id_subcategoria', 'nombre'] },
-        { model: marca_producto, as: 'marca_producto', attributes: ['id_marca_producto', 'nombre'] }
+        { 
+          model: imagen_producto, 
+          as: 'imagenes', 
+          attributes: ['url_imagen', 'orden_imagen'] 
+        },
+        {
+          model: subcategoria, 
+          as: 'subcategoria',
+          attributes: ['id_subcategoria', 'nombre', 'id_categoria_padre'],
+          include: [{ 
+            model: categoria, 
+            as: 'categoria', 
+            attributes: ['id_categoria', 'nombre', 'icono_categoria'] 
+          }]
+        },
+        { 
+          model: marca_producto, 
+          as: 'marca', 
+          attributes: ['id_marca_producto', 'nombre'] 
+        }
       ],
       order: [['id_producto', 'DESC']]
     });
-    res.json(products);
+
+    // Si no hay asociación de stock, podrías necesitar una consulta separada
+    const productsWithCalculations = products.map(product => {
+      const productJSON = product.toJSON();
+      
+      // Calcular precio de venta
+      const precioBase = parseFloat(productJSON.precio_base) || 0;
+      const porcentajeGanancia = parseFloat(productJSON.porcentaje_ganancia) || 0;
+      const precioVenta = precioBase * (1 + porcentajeGanancia / 100);
+
+      return {
+        ...productJSON,
+        stock_total: 0, // Valor temporal, necesitarías implementar la lógica de stock
+        precio_venta: precioVenta.toFixed(2),
+        categoria: productJSON.subcategoria?.categoria || null
+      };
+    });
+
+    return res.status(200).json(productsWithCalculations);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  };
+};
+
+exports.listarMarcas = async (req, res) => {
+  try {
+    const marcas = await marca_producto.findAll({
+      attributes: ['id_marca_producto', 'nombre']
+    });
+    res.json(marcas);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

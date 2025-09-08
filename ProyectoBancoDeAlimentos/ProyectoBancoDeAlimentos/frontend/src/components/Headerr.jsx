@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// src/components/Headerr.jsx
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import CartIcon from "../images/CartIcon.png";
 import FilterIcon from "../images/FilterIcon.png";
 import logo from "../images/logo.png";
@@ -10,16 +12,21 @@ import reportesPer from "../images/reportesPer.png";
 import checkout from "../images/checkout.png";
 import soporte from "../images/soporte.png";
 import idioma from "../images/idioma.png";
-import { Link } from "react-router-dom";
-import { useContext } from "react";
-import { UserContext } from "./userContext";
+import { UserContext } from "./userContext"; // <- ruta correcta
 
 const Headerr = ({ isAdminPage }) => {
+  const navigate = useNavigate();
   const [logMenu, setLogOpen] = useState(false);
-  const { userRole, loading } = useContext(UserContext);
-  const isAdmin = userRole === "admin";
+  const { userRole, loading, isAuthenticated, isAdmin, logout  } = useContext(UserContext);
 
   if (loading) return null;
+
+  const handleLogout = () => {
+     logout();  
+    localStorage.removeItem("token");
+    localStorage.removeItem("rol");
+    navigate("/login");
+  };
 
   return (
     <div style={{ ...styles.fixedShell, boxShadow: "none" }}>
@@ -31,19 +38,18 @@ const Headerr = ({ isAdminPage }) => {
             <button style={styles.iconBtn}>
               <img src={FilterIcon} alt="Filter" style={styles.icon} />
             </button>
-            <input
-              type="text"
-              placeholder="Buscar..."
-              style={styles.searchInput}
-            />
+            <input type="text" placeholder="Buscar..." style={styles.searchInput} />
             <button style={styles.iconBtn}>
               <img src={SearchIcon} alt="Search" style={styles.icon} />
             </button>
           </div>
 
-          <button style={styles.SmallWrapper}>
-            <img src={CartIcon} alt="CartIcon" style={styles.icon} />
-          </button>
+          {/* carrito habilitado sólo para clientes autenticados (ejemplo) */}
+          {isAuthenticated && !isAdmin && (
+            <button style={styles.SmallWrapper}>
+              <img src={CartIcon} alt="Carrito" style={styles.icon} />
+            </button>
+          )}
         </div>
 
         <div style={styles.user}>
@@ -53,55 +59,58 @@ const Headerr = ({ isAdminPage }) => {
           >
             <img src={UserIcon} alt="User" style={styles.iconUser} />
           </button>
-          <span>Bienvenido, Ing. Erick</span>
+          <span>
+            {isAuthenticated ? `Bienvenido, ${userRole}` : "Invitado"}
+          </span>
 
           {logMenu && (
             <div style={styles.dropdown}>
-              {/* Solo en InicioAdmin */}
-              {isAdminPage && (
-                <Link
-                  to="/EditarPerfilAdmin"
-                  style={styles.dropdownLink}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#D8572F")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "transparent")
-                  }
-                >
-                  Ver mi Perfil
-                </Link>
-              )}
+              {/* Si está logueado */}
+              {isAuthenticated ? (
+                <>
+                  {/* Perfil: visible para todos los logueados, o sólo admin si quieres */}
+                  <Link
+                    to={isAdmin ? "/EditarPerfilAdmin" : "/miPerfil"}
+                    style={styles.dropdownLink}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D8572F")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    Ver mi Perfil
+                  </Link>
 
-              {/* Solo mostrar Iniciar Sesión si NO estamos en InicioAdmin */}
-              {!isAdminPage && (
+                  {/* Opciones admin-only */}
+                  {isAdmin && (
+                    <>
+                      <Link
+                        to="/gestionProductos"
+                        style={styles.dropdownLink}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D8572F")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                      >
+                        Gestión de Productos
+                      </Link>
+                    </>
+                  )}
+
+                  <button
+                    type="button"
+                    style={{ ...styles.dropdownLink, textAlign: "left" }}
+                    onClick={handleLogout}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D8572F")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    Cerrar Sesión
+                  </button>
+                </>
+              ) : (
+                // Si NO está logueado
                 <Link
                   to="/login"
                   style={styles.dropdownLink}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#D8572F")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "transparent")
-                  }
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D8572F")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                   Iniciar Sesión
-                </Link>
-              )}
-
-              {/* Cerrar Sesión solo en InicioAdmin */}
-              {isAdminPage && (
-                <Link
-                  to="/"
-                  style={styles.dropdownLink}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#D8572F")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "transparent")
-                  }
-                >
-                  Cerrar Sesión
                 </Link>
               )}
             </div>
@@ -109,90 +118,31 @@ const Headerr = ({ isAdminPage }) => {
         </div>
       </div>
 
-      {/* ⬇️ BottomBar solo se renderiza si NO es admin */}
+      {/* BottomBar sólo clientes (no admin) */}
       {!isAdmin && (
         <div style={styles.bottomBar}>
           <nav style={styles.nav} aria-label="Categorías">
-            <a
-              href="#"
-              style={styles.navLink}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#D8572F")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
-            >
+            <a href="#" style={styles.navLink}>
               <img src={historialAct} alt="" style={styles.navIcon} />
               Historial
             </a>
-
-            <a
-              href="#"
-              style={styles.navLink}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#D8572F")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
-            >
+            <a href="#" style={styles.navLink}>
               <img src={sistemaVal} alt="" style={styles.navIcon} />
               Sistema de Valoración
             </a>
-
-            <a
-              href="#"
-              style={styles.navLink}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#D8572F")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
-            >
+            <a href="#" style={styles.navLink}>
               <img src={reportesPer} alt="" style={styles.navIcon} />
               Reportes Personales
             </a>
-
-            <a
-              href="#"
-              style={styles.navLink}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#D8572F")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
-            >
+            <a href="#" style={styles.navLink}>
               <img src={checkout} alt="" style={styles.navIcon} />
               Checkout
             </a>
-
-            <a
-              href="#"
-              style={styles.navLink}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#D8572F")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
-            >
+            <a href="#" style={styles.navLink}>
               <img src={soporte} alt="" style={styles.navIcon} />
               Soporte
             </a>
-
-            <a
-              href="#"
-              style={styles.navLink}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#D8572F")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
-            >
+            <a href="#" style={styles.navLink}>
               <img src={idioma} alt="" style={styles.navIcon} />
               Idioma
             </a>

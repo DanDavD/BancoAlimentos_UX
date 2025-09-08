@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import LoginUser from "./api/Usuario.Route";
 import { InformacionUser, forgetPassword } from "./api/Usuario.Route";
-
+import { useContext } from "react";
+import { UserContext } from "./components/userContext"; 
 const Login = () => {
   const [correo, setCorreo] = useState("");
   const [contraseña, setContrasena] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useContext(UserContext);
 
 // Asegúrate de importar estas funciones correctamente
 // import { LoginUser, InformacionUser, forgetPassword } from "./api/Usuario.Route";
@@ -36,7 +38,10 @@ async function enviarCodigo(correo, navigate, setLoading) {
 
 const onSubmit = async (e) => {
   e.preventDefault();
+   const { data } = await LoginUser({ correo, contraseña });
+  if (!data?.token) throw new Error("No se recibió token");
 
+  await login(data.token);
   if (!correo || !contraseña) {
     alert("Ingresa correo y contraseña.");
     return;

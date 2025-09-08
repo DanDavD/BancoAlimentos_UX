@@ -89,14 +89,14 @@ direccion.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 
 // --- Categorías ---
 categoria.hasMany(subcategoria, { foreignKey: 'id_categoria_padre' });
-subcategoria.belongsTo(categoria, { foreignKey: 'id_categoria_padre' });
+subcategoria.belongsTo(categoria, { foreignKey: 'id_categoria_padre', as: 'categoria' });
 
 subcategoria.hasMany(producto, { foreignKey: "id_subcategoria", as: 'productos' });
 producto.belongsTo(subcategoria, { foreignKey: "id_subcategoria", as: 'subcategoria' });
 
 // --- Producto ---
 marca_producto.hasMany(producto, { foreignKey: 'id_marca' });
-producto.belongsTo(marca_producto, { foreignKey: 'id_marca' });
+producto.belongsTo(marca_producto, { foreignKey: 'id_marca', as: 'marca' });
 
 producto.hasMany(imagen_producto, { foreignKey: 'id_producto', as: 'imagenes' });
 imagen_producto.belongsTo(producto, { foreignKey: 'id_producto' });
@@ -111,7 +111,7 @@ valoracion_producto.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 sucursal.hasMany(sucursal_producto, { foreignKey: 'id_sucursal' });
 sucursal_producto.belongsTo(sucursal, { foreignKey: 'id_sucursal' });
 
-producto.hasMany(sucursal_producto, { foreignKey: 'id_producto' });
+producto.hasMany(sucursal_producto, { foreignKey: 'id_producto', as: 'stock' });
 sucursal_producto.belongsTo(producto, { foreignKey: 'id_producto' });
 
 // --- Carrito ---
