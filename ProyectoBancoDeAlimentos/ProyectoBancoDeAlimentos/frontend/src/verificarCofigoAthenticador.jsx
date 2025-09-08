@@ -2,12 +2,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import LoginUser ,{ validarCodigo, InformacionUser } from "./api/Usuario.Route";
 import "./verificarcodigo.css";
+import { useContext } from "react";
+import { UserContext } from "./components/userContext";
 
 
 export default function VerificarCodigoAuth() {
   const navigate = useNavigate();
   const { state } = useLocation();
-
+  const { login } = useContext(UserContext);
   // Recupera lo que guardó la pantalla de login
   const prelogin = useMemo(() => {
     try {
@@ -65,6 +67,7 @@ export default function VerificarCodigoAuth() {
       // 3) Hacer el login REAL
       const loginRes = await LoginUser({ correo, contraseña: pass, contrasena: pass });
       const token = loginRes?.data?.token;
+      await login(data.token);
       if (!token) throw new Error("No se recibió token de autenticación");
       localStorage.setItem("token", token);
 

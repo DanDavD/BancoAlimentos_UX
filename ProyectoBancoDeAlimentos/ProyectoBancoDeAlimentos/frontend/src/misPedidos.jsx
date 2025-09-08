@@ -50,7 +50,7 @@ const MisPedidos = () => {
   };
 
   return (
-    <div className="page-container">
+    <div className="mis-pedidos-container">
       <section className="sidebar">
         <PerfilSidebar />
       </section>

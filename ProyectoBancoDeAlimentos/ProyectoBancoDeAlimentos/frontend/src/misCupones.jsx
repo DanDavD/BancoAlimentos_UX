@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { GetALLCupones } from "./api/CuponesApi";
 import "./misCupones.css";
+import PerfilSidebar from "./components/perfilSidebar";
 
 const MisCupones = () => {
   const [cuponesNoUtilizados, setCuponesNoUtilizados] = useState([]);
@@ -38,6 +39,11 @@ const MisCupones = () => {
 
   return (
     <div className="cupones">
+
+    <section className="sidebar">
+        <PerfilSidebar />
+      </section>
+
       <div className="titulo">
         <p className="titulo_texto">Mis cupones</p>
         <hr className="linea"></hr>
