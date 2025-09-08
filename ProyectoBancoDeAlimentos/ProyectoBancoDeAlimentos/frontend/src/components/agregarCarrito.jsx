@@ -10,6 +10,7 @@ function AgregarCarrito() {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [products, setProducts] = useState([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0); // Nueva funcionalidad
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -22,6 +23,7 @@ function AgregarCarrito() {
         );
         if (found) {
           setProduct(found);
+          setSelectedImageIndex(0); // Resetear índice al cambiar producto
         } else {
           navigate("/");
         }
@@ -113,6 +115,18 @@ function AgregarCarrito() {
     navigate(`/producto/${productId}`);
   };
 
+  const getProductImages = (product) => {
+    if (!product || !product.imagenes || product.imagenes.length === 0) {
+      return [null];
+    }
+
+    return product.imagenes.slice(0, 3);
+  };
+
+  const handleImageSelect = (index) => {
+    setSelectedImageIndex(index);
+  };
+
   if (!product) {
     return (
       <div style={styles.loadingWrapper}>
@@ -120,6 +134,8 @@ function AgregarCarrito() {
       </div>
     );
   }
+
+  const productImages = getProductImages(product);
 
   return (
     <div style={styles.pageWrapper}>
@@ -195,22 +211,57 @@ function AgregarCarrito() {
         <div style={styles.detailWrapper}>
           <div style={styles.detailCard}>
             <div style={styles.detailGrid}>
-              {/* Imagen */}
-              <div style={styles.detailImageWrapper}>
-                {product.imagenes &&
-                product.imagenes.length > 0 &&
-                product.imagenes[0].url_imagen ? (
-                  <img
-                    src={`/images/productos/${product.imagenes[0].url_imagen}`}
-                    alt={product.nombre}
-                    style={styles.productImg}
-                    onError={(e) => {
-                      e.target.src =
-                        'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999">Imagen no disponible</text></svg>';
-                    }}
-                  />
-                ) : (
-                  <div style={styles.productImg}>Imagen no disponible</div>
+              <div style={styles.ImageSection}>
+                <div style={styles.mainImageWrapper}>
+                  {productImages[selectedImageIndex] &&
+                  productImages[selectedImageIndex].url_imagen ? (
+                    <img
+                      src={`/images/productos/${productImages[selectedImageIndex].url_imagen}`}
+                      style={styles.mainImage}
+                      onError={(e) => {
+                        e.target.src =
+                          'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="350" viewBox="0 0 400 350"><rect width="400" height="350" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="%23999">Imagen no disponible</text></svg>';
+                      }}
+                    />
+                  ) : (
+                    <div style={styles.mainImagePlaceholder}>
+                      <span>Imagen no disponible</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Si hay más de una imagen*/}
+                {productImages.length > 1 && (
+                  <div style={styles.smallWrapper}>
+                    {productImages.map((image, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          ...styles.smaller,
+                          ...(selectedImageIndex === index
+                            ? styles.smallerActive
+                            : {}),
+                        }}
+                        //se cambia la imagen principal
+                        onClick={() => handleImageSelect(index)}
+                      >
+                        {image && image.url_imagen ? (
+                          <img
+                            src={`/images/productos/${image.url_imagen}`}
+                            style={styles.smallerImage}
+                            onError={(e) => {
+                              e.target.src =
+                                'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="10" fill="%23999">Imagen no disponible</text></svg>';
+                            }}
+                          />
+                        ) : (
+                          <div style={styles.smallerPlaceholder}>
+                            Imagen no disponible
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
@@ -348,7 +399,7 @@ const styles = {
     justifyContent: "center",
     marginTop: "8px",
   },
-  cardImage: {
+  productImg: {
     width: "60px",
     height: "60px",
     objectFit: "contain",
@@ -361,10 +412,6 @@ const styles = {
     fontWeight: "500",
     marginBottom: "6px",
     textAlign: "left",
-  },
-  stockText: {
-    fontSize: "13px",
-    fontWeight: "500",
   },
   cardPrice: {
     fontSize: "14px",
@@ -398,18 +445,70 @@ const styles = {
     gap: "20px",
     height: "100%",
   },
-  detailImageWrapper: {
+  ImageSection: {
+    justifyContent: "center",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  mainImageWrapper: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     border: "1px solid #ddd",
     borderRadius: "12px",
     padding: "16px",
-  },
-  detailImage: {
-    width: "100%",
     height: "350px",
+    backgroundColor: "#fafafa",
+  },
+  mainImage: {
+    width: "100%",
+    height: "100%",
     objectFit: "contain",
+    borderRadius: "8px",
+  },
+  mainImagePlaceholder: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    borderRadius: "8px",
+    color: "#999",
+    fontSize: "16px",
+  },
+  smallWrapper: {
+    display: "flex",
+    gap: "8px",
+    justifyContent: "center",
+  },
+  smaller: {
+    width: "70px",
+    height: "70px",
+    border: "2px solid #ddd",
+    borderRadius: "8px",
+    cursor: "pointer",
+    overflow: "hidden",
+    transition: "all 0.2s ease",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fafafa",
+  },
+  smallerActive: {
+    borderColor: "#2b6daf",
+    boxShadow: "0 2px 8px rgba(43, 109, 175, 0.3)",
+  },
+  smallerImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+  },
+  smallerPlaceholder: {
+    fontSize: "10px",
+    color: "#999",
+    textAlign: "center",
   },
   detailInfo: {
     justifyContent: "center",
