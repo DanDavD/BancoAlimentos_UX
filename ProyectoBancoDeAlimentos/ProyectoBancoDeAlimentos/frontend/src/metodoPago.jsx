@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./metodoPago.css";
 import PerfilSidebar from "./components/perfilSidebar";
 import { getAllMetodoPago, createMetodoPago, deleteMetodoPago, setMetodoPagoDefault } from "./api/metodoPagoApi";
-
+import arrowL from "./images/arrowL.png";
+import arrowR from "./images/arrowR.png";
+import chip from "./images/chip.png";
 export default function MetodoPago() {
   const [showForm, setShowForm] = useState(false);
   const [metodosPago, setMetodosPago] = useState([]);
@@ -72,39 +74,60 @@ export default function MetodoPago() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
+  
+  try {
+    // Validar que los campos de fecha sean números válidos
+    const mes = parseInt(formData.vencimiento_mes, 10);
+    const ano = parseInt(formData.vencimiento_ano, 10);
     
-    try {
-      // Preparar datos para la API según el modelo esperado
-      const numeroTarjetaLimpio = formData.numero_tarjeta.replace(/\s/g, "");
-      const payload = {
-        token_pago: generarTokenSimulado(numeroTarjetaLimpio), // En producción usarías una pasarela real
-        brand_tarjeta: determinarMarcaTarjeta(numeroTarjetaLimpio),
-        tarjeta_ultimo: numeroTarjetaLimpio.slice(-4),
-        vencimiento_mes: formData.vencimiento_mes,
-        vencimiento_ano: formData.vencimiento_ano,
-        nombre_en_tarjeta: `${formData.nombre} ${formData.apellido}`,
-        id_direccion_facturacion: "no se guardo",
-        metodo_predeterminado: false
-      };
+    // Convertir año de 2 dígitos a 4 dígitos (asumiendo siglo 21)
+    const anoCompleto = ano < 100 ? 2000 + ano : ano;
+    
+    if (isNaN(mes) || mes < 1 || mes > 12) {
+      setError('Mes de vencimiento inválido (debe ser entre 1-12)');
+      return;
+    }
+    
+    if (isNaN(anoCompleto) || anoCompleto < 2000 || anoCompleto > 2100) {
+      setError('Año de vencimiento inválido');
+      return;
+    }
 
-      await createMetodoPago(payload);
-      setShowForm(false);
-      setFormData({
-        numero_tarjeta: "",
-        nombre: "",
-        apellido: "",
-        vencimiento_mes: "",
-        vencimiento_ano: "",
-        cvv: ""
-      });
-      cargarMetodosPago(); // Recargar la lista
-    } catch (error) {
-      console.error('Error al agregar método de pago:', error);
+    // Preparar datos para la API según el modelo esperado
+    const numeroTarjetaLimpio = formData.numero_tarjeta.replace(/\s/g, "");
+    const payload = {
+      token_pago: generarTokenSimulado(numeroTarjetaLimpio),
+      brand_tarjeta: determinarMarcaTarjeta(numeroTarjetaLimpio),
+      tarjeta_ultimo: numeroTarjetaLimpio.slice(-4),
+      vencimiento_mes: mes,
+      vencimiento_ano: anoCompleto,
+      nombre_en_tarjeta: `${formData.nombre} ${formData.apellido}`,
+      id_direccion_facturacion: null, // Cambiado a null en lugar de string
+      metodo_predeterminado: metodosPago.length === 0 // Esto debería funcionar correctamente
+    };
+
+    await createMetodoPago(payload);
+    setShowForm(false);
+    setFormData({
+      numero_tarjeta: "",
+      nombre: "",
+      apellido: "",
+      vencimiento_mes: "",
+      vencimiento_ano: "",
+      cvv: ""
+    });
+    cargarMetodosPago();
+  } catch (error) {
+    console.error('Error al agregar método de pago:', error);
+    if (error.response?.data?.message) {
+      setError(error.response.data.message);
+    } else {
       setError('Error al agregar el método de pago');
     }
-  };
+  }
+};
 
   // Función simulada para generar token (en producción usar una pasarela de pago real)
   const generarTokenSimulado = (numeroTarjeta) => {
@@ -142,12 +165,27 @@ export default function MetodoPago() {
   };
 
   const obtenerIconoTarjeta = (marca) => {
-    switch(marca) {
-      case 'Visa': return '/images/visa.png';
-      case 'Mastercard': return '/images/mastercard.png';
-      case 'American Express': return '/images/amex.png';
-      case 'Discover': return '/images/discover.png';
-      default: return '/images/credit-card.png';
+    //switch(marca) {
+      //case 'Visa': return '/images/visa.png';
+      //case 'Mastercard': return '/images/mastercard.png';
+      //case 'American Express': return '/images/amex.png';
+      //case 'Discover': return '/images/discover.png';
+      //default: 
+      return './images/chip.png'; // Icono genérico
+    //}
+  };
+
+  // En la sección de hooks de tu componente
+  const tarjetasRef = useRef(null);
+
+  // Función para manejar el scroll
+  const scroll = (direction, ref, scrollAmount) => {
+    if (ref.current) {
+      if (direction === 'left') {
+        ref.current.scrollLeft -= scrollAmount;
+      } else {
+        ref.current.scrollLeft += scrollAmount;
+      }
     }
   };
 
@@ -158,7 +196,7 @@ export default function MetodoPago() {
       </section>
 
       <div className="agregar-tarjeta-container">
-        <h1 className="titulo-pago">Pago</h1>
+        <h1 className="titulo-pago">Métodos de pago</h1>
         <hr className="separador" />
 
         {error && (
@@ -174,55 +212,75 @@ export default function MetodoPago() {
             {cargando ? (
               <p>Cargando métodos de pago...</p>
             ) : metodosPago.length > 0 ? (
-              <div className="tarjetas-lista">
-                <h2>Tus métodos de pago</h2>
-                {metodosPago.map((metodo) => (
-                  <div key={metodo.id_metodo_pago} className="tarjeta-card">
-                    <div className="tarjeta-header">
-                      <img 
-                        src={obtenerIconoTarjeta(metodo.brand_tarjeta)} 
-                        alt={metodo.brand_tarjeta}
-                        className="icono-tarjeta"
-                      />
-                      {metodo.metodo_predeterminado && (
-                        <span className="predeterminada-badge">Predeterminada</span>
-                      )}
-                    </div>
-                    <div className="tarjeta-info">
-                      <div className="numero-tarjeta">**** **** **** {metodo.tarjeta_ultimo}</div>
-                      <div className="nombre-tarjeta">{metodo.nombre_en_tarjeta}</div>
-                      <div className="vencimiento">Vence: {metodo.vencimiento_mes}/{metodo.vencimiento_ano}</div>
-                    </div>
-                    <div className="tarjeta-acciones">
-                      {!metodo.metodo_predeterminado && (
+              <div className="scroll-wrapper">
+                <button
+                  className="arrow-button"
+                  onClick={() => scroll("left", tarjetasRef, 320)}
+                >
+                  <img
+                    src={arrowL}
+                    alt="left"
+                    className="arrow-icon"
+                  />
+                </button>
+
+                <div className="tarjetas-lista" ref={tarjetasRef}>
+                  {metodosPago.map((metodo) => (
+                    <div key={metodo.id_metodo_pago} className="tarjeta-card">
+                      <div className="tarjeta-header">
+                        <img 
+                          src={chip} 
+                          //alt={metodo.brand_tarjeta}
+                          className="icono-tarjeta"
+                        />
+                      </div>
+                      <div className="tarjeta-info">
+                        <div className="numero-tarjeta">**** **** **** {metodo.tarjeta_ultimo}</div>
+                        <div className="nombre-tarjeta">{metodo.nombre_en_tarjeta}</div>
+                      </div>
+                      <div className="tarjeta-acciones">
+                        {metodo.metodo_predeterminado && (
+                          <span className="predeterminada-badge">Predeterminada</span>
+                        )}
+                        {!metodo.metodo_predeterminado && (
+                          <button 
+                            onClick={() => handleSetDefault(metodo.id_metodo_pago)}
+                            className="btn-hacer-predeterminada"
+                          >
+                            Hacer predeterminada
+                          </button>
+                        )}
                         <button 
-                          onClick={() => handleSetDefault(metodo.id_metodo_pago)}
-                          className="btn-hacer-predeterminada"
+                          onClick={() => handleEliminar(metodo.id_metodo_pago)}
+                          className="btn-eliminar-tarjeta"
                         >
-                          Hacer predeterminada
+                          Eliminar
                         </button>
-                      )}
-                      <button 
-                        onClick={() => handleEliminar(metodo.id_metodo_pago)}
-                        className="btn-eliminar-tarjeta"
-                      >
-                        Eliminar
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                <button onClick={() => setShowForm(true)} className="btn-anadir">
-                  + Añadir nueva tarjeta
+                  ))}
+                </div>
+
+                <button
+                  className="arrow-button"
+                  onClick={() => scroll("right", tarjetasRef, 320)}
+                >
+                  <img
+                    src={arrowR}
+                    alt="right"
+                    className="arrow-icon"
+                  />
                 </button>
               </div>
             ) : (
               <>
-                <button onClick={() => setShowForm(true)} className="btn-anadir">
-                  + Añadir nueva tarjeta
-                </button>
                 <p className="texto-info">Aún no has guardado ninguna tarjeta.</p>
               </>
             )}
+            
+            <button onClick={() => setShowForm(true)} className="btn-anadir">
+              + Añadir nueva tarjeta
+            </button>
           </div>
         )}
       </div>
@@ -230,11 +288,6 @@ export default function MetodoPago() {
       {/* Formulario para agregar tarjeta */}
       {showForm && (
         <div className="contenedor-formulario">
-          <div className="imagenes-tarjeta">
-            <img src="/images/card-front.png" alt="Tarjeta frontal" />
-            <img src="/images/card-back.png" alt="Tarjeta trasera" />
-          </div>
-
           <form className="form-tarjeta" onSubmit={handleSubmit}>
             <div className="campo">
               <label>Número de la tarjeta</label>
@@ -294,7 +347,7 @@ export default function MetodoPago() {
                     value={formData.vencimiento_ano}
                     onChange={handleInputChange}
                     placeholder="AA"
-                    maxLength="2"
+                    maxLength="4"
                     required
                   />
                 </div>
