@@ -1,12 +1,23 @@
 import "./dashboard.css";
 import Sidebar from "./sidebar";
 import React, { useState } from "react";
-import { ResponsivePie } from "@nivo/pie";
-import { ResponsiveLine } from "@nivo/line";
-import { ResponsiveBar } from "@nivo/bar";
+
 import { Icon } from "@iconify/react";
 import MiniChart from "./components/miniChart";
 import MiniChart2 from "./components/miniChart2";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line, Bar, Pie } from "react-chartjs-2";
 
 function Dashboard() {
   const [moveButton, setLeft] = useState(false);
@@ -16,6 +27,17 @@ function Dashboard() {
     setLeft(!moveButton);
     setShowSidebar(!showSidebar);
   };
+  ChartJS.register(
+    ArcElement,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+  );
   const inventory = [
     { producto: "Leche", stock: 2 },
     { producto: "Huevos", stock: 8 },
@@ -37,11 +59,23 @@ function Dashboard() {
     { nombre: "Fernanda Díaz", compras: 1, gastosTotales: 200 },
   ];
 
-  const data = [
-    { id: "Entregados", value: 10 },
-    { id: "Pendientes", value: 4 },
-    { id: "Cancelados", value: 2 },
-  ];
+  const data = {
+    labels: ["Ene", "Feb", "Mar", "Abr"],
+    datasets: [
+      {
+        label: "Ingresos",
+        data: [3200, 8900, 5000, 4700],
+        borderColor: "#4CAF50",
+        backgroundColor: "#4CAF50",
+      },
+      {
+        label: "Gastos",
+        data: [2200, 2500, 2400, 2600],
+        borderColor: "#FF5722",
+        backgroundColor: "#FF5722",
+      },
+    ],
+  };
   const data2 = [
     {
       id: "Ingresos Brutos",
@@ -91,7 +125,7 @@ function Dashboard() {
             <hr className="bg-[#204778] h-[2px]"></hr>
           </div>
           <div className="flex flex-row gap-6 px-4 justify-center">
-            <div className="grid grid-cols-1 min-w-[450px] min-h-[580px] grid-rows-2 h-full gap-4 items-stretch pt-2">
+            <div className="grid grid-cols-1 min-w-[450px] max-h-[580px] grid-rows-2 h-full gap-4 items-stretch pt-2">
               <div className="sm_grid px-16 space-y-2">
                 <p className="pl-0">Inventario Critico</p>{" "}
                 <MiniChart
@@ -117,28 +151,23 @@ function Dashboard() {
                   )}
                 />
               </div>
-              <div className="sm_grid">
+              <div className="sm_grid px-16">
                 <p className="pl-4">Total de Pedidos</p>
-                <ResponsivePie
-                  data={data}
-                  margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-                  innerRadius={0.5}
-                  padAngle={1}
-                  cornerRadius={3}
-                  colors={{ scheme: "set2" }}
-                  borderWidth={1}
-                  borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
-                  arcLinkLabelsSkipAngle={10}
-                  arcLinkLabelsTextColor="#333333"
-                  arcLabelsSkipAngle={10}
-                  arcLabelsTextColor={{
-                    from: "color",
-                    modifiers: [["darker", 2]],
-                  }}
-                />
+                {
+                  //<MyPie data={data} />
+                }
+                <div className="flex w-full h-[232px] px-2 items-center justify-center ">
+                  <Pie
+                    data={data}
+                    width={300} // internal resolution
+                    height={300} // internal resolution
+                    options={{ maintainAspectRatio: false }}
+                    style={{ width: "300px", height: "300px" }} // visual size
+                  />
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 grid-rows-9 min-h-[580px] gap-4 pt-2 w-full h-full items-stretch">
+            <div className="grid grid-cols-2 grid-rows-9 max-h-[580px] gap-4 pt-2 w-full h-full items-stretch">
               <div className="lg_grid">
                 <div className="flex flex-row justify-center items-center gap-2">
                   <p className="text-xl font-bold">Ventas Totales</p>{" "}
@@ -159,27 +188,21 @@ function Dashboard() {
                   <p>|</p> <p>Este año: </p>
                   <p className="text-[#4CAF50]">{"ventasAño"}</p>
                 </div>
-                <ResponsiveLine
-                  data={data2}
-                  margin={{ top: 30, right: 60, bottom: 90, left: 60 }}
-                  xScale={{ type: "point" }}
-                  yScale={{
-                    type: "linear",
-                    min: "auto",
-                    max: "auto",
-                    stacked: false,
-                  }}
-                  axisBottom={{ tickSize: 5, tickPadding: 5, tickRotation: 0 }}
-                  axisLeft={{ tickSize: 5, tickPadding: 5, tickRotation: 0 }}
-                  colors={{ scheme: "category10" }}
-                  pointSize={10}
-                  pointBorderWidth={2}
-                  useMesh={true}
-                />
+                <div className="flex w-full h-[220px] px-2 items-center justify-center ">
+                  <Line
+                    data={data}
+                    options={{ responsive: true, maintainAspectRatio: false }}
+                  />
+                </div>
               </div>
-              <div className="bg-[#fee9d6] h-full row-span-4 col-span-1 py-2  rounded-xl shadow-neutral-600 shadow-sm items-center text-center">
+              <div className="bg-[#fee9d6] h-full row-span-4 col-span-1 py-2 px-12 rounded-xl shadow-neutral-600 shadow-sm items-center text-center">
                 <p className="text-xl font-bold">Promociones mas Efectivas </p>
-                <MyBar data={data3} />
+                <div className="flex w-full h-[200px] px-2 items-center justify-center ">
+                  <Bar
+                    data={data}
+                    options={{ responsive: true, maintainAspectRatio: false }}
+                  />
+                </div>
               </div>
               <div className="bg-[#fee9d6] h-full row-span-4 col-span-1 py-2 flex flex-col justify-center space-y-2 rounded-xl shadow-neutral-600 shadow-sm items-center text-center">
                 <p className="text-xl font-bold">Usuarios mas Activos </p>
@@ -205,53 +228,5 @@ function Dashboard() {
     </div>
   );
 }
-const MyBar = ({ data }) => (
-  <ResponsiveBar /* or Bar for fixed dimensions */
-    data={data}
-    keys={["BlackFriday", "DescuentoVIP", "PromoVerano"]}
-    indexBy="year"
-    labelSkipWidth={12}
-    labelSkipHeight={12}
-    legends={[
-      {
-        dataFrom: "keys",
-        anchor: "bottom-right",
-        direction: "column",
-        translateX: 110,
-        itemsSpacing: 3,
-        itemWidth: 100,
-        itemHeight: 16,
-      },
-    ]}
-    axisBottom={{ legend: "year (indexBy)", legendOffset: 32 }}
-    axisLeft={{ legend: "Ventas", legendOffset: -40 }}
-    margin={{ top: 30, right: 110, bottom: 70, left: 60 }}
-  />
-);
-const MyPie = ({ data /* see data tab */ }) => (
-  <ResponsivePie /* or Pie for fixed dimensions */
-    data={data}
-    margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-    innerRadius={0.5}
-    padAngle={0.6}
-    cornerRadius={2}
-    activeOuterRadiusOffset={8}
-    arcLinkLabelsSkipAngle={10}
-    arcLinkLabelsTextColor="#333333"
-    arcLinkLabelsThickness={2}
-    arcLinkLabelsColor={{ from: "color" }}
-    arcLabelsSkipAngle={10}
-    arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
-    legends={[
-      {
-        anchor: "bottom",
-        direction: "row",
-        translateY: 56,
-        itemWidth: 100,
-        itemHeight: 18,
-        symbolShape: "circle",
-      },
-    ]}
-  />
-);
+
 export default Dashboard;
