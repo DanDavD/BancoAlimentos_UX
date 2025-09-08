@@ -30,6 +30,8 @@ import Carrito from "./carrito.jsx";
 import VerificarCodigoAuth from "./verificarCofigoAthenticador.jsx";
 import VerificarCodigo from "./verificarcodigo.jsx";
 import { UserProvider } from "./components/userContext";
+import DetalleFactura from "./pages/DetalleFactura.js";
+import Facturas from "./pages/Facturas.js";
 const HEADER_HEIGHT = 144; // px
 
 function App() {
@@ -81,6 +83,8 @@ function App() {
               path="/verificar-codigoAuth"
               element={<VerificarCodigoAuth />}
             />
+            <Route path="/facturas" element={<Facturas />} />
+            <Route path="/factura/:id" element={<DetalleFactura />} />
           </Routes>
         </div>
       </div>

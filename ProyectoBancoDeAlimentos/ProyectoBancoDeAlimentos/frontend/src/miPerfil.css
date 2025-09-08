@@ -12,18 +12,23 @@
 }
 
 .editar-boton {
-  margin-left: 10px;
-}
-.perfil-container .editar-boton {
-  height: 30px;
-  align-items: center;
-  width: 105px;
   display: flex;
-  background-color: #f0833e;
+  align-items: center;
+  justify-content: center;
+  gap: 2px; /* Espacio entre icono y texto */
   border-radius: 3rem;
   font-weight: bold;
   color: white;
-  font-size: 0.8rem;
+  font-size: 15px;
+  cursor: pointer;
+  border: none;
+}
+.perfil-container .editar-boton {
+  height: 35px;
+  align-items: center;
+  width: 120px;
+  display: flex;
+  background-color: #f0833e;
 }
 
 .perfil-title {
@@ -44,6 +49,7 @@
   text-align: left;
   font-size: 1.2rem;
   margin-bottom: 2rem;
+  margin-left: 15px;
 }
 
 .perfil-content {
@@ -118,15 +124,8 @@
 }
 
 .perfil-container .boton-guardar {
-  position: inherit;
-  margin-left: 320px;
-  margin-top: 20px;
-  height: 40px;
-  justify-content: center;
-  width: 115px;
-  display: flex;
   background-color: #f0833e;
-  padding: 5px 20px;
+  padding: 7px 20px;
   border-radius: 1rem;
   font-weight: bold;
   color: white;
@@ -213,7 +212,7 @@
   justify-content: center;
 }
 
-.modal {
+.mPerfil-modal {
   margin-top: 80px;
   background: white;
   padding: 20px;
@@ -221,13 +220,17 @@
   width: 400px;
 }
 
-.modal-header {
+.modal-headerr {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  border-bottom: 2px solid #f0833e;
+  padding-bottom: 10px;
 }
 
 .modal-body {
+  padding-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -284,5 +287,64 @@
 }
 
 .configuracion-container .historial {
-  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding-left: 0.5rem;
+}
+
+.label-modal-confirm {
+  font-weight: bold;
+  color: #f0833e;
+  font-size: 1.3rem;
+  display: block;
+}
+.mPerfil-cancel-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  position: static; /* Elimina position: absolute */
+  margin-left: 16px;
+}
+
+.botones-accion {
+  display: flex;
+  justify-content: flex-end;
+  gap: 50px;
+  margin-top: 40px;
+}
+
+.boton-editar {
+  background-color: #f0833e;
+  padding: 7px 20px;
+  border-radius: 1rem;
+  font-weight: bold;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 40px;
+}
+
+.botones-accion .boton-cancelar {
+  background-color: #3d7fc4;
+  padding: 7px 20px;
+  border-radius: 1rem;
+  font-weight: bold;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.botones-accion .boton-cancelar:hover {
+  background-color: #2b6daf;
+}
+.botones-accion .boton-guardar:hover {
+  background-color: #d96a1c;
+}
+.boton-editar:hover {
+  background-color: #d96a1c;
+}
+.editar-boton:disabled {
+  background-color: #d96a1c;
 }

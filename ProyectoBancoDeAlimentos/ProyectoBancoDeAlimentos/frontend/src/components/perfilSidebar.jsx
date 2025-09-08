@@ -47,7 +47,7 @@ export default function PerfilSidebar() {
         </li>
         <li>
           <Link
-            to="/mis-facturas"
+            to="/facturas"
             className="block p-2 rounded hover:bg-[#f0833e] text-gray-700"
           >
             Mis facturas

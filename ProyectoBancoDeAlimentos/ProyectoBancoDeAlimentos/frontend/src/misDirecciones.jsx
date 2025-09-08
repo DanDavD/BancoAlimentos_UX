@@ -3,23 +3,31 @@ import "./misDirecciones.css";
 import PerfilSidebar from "./components/perfilSidebar";
 import * as Icon from "lucide-react";
 import EditarDireccionModal from "./editarDireccionModal";
-import { getDirecciones, addDireccion, setDireccionDefault, eliminarDireccionApi } from "./api/DireccionesApi";
+import {
+  getDirecciones,
+  addDireccion,
+  setDireccionDefault,
+  eliminarDireccionApi,
+  getAllMunicipios,
+  getAllDepartamentos,
+} from "./api/DireccionesApi";
 import { jwtDecode } from "jwt-decode";
 
 export default function MisDirecciones() {
   const [showModal, setShowModal] = useState(false);
   const [direcciones, setDirecciones] = useState([]);
+  const [municipios, setMunicipios] = useState([]);
+  const [departamentos, setDepartamentos] = useState([]);
   const [editId, setEditId] = useState(null);
 
   const [form, setForm] = useState({
     codigoPostal: "",
-    departamento: "",
-    ciudad: "",
     calle: "",
     predeterminada: false,
+    id_municipio: "",
+    id_departamento: "",
   });
 
-  // Estado para errores de validación
   const [errores, setErrores] = useState({});
 
   const getUserId = () => {
@@ -38,9 +46,21 @@ export default function MisDirecciones() {
     const id_usuario = getUserId();
     if (!id_usuario) return;
 
+    // Obtener las direcciones del usuario
     getDirecciones(id_usuario)
       .then((res) => setDirecciones(res.data))
       .catch((err) => console.error("Error al obtener direcciones:", err));
+    
+    // Obtener la lista de municipios del backend
+    getAllMunicipios()
+      .then((res) => setMunicipios(res.data))
+      .catch((err) => console.error("Error al obtener municipios:", err));
+      
+    // Obtener la lista de departamentos del backend
+    getAllDepartamentos()
+      .then((res) => setDepartamentos(res.data))
+      .catch((err) => console.error("Error al obtener departamentos:", err));
+
   }, []);
 
   const handleChange = (e) => {
@@ -53,13 +73,11 @@ export default function MisDirecciones() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-
-    // VALIDACIONES
+  
     let nuevosErrores = {};
     if (!form.calle.trim()) nuevosErrores.calle = "La calle es obligatoria";
-    if (!form.ciudad.trim()) nuevosErrores.ciudad = "La ciudad es obligatoria";
-    if (!form.departamento.trim()) nuevosErrores.departamento = "El departamento es obligatorio";
-    if (!/^\d{5}$/.test(form.codigoPostal)) nuevosErrores.codigoPostal = "El código postal debe tener 5 dígitos";
+    if (!form.codigoPostal.trim()) nuevosErrores.codigoPostal = "El código postal es obligatorio";
+    if (!form.id_municipio.trim()) nuevosErrores.id_municipio = "El municipio es obligatorio"; 
 
     if (Object.keys(nuevosErrores).length > 0) {
       setErrores(nuevosErrores);
@@ -74,51 +92,42 @@ export default function MisDirecciones() {
         console.error("No se encontró usuario logueado");
         return;
       }
+      const municipioSeleccionado = municipios.find(m => m.id_municipio == form.id_municipio);
+      const payload = {
+      id_usuario,
+      calle: form.calle,
+      codigo_postal: form.codigoPostal,
+      predeterminada: form.predeterminada,
+      id_municipio: form.id_municipio,
+      id_departamento: form.id_departamento,
+      ciudad: municipioSeleccionado ? municipioSeleccionado.nombre_municipio : null,
+    };
 
-      if (editId) {
-        // Editar solo local por ahora
-        setDirecciones(
-          direcciones.map((d) =>
-            d.id === editId ? { ...d, ...form } : d
-          )
-        );
-        setEditId(null);
-      } else {
-        const payload = {
-          calle: form.calle,
-          ciudad: form.ciudad,
-          codigo_postal: form.codigoPostal,
-          predeterminada: form.predeterminada,
-          departamento: form.departamento,
-        };
+await addDireccion(payload);
 
-        await addDireccion({ id_usuario, ...payload });
-
-        // Refrescar tabla
-        const res = await getDirecciones(id_usuario);
-        setDirecciones(res.data);
-      }
-
-      // Reset form
+      const res = await getDirecciones(id_usuario);
+      setDirecciones(res.data);
+      
       setForm({
         codigoPostal: "",
-        departamento: "",
-        ciudad: "",
         calle: "",
         predeterminada: false,
+        id_municipio: "",
+        id_departamento: "",
       });
     } catch (err) {
-      console.error("Error al guardar dirección:", err);
+      console.error("Error al guardar dirección:", err.response ? err.response.data : err);
     }
   };
 
   const openEdit = (row) => {
     setForm({
       codigoPostal: row.codigo_postal,
-      departamento: row.departamento || "",
-      ciudad: row.ciudad,
       calle: row.calle,
       predeterminada: row.predeterminada,
+      id_municipio: row.id_municipio,
+      // ✅ Aquí tienes que encontrar el departamento basándote en el municipio
+      id_departamento: municipios.find(m => m.id_municipio === row.id_municipio)?.id_departamento || "",
     });
     setEditId(row.id_direccion);
   };
@@ -132,6 +141,24 @@ export default function MisDirecciones() {
     } catch (err) {
       console.error("Error al eliminar dirección:", err);
     }
+  };
+
+  // ✅ FUNCIONES PARA BUSCAR LOS NOMBRES
+  const getMunicipioById = (id) => {
+    const municipio = municipios.find(m => m.id_municipio === id);
+    return municipio ? municipio.nombre_municipio : "";
+  };
+
+  const getDepartamentoById = (id) => {
+    const departamento = departamentos.find(d => d.id_departamento === id);
+    return departamento ? departamento.nombre_departamento : "";
+  };
+
+  const getDeptoPorMunicipio = (idMunicipio) => {
+    const municipio = municipios.find(m => m.id_municipio === idMunicipio);
+    if (!municipio) return "";
+    const departamento = departamentos.find(d => d.id_departamento === municipio.id_departamento);
+    return departamento ? departamento.nombre_departamento : "";
   };
 
   return (
@@ -160,14 +187,16 @@ export default function MisDirecciones() {
             <div className="campo">
               <label>Departamento*</label>
               <select
-                name="departamento"
-                value={form.departamento}
+                name="id_departamento"
+                value={form.id_departamento}
                 onChange={handleChange}
               >
                 <option value="">Seleccionar</option>
-                <option>Cortés</option>
-                <option>Atlántida</option>
-                <option>Yoro</option>
+                {departamentos.map((d) => (
+                  <option key={d.id_departamento} value={d.id_departamento}>
+                    {d.nombre_departamento}
+                  </option>
+                ))}
               </select>
               {errores.departamento && <p className="error">{errores.departamento}</p>}
             </div>
@@ -176,14 +205,23 @@ export default function MisDirecciones() {
           <div className="fila">
             <div className="campo">
               <label>Municipio*</label>
-              <input
-                type="text"
-                name="municipio"
-                placeholder="Ej: Lima"
-                value={form.municipio}
+              <select
+                name="id_municipio"
+                value={form.id_municipio}
                 onChange={handleChange}
-              />
-              {errores.municipio && <p className="error">{errores.municipio}</p>}
+                // ✅ Agregamos un "key" para forzar la actualización del select cuando cambia el departamento
+                key={form.id_departamento}
+              >
+                <option value="">Seleccionar</option>
+                {municipios
+                    .filter(m => m.id_departamento == form.id_departamento)
+                    .map(m => (
+                    <option key={m.id_municipio} value={m.id_municipio}>
+                        {m.nombre_municipio}
+                    </option>
+                ))}
+              </select>
+              {errores.id_municipio && <p className="error">{errores.id_municipio}</p>}
             </div>
             <div className="campo">
               <label>Calle, casa/apartamento*</label>
@@ -221,10 +259,10 @@ export default function MisDirecciones() {
               onClick={() => {
                 setForm({
                   codigoPostal: "",
-                  departamento: "",
-                  ciudad: "",
                   calle: "",
                   predeterminada: false,
+                  id_municipio: "",
+                  id_departamento: "",
                 });
                 setEditId(null);
                 setErrores({});
@@ -261,9 +299,11 @@ export default function MisDirecciones() {
                 <tr key={d.id_direccion}>
                   <td>{d.id_direccion}</td>
                   <td>{d.codigo_postal}</td>
-                  <td>{d.departamento}</td>
+                  {/* ✅ Usamos la nueva función para mostrar el nombre del departamento */}
+                  <td>{d.id_municipio ? getDeptoPorMunicipio(d.id_municipio) : "N/A"}</td>
                   <td>{d.calle}</td>
-                  <td>{d.ciudad}</td>
+                  {/* ✅ Usamos la nueva función para mostrar el nombre del municipio */}
+                  <td>{d.id_municipio ? getMunicipioById(d.id_municipio) : "N/A"}</td>
                   <td>{d.predeterminada ? "Sí" : "No"}</td>
                   <td>
                     <div className="flex items-center gap-2">

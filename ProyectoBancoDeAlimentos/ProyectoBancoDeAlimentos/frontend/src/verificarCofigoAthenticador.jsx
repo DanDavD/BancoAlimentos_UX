@@ -83,9 +83,9 @@ export default function VerificarCodigoAuth() {
       // 5) Limpiar y redirigir
       sessionStorage.removeItem("prelogin");
       if (roleName.toLowerCase() === "administrador") {
-        navigate("/inicio");
-      } else {
         navigate("/dashboard");
+      } else {
+        navigate("/");
       }
     } catch (err) {
       console.error(err?.response?.data || err);

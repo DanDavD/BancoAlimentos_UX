@@ -6,6 +6,7 @@ import {
   InformacionUser,
   EditProfile,
   changePassword,
+  uploadProfilePhoto,
 } from "./api/Usuario.Route";
 import axiosInstance from "./api/axiosInstance";
 
@@ -77,6 +78,23 @@ export default function MiPerfil() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [fotoUrl, setFotoUrl] = useState("");
+  const [cargando, setCargando] = useState(true);
+  const [datosValidos, setDatosValidos] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  //funcion para manejar la subida de la foto
+
+  const handleFotoChange = async (e) => {
+    if (!editMode) return; // 👈 bloquear si no está en modo edición
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const res = await uploadProfilePhoto(file);
+      setFotoUrl(res.data.url);
+    } catch (err) {
+      console.error("Error subiendo foto:", err);
+    }
+  };
 
   // carga la información del usuario autenticado
   useEffect(() => {
@@ -88,6 +106,12 @@ export default function MiPerfil() {
         const data = res.data || {};
         if (!mounted) return;
 
+        // Si no hay datos, retorna null
+        if (!data || Object.keys(data).length === 0) {
+          setDatosValidos(false);
+          setCargando(false);
+          return;
+        }
         // Asumir nombres de campo comunes; ajustar si el backend devuelve otros
         setTelefono(
           data.telefono || data.numero_telefono || data.telefono_usuario || ""
@@ -99,6 +123,17 @@ export default function MiPerfil() {
         setCorreo(data.correo || data.email || "");
         if (data.genero) setGenero(data.genero);
         if (data.rol?.nombre_rol) setRol(data.rol.nombre_rol);
+
+        if (
+          data.foto_perfil &&
+          typeof data.foto_perfil === "string" &&
+          data.foto_perfil.trim() !== ""
+        ) {
+          setFotoUrl(data.foto_perfil);
+        } else {
+          setFotoUrl(""); // Usar imagen por defecto
+        }
+        setCargando(false);
       } catch (err) {
         // no interrumpir la UI; podríamos mostrar un toast en el futuro
         console.error(
@@ -128,9 +163,32 @@ export default function MiPerfil() {
         {/* Sidebar */}
         <aside className="perfil-sidebar">
           <div className="perfil-avatar">
-            <Icon name="user" className="icon-large" />
+            {fotoUrl ? (
+              <img
+                src={fotoUrl}
+                alt="Foto de perfil"
+                className="perfil-avatar-image"
+              />
+            ) : (
+              <div className="perfil-avatar-placeholder">
+                <Icon name="user" className="icon-large" />
+              </div>
+            )}
           </div>
-          <button className="editar-boton">
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            id="foto-input"
+            onChange={handleFotoChange}
+          />
+          <button
+            className="editar-boton"
+            onClick={() => {
+              if (editMode) document.getElementById("foto-input").click();
+            }}
+            disabled={!editMode} // 👈 deshabilitado si no está en edición
+          >
             <Icon name="camera" className="icon-small" />
             <span>Editar foto</span>
           </button>
@@ -144,6 +202,7 @@ export default function MiPerfil() {
                 placeholder="Telefono"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
+                disabled={!editMode} // 👈 bloqueo por defecto
               />
             </Field>
 
@@ -152,6 +211,7 @@ export default function MiPerfil() {
                 placeholder="Juan Javier"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
+                disabled={!editMode} // 👈 bloqueo por defecto
               />
             </Field>
             <Field label="Correo" icon={<Icon name="mail" />}>
@@ -159,6 +219,7 @@ export default function MiPerfil() {
                 placeholder="ejemplo@gmail.com"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
+                disabled={!editMode}
               />
             </Field>
             <Field label="Apellidos" icon={<Icon name="user" />}>
@@ -166,12 +227,14 @@ export default function MiPerfil() {
                 placeholder="Perez Maldonado"
                 value={apellidos}
                 onChange={(e) => setApellidos(e.target.value)}
+                disabled={!editMode}
               />
             </Field>
             <Field label="Género">
               <select
                 value={genero}
                 onChange={(e) => setGenero(e.target.value)}
+                disabled={!editMode}
               >
                 <option>Masculino</option>
                 <option>Femenino</option>
@@ -180,38 +243,59 @@ export default function MiPerfil() {
             </Field>
           </div>
 
-          <button
-            className="boton-guardar"
-            onClick={async () => {
-              try {
-                const payload = {
-                  telefono,
-                  nombre,
-                  apellidos,
-                  correo,
-                  genero,
-                };
-                const res = await EditProfile(payload);
-                console.log("Perfil actualizado", res.data);
-                // podríamos mostrar feedback visual aquí
-              } catch (err) {
-                console.error(
-                  "Error guardando perfil:",
-                  err?.response?.data || err.message || err
-                );
-              }
-            }}
-          >
-            {" "}
-            Guardar
-          </button>
+          {!editMode ? (
+            <button className="boton-editar" onClick={() => setEditMode(true)}>
+              Editar
+            </button>
+          ) : (
+            <div className="botones-accion">
+              <button
+                className="boton-guardar"
+                onClick={async () => {
+                  try {
+                    const payload = {
+                      telefono,
+                      nombre,
+                      apellidos,
+                      correo,
+                      genero,
+                    };
+                    const res = await EditProfile(payload);
+                    console.log("Perfil actualizado", res.data);
+                    setEditMode(false); // 👈 salir del modo edición
+                  } catch (err) {
+                    console.error(
+                      "Error guardando perfil:",
+                      err?.response?.data || err.message || err
+                    );
+                  }
+                }}
+              >
+                Guardar
+              </button>
+              <button
+                className="boton-cancelar"
+                onClick={() => {
+                  setEditMode(false);
+                  window.location.reload(); // 👈 recargar datos originales
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
 
           {showPasswordModal && (
             <div className="modal-overlay">
-              <div className="modal">
-                <div className="modal-header">
-                  <h3>Cambio de contraseña</h3>
-                  <button onClick={() => setShowPasswordModal(false)}>✕</button>
+              <div className="mPerfil-modal">
+                <div className="modal-headerr">
+                  <h3 className="label-modal-confirm">Cambio de contraseña</h3>
+                  <button
+                    className="mPerfil-cancel-button"
+                    onClick={() => setShowPasswordModal(false)}
+                  >
+                    ✕
+                  </button>
                 </div>
                 <div className="modal-body">
                   <label>Contraseña anterior</label>
@@ -325,10 +409,16 @@ export default function MiPerfil() {
 
         <div className="f2-autenticacion">
           <img src="/f2.png" alt="imagen" className="f2" />
-          <p className="f2">Autenticación en dos pasos</p>
+          <Link to="#" className="new-link">
+            Autenticación en dos pasos
+          </Link>
         </div>
 
-        <p className="historial">Historial de Acceso</p>
+        <p className="historial">
+          <Link to="#" className="new-link">
+            Historial de actividad
+          </Link>
+        </p>
       </section>
     </div>
   );

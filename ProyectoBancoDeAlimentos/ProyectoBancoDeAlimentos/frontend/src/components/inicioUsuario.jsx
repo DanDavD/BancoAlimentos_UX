@@ -16,16 +16,16 @@ import pet from "../images/pet.png";
 import ham from "../images/ham.png";
 import cake from "../images/cake.png";
 import bread from "../images/bread.png";
-import juice from "../images/juice.png";
+//import juice from "../images/juice.png";
 import clean from "../images/clean.png";
 import soccer from "../images/soccer.png";
 import phone from "../images/phone.png";
 import pharmacy from "../images/pharmacy.png";
-import milk from "../images/milk.png";
+//import milk from "../images/milk.png";
 import arrowL from "../images/arrowL.png";
 import arrowR from "../images/arrowR.png";
 import appleImage from "../images/appleImage.png";
-import coffee from "../images/coffee.png";
+//import coffee from "../images/coffee.png";
 import banner1 from "../images/banner1.png";
 import banner2 from "../images/banner2.png";
 import banner3 from "../images/banner3.png";
@@ -199,7 +199,25 @@ const InicioUsuario = () => {
                 onMouseLeave={() => setHoveredIndex(null)}
                 onClick={() => handleCategoryClick(cat.id_categoria)}
               >
-                <img src={cat.icon} alt={cat.icono_categoria} />
+                {cat.icono_categoria ? (
+                  <img
+                    src={`/images/categorias/${cat.icono_categoria}`}
+                    alt={cat.nombre}
+                    style={{
+                      width: "70px",
+                      height: "70px",
+                      objectFit: "contain",
+                    }}
+                    onError={(e) => {
+                      e.target.src =
+                        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23f0f0f0'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='12' fill='%23999'>Sin imagen</text></svg>";
+                    }}
+                  />
+                ) : (
+                  <div style={{ width: "70px", height: "70px" }}>
+                    Imagen no disponible
+                  </div>
+                )}
               </div>
               <span style={styles.catTitle}>{cat.nombre}</span>
             </div>
@@ -304,7 +322,21 @@ const InicioUsuario = () => {
                 </span>
               </div>
 
-              <img src={p.img} alt={p.nombre} style={styles.productImg} />
+              {p.imagenes &&
+              p.imagenes.length > 0 &&
+              p.imagenes[0].url_imagen ? (
+                <img
+                  src={`/images/productos/${p.imagenes[0].url_imagen}`}
+                  alt={p.nombre}
+                  style={styles.productImg}
+                  onError={(e) => {
+                    e.target.src =
+                      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999">Imagen no disponible</text></svg>';
+                  }}
+                />
+              ) : (
+                <div style={styles.productImg}>Imagen no disponible</div>
+              )}
               <p style={styles.productName}>{p.nombre}</p>
               <p style={styles.productPrice}>{p.precio_base}</p>
               <button
@@ -387,7 +419,21 @@ const InicioUsuario = () => {
                 </span>
               </div>
 
-              <img src={p.img} alt={p.nombre} style={styles.productImg} />
+              {p.imagenes &&
+              p.imagenes.length > 0 &&
+              p.imagenes[0].url_imagen ? (
+                <img
+                  src={`/images/productos/${p.imagenes[0].url_imagen}`}
+                  alt={p.nombre}
+                  style={styles.productImg}
+                  onError={(e) => {
+                    e.target.src =
+                      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999">Imagen no disponible</text></svg>';
+                  }}
+                />
+              ) : (
+                <div style={styles.productImg}>Imagen no disponible</div>
+              )}
               <p style={styles.productName}>{p.nombre}</p>
               <p style={styles.productPrice}>{p.precio_base}</p>
               <button

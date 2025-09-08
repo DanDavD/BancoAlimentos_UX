@@ -142,7 +142,7 @@ function GestionProductos() {
             </div>
 
             <div className="grid grid-cols-1 grid-rows-2 h-[600px] items-stretch gap-8">
-              <div className=" col-span-1 row-span-1 bg-white w-full rounded-md items-center text-xl overflow-y-auto p-2">
+              <div className=" col-span-1 row-span-2 bg-white w-full rounded-md items-center text-xl overflow-y-auto p-2">
                 <h1 className="relative px-2 font-roboto text-gray-500 text-4xl pb-1 text-left">
                   Subcategorias
                   <button
@@ -185,64 +185,6 @@ function GestionProductos() {
                       </li>
                     ))}
                 </ul>
-              </div>
-              <div className=" flex flex-col col-span-1 row-span-1 bg-white w-full rounded-md items-center  text-xl p-2">
-                <div className="w-full">
-                  <h1 className="px-2 font-roboto text-gray-500 text-4xl pb-1 text-left">
-                    Producto
-                  </h1>
-                  <hr className="bg-gray-500 h-[2px]"></hr>{" "}
-                </div>
-
-                <form
-                  className="flex flex-col gap-8 mt-4"
-                  onSubmit={addProducto}
-                >
-                  <div className="flex gap-8">
-                    <input
-                      type="text"
-                      placeholder="Producto"
-                      className="input-field rounded-md bg-gray-100 p-2 border-gray-500 border-2"
-                      value={producto}
-                      onChange={(e) => setNombre(e.target.value)}
-                      required
-                    />
-                    <input
-                      type="text"
-                      placeholder="Precio"
-                      className="input-field rounded-md bg-gray-100 p-2 border-gray-500 border-2"
-                      value={precio}
-                      onChange={(e) => setPrecio(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="flex gap-8">
-                    <input
-                      type="text"
-                      placeholder="Marca"
-                      className="input-field rounded-md bg-gray-100 p-2 border-gray-500 border-2"
-                      value={marca}
-                      onChange={(e) => setMarca(e.target.value)}
-                      required
-                    />
-                    <div className="flex gap-2">
-                      <p className="text-2xl pt-1">Medida:</p>
-                      <input
-                        type="number"
-                        placeholder="Kg"
-                        className="input-field rounded-md w-32 bg-gray-100 p-2 border-gray-500 border-2"
-                        onChange={(e) => setCantidad(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="bg-red-500 rounded-md text-white p-1 w-36 text-[16px] whitespace-nowrap"
-                  >
-                    Agregar Producto
-                  </button>
-                </form>
               </div>
             </div>
           </div>

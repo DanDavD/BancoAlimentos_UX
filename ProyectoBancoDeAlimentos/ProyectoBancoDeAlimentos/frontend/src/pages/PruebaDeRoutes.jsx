@@ -9,7 +9,7 @@ import LoginUser, {
 } from "../api/Usuario.Route";
 import { getAllPorcentajeGanancia, getProductosRecomendados,addCupon,getCuponesByUser,getAllCupones } from "../api/InventarioApi";
 import { forgetPassword, validarCodigo, changePassword } from "../api/Usuario.Route";
-
+import { getAllFacturasByUserwithDetails } from "../api/FacturaApi";
 export default function TestAuth() {
   const [products, setProducts] = React.useState([]);
 
@@ -36,7 +36,7 @@ export default function TestAuth() {
     try {
       const id_usuario = 3
       const codigo_cupon = "DESCUENTO152";
-      const res = await getCuponesByUser(id_usuario);
+      const res = await getAllFacturasByUserwithDetails(2);
       console.log("[REGISTER] status:", res.status);
       console.log("[REGISTER] data:", res.data);
     } catch (err) {

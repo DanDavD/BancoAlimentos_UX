@@ -47,9 +47,9 @@ ON CONFLICT DO NOTHING;
 -- CATEGORÍAS / SUBCATEGORÍAS / MARCAS / PRODUCTOS / IMÁGENES
 -- =========================================================
 INSERT INTO categoria (id_categoria, nombre, icono_categoria) VALUES
-  (1,'Granos','grain'),
-  (2,'Lácteos','milk'),
-  (3,'Enlatados','can')
+  (1,'Granos','coffee.png'),
+  (2,'Lácteos','milk.png'),
+  (3,'Bebidas','juice.png')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO subcategoria (id_subcategoria, nombre, id_categoria_padre) VALUES
@@ -74,16 +74,16 @@ INSERT INTO producto (id_producto, nombre, descripcion, precio_base, id_subcateg
   (3,'Atún en Agua 140g','Lata de atún',       28.00, 3, TRUE, 'unidad', 4),
   (4,'Frijol Rojo 1lb','Grano básico',         40.00, 4, TRUE, 'libra',  1),
   (5,'Yogurt Fresa 200ml','Yogurt sabor fresa',18.75, 5, TRUE, 'unidad', 3),
-  (6,'Leche Deslactosada 1L','UHT',            34.00, 2, TRUE, 'litro',  3)
+  (6,'Leche Deslactosada','UHT',            34.00, 2, TRUE, 'litro',  3)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO imagen_producto (id_imagen, id_producto, url_imagen, orden_imagen) VALUES
-  (1,1,'https://ejemplo/img/arroz1.png',0),
-  (2,2,'https://ejemplo/img/leche1.png',0),
-  (3,3,'https://ejemplo/img/atun1.png',0),
-  (4,4,'https://ejemplo/img/frijol1.png',0),
-  (5,5,'https://ejemplo/img/yogurt1.png',0),
-  (6,6,'https://ejemplo/img/leche2.png',0)
+  (1, 1, 'arrozBlanco.png', 0),
+  (2, 2, 'lecheEntera.png', 0),
+  (3, 3, 'atunAgua.png', 0),
+  (4, 4, 'frijolRojo.png', 0),
+  (5, 5, 'yogurtFresa.png', 0),
+  (6, 6, 'lecheDeslactosada.png', 0)
 ON CONFLICT DO NOTHING;
 
 -- Stock por sucursal
