@@ -82,9 +82,9 @@ const onSubmit = async (e) => {
 
     // 6) Redirección por rol (una sola navegación)
     if (roleName?.toLowerCase() === "administrador") {
-      navigate("/inicio");
-    } else {
       navigate("/dashboard");
+    } else {
+      navigate("/");
     }
   } catch (err) {
     console.error(err?.response?.data || err);

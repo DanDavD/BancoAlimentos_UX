@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { withRouter } from "../utils/withRouter"; // HOC que inyecta navigate y params
 import CalendarioIcon from "../images/calendario.png";
-
+import PerfilSidebar from "../components/perfilSidebar";
 class Facturas extends Component {
   state = {
     facturaSeleccionada: null,
@@ -17,7 +17,7 @@ class Facturas extends Component {
     const { navigate } = this.props;
 
     if (facturaSeleccionada) {
-      navigate(`/detalle-factura/${facturaSeleccionada.id}`);
+      navigate(`/factura/${facturaSeleccionada.id}`);
     } else {
       alert("Seleccione primero una factura");
     }
@@ -37,7 +37,12 @@ class Facturas extends Component {
     ];
 
     return (
+      <div className="min-h-screen bg-gray-100">
+         <section className="sidebar">
+        <PerfilSidebar />
+      </section>
       <div className="min-h-screen w-full bg-white flex justify-center items-center">
+        
         {/* Contenedor sombreado subido un poco con -mt-6 */}
         <div className="w-[700px] p-4 max-h-[500px] overflow-y-auto rounded border border-gray-300 bg-white -mt-40">
           <h1 className="text-[#f0833e] text-3xl mb-2 font-normal text-center">
@@ -98,6 +103,7 @@ class Facturas extends Component {
             </button>
           </div>
         </div>
+      </div>
       </div>
     );
   }

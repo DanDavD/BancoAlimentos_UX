@@ -3,7 +3,7 @@ import TablaProductos from "../components/TablaProductos";
 import { withRouter } from "../utils/withRouter";
 import Logo from "../images/logo2.png";
 import LogoExport from "../images/logo3.png";
-
+import PerfilSidebar from "../components/perfilSidebar";
 class DetalleFactura extends Component {
   handleExportar = () => {
     alert("Exportando factura...");
@@ -49,6 +49,10 @@ class DetalleFactura extends Component {
     const totalPagar = subtotal + isv + costoEnvio;
 
     return (
+      <div  className="min-h-screen bg-gray-100">
+         <section className="sidebar">
+        <PerfilSidebar />
+      </section>
       <div className="min-h-screen flex justify-center items-start pt-4">
   <div className="w-[750px] border border-gray-300 shadow-lg overflow-hidden bg-white p-6 mt-4">
           {/* Título y logo */}
@@ -136,6 +140,7 @@ class DetalleFactura extends Component {
           </div>
 
         </div>
+      </div>
       </div>
     );
   }
