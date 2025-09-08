@@ -27,7 +27,7 @@ body {
   align-items: center;
   flex-direction: column;
   border-radius: 1.5rem;
-  background: #fff;
+  background: #e6e6e6;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 

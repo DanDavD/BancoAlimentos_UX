@@ -180,49 +180,50 @@ const InicioUsuario = () => {
             style={{ width: "100%", height: "100%" }}
           />
         </button>
+<div style={styles.divCat} ref={catRef}>
+  {(categoriesData ?? []).map((cat, index) => {
+    const file = cat?.imagenes?.[0]?.url_imagen; // ✅ nunca truena
+    const src = file
+      ? `/images/categorias/${file}`
+      : "/images/PlaceHolder.png"; // tu placeholder
 
-        <div style={styles.divCat} ref={catRef}>
-          {categoriesData.map((cat, index) => (
-            <div key={index} style={styles.catItem}>
-              <div
-                style={{
-                  ...styles.CategoriesBox,
-                  border:
-                    hoveredIndex === index
-                      ? "2px solid #2b6daf"
-                      : "2px solid transparent",
-                  transform:
-                    hoveredIndex === index ? "scale(1.05)" : "scale(1)",
-                  transition: "all 0.2s ease-in-out",
-                }}
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                onClick={() => handleCategoryClick(cat.id_categoria)}
-              >
-                {cat.icono_categoria ? (
-                  <img
-                    src={`/images/categorias/${cat.icono_categoria}`}
-                    alt={cat.nombre}
-                    style={{
-                      width: "70px",
-                      height: "70px",
-                      objectFit: "contain",
-                    }}
-                    onError={(e) => {
-                      e.target.src =
-                        "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23f0f0f0'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='12' fill='%23999'>Sin imagen</text></svg>";
-                    }}
-                  />
-                ) : (
-                  <div style={{ width: "70px", height: "70px" }}>
-                    Imagen no disponible
-                  </div>
-                )}
-              </div>
-              <span style={styles.catTitle}>{cat.nombre}</span>
-            </div>
-          ))}
+    return (
+      <div key={cat?.id_categoria ?? index} style={styles.catItem}>
+        <div
+          style={{
+            ...styles.CategoriesBox,
+            border:
+              hoveredIndex === index
+                ? "2px solid #2b6daf"
+                : "2px solid transparent",
+            transform:
+              hoveredIndex === index ? "scale(1.05)" : "scale(1)",
+            transition: "all 0.2s ease-in-out",
+          }}
+          onMouseEnter={() => setHoveredIndex(index)}
+          onMouseLeave={() => setHoveredIndex(null)}
+          onClick={() => handleCategoryClick(cat?.id_categoria)}
+        >
+          <img
+  src={
+    cat?.icono_categoria
+      ? `/images/categorias/${cat.icono_categoria}`
+      : "/PlaceHolder.png"
+  }
+  alt={cat?.nombre ?? "Categoría"}
+  style={{ width: 70, height: 70, objectFit: "contain" }}
+  onError={(e) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = "/PlaceHolder.png";
+  }}
+/>
         </div>
+        <span style={styles.catTitle}>{cat?.nombre ?? "-"}</span>
+      </div>
+    );
+  })}
+</div>
+
 
         <button
           style={styles.arrow}

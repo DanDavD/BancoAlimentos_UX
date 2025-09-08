@@ -39,8 +39,7 @@ const login = async (req, res) => {
       sameSite: 'lax',
       maxAge: 2 * 60 * 60 * 1000
     });
-
-    console.log("pene 5");
+    
     return res.json({ message: 'Login exitoso', token });
   } catch (error) {
     console.error('❌ Error en login:', error.stack);

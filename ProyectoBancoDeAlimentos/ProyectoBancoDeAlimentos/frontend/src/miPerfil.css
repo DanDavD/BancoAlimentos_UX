@@ -372,3 +372,11 @@
   background-color: #d96a1c;
   cursor: not-allowed;
 }
+
+.perfil-avatar img.perfil-avatar-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%; /* redondea */
+  object-fit: cover; /* recorta sin deformar */
+  border: 2px solid #2b6daf; /* opcional, como en el header */
+}

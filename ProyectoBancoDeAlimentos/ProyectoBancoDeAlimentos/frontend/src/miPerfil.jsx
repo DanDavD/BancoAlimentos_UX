@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import "./miPerfil.css";
 import { Link } from "react-router-dom";
 import PerfilSidebar from "./components/perfilSidebar";
+import { useContext } from "react";
+import { UserContext } from "./components/userContext";
 
 import {
   InformacionUser,
@@ -82,19 +84,28 @@ export default function MiPerfil() {
   const [fotoUrl, setFotoUrl] = useState("");
   const [cargando, setCargando] = useState(true);
   const [datosValidos, setDatosValidos] = useState(true);
-  const [editMode, setEditMode] = useState(false);
+  const [editMode, setEditMode] = useState(true);
   const [fotoBase64, setFotoBase64] = useState(null);
+  const { user, setUser } = useContext(UserContext);
 
   //funcion para manejar la subida de la foto
 
-  const handleFotoChange = (e) => {
+  const handleFotoChange = async (e) => {
     if (!editMode) return;
     const file = e.target.files?.[0];
     if (!file) return;
-    setFotoUrl(URL.createObjectURL(file)); // preview
-    const reader = new FileReader();
-    reader.onload = () => setFotoBase64(reader.result); // data:image/...;base64,...
-    reader.readAsDataURL(file);
+
+    // Preview local
+    setFotoUrl(URL.createObjectURL(file));
+
+    try {
+      await uploadProfilePhoto(file);
+      const res = await InformacionUser(); // obtiene info actualizada
+      setFotoUrl(res.data.foto_perfil || "");
+      setUser(res.data); // 🔹 actualiza contexto global
+    } catch (err) {
+      console.error("Error subiendo foto:", err);
+    }
   };
 
   // carga la información del usuario autenticado
@@ -126,11 +137,11 @@ export default function MiPerfil() {
         if (data.rol?.nombre_rol) setRol(data.rol.nombre_rol);
 
         if (
-          data.foto_perfil &&
-          typeof data.foto_perfil === "string" &&
-          data.foto_perfil.trim() !== ""
+          data.foto_perfil_url &&
+          typeof data.foto_perfil_url === "string" &&
+          data.foto_perfil_url.trim() !== ""
         ) {
-          setFotoUrl(data.foto_perfil);
+          setFotoUrl(data.foto_perfil_url);
         } else {
           setFotoUrl(""); // Usar imagen por defecto
         }
@@ -267,14 +278,18 @@ export default function MiPerfil() {
                       apellido: apellidos,
                       correo,
                       genero,
-                      ...(fotoBase64 ? { foto_perfil: fotoBase64 } : {}),
+                      foto_perfil_url: fotoUrl, // 🔹 usa _url
                     };
-                    const res = await axiosInstance.put(
-                      "/api/MiPerfil/perfil",
-                      payload
-                    );
-                    console.log("Perfil actualizado", res.data);
+
+                    // Primero actualiza el perfil en backend
+                    await axiosInstance.put("/api/MiPerfil/perfil", payload);
+
+                    // Luego obtén la info completa actualizada
+                    const fullRes = await InformacionUser();
+                    setUser(fullRes.data); // 🔹 esto actualizará el header
                     setEditMode(false);
+
+                    console.log("Perfil actualizado", fullRes.data);
                   } catch (err) {
                     console.error(
                       "Error guardando perfil:",

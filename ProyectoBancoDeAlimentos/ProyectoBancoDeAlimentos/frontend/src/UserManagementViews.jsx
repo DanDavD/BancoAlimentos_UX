@@ -458,8 +458,6 @@ export default function UserManagementViews() {
           <Field label="Correo" value={newUser.correo} onChange={(e) => setNewUser({ ...newUser, correo: e.target.value })} placeholder="correo@dominio.com" type="email" />
           <Field label="Contraseña" value={newUser.contraseña} onChange={(e) => setNewUser({ ...newUser, contraseña: e.target.value })} placeholder="********" type="password" />
           <Field label="Rol" as="select" value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
-            <option>Usuario</option>
-            <option>Administrador</option>
             <option>Consultor</option>
           </Field>
           <Field label="Estado" as="select" value={newUser.status} onChange={(e) => setNewUser({ ...newUser, status: e.target.value })}>

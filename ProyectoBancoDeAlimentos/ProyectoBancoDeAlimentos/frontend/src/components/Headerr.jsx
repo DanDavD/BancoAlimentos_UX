@@ -17,16 +17,20 @@ import { UserContext } from "./userContext"; // <- ruta correcta
 const Headerr = ({ isAdminPage }) => {
   const navigate = useNavigate();
   const [logMenu, setLogOpen] = useState(false);
-  const { userRole, loading, isAuthenticated, isAdmin, logout  } = useContext(UserContext);
+  const { user, userRole, loading, isAuthenticated, isAdmin, logout } =
+    useContext(UserContext);
 
   if (loading) return null;
+  console.log("Header user", user); // 🔹 aquí
 
   const handleLogout = () => {
-     logout();  
+    logout();
     localStorage.removeItem("token");
     localStorage.removeItem("rol");
     navigate("/login");
   };
+
+  const fotoUrl = user?.foto_perfil_url ? user.foto_perfil_url : UserIcon; // icono por defecto
 
   return (
     <div style={{ ...styles.fixedShell, boxShadow: "none" }}>
@@ -38,7 +42,11 @@ const Headerr = ({ isAdminPage }) => {
             <button style={styles.iconBtn}>
               <img src={FilterIcon} alt="Filter" style={styles.icon} />
             </button>
-            <input type="text" placeholder="Buscar..." style={styles.searchInput} />
+            <input
+              type="text"
+              placeholder="Buscar..."
+              style={styles.searchInput}
+            />
             <button style={styles.iconBtn}>
               <img src={SearchIcon} alt="Search" style={styles.icon} />
             </button>
@@ -46,7 +54,10 @@ const Headerr = ({ isAdminPage }) => {
 
           {/* carrito habilitado sólo para clientes autenticados (ejemplo) */}
           {isAuthenticated && !isAdmin && (
-            <button style={styles.SmallWrapper}>
+            <button
+              style={styles.SmallWrapper}
+              onClick={() => navigate("/carrito")}
+            >
               <img src={CartIcon} alt="Carrito" style={styles.icon} />
             </button>
           )}
@@ -57,7 +68,7 @@ const Headerr = ({ isAdminPage }) => {
             style={styles.SmallWrapperUser}
             onClick={() => setLogOpen((prev) => !prev)}
           >
-            <img src={UserIcon} alt="User" style={styles.iconUser} />
+            <img src={fotoUrl} alt="User" style={styles.iconUser} />
           </button>
           <span>
             {isAuthenticated ? `Bienvenido, ${userRole}` : "Invitado"}
@@ -72,8 +83,12 @@ const Headerr = ({ isAdminPage }) => {
                   <Link
                     to={isAdmin ? "/EditarPerfilAdmin" : "/miPerfil"}
                     style={styles.dropdownLink}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D8572F")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#D8572F")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "transparent")
+                    }
                   >
                     Ver mi Perfil
                   </Link>
@@ -84,8 +99,13 @@ const Headerr = ({ isAdminPage }) => {
                       <Link
                         to="/gestionProductos"
                         style={styles.dropdownLink}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D8572F")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.backgroundColor = "#D8572F")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.backgroundColor =
+                            "transparent")
+                        }
                       >
                         Gestión de Productos
                       </Link>
@@ -96,8 +116,12 @@ const Headerr = ({ isAdminPage }) => {
                     type="button"
                     style={{ ...styles.dropdownLink, textAlign: "left" }}
                     onClick={handleLogout}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D8572F")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor = "#D8572F")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "transparent")
+                    }
                   >
                     Cerrar Sesión
                   </button>
@@ -107,8 +131,12 @@ const Headerr = ({ isAdminPage }) => {
                 <Link
                   to="/login"
                   style={styles.dropdownLink}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#D8572F")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#D8572F")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "transparent")
+                  }
                 >
                   Iniciar Sesión
                 </Link>
@@ -229,6 +257,8 @@ const styles = {
   iconUser: {
     height: "40px",
     width: "40px",
+    borderRadius: "50%", // 🔹 hace la imagen redonda
+    objectFit: "cover", // 🔹 mantiene proporción y recorta si es necesario
   },
   SmallWrapperUser: {
     backgroundColor: "transparent",

@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import LoginUser from "./api/Usuario.Route";
 import { InformacionUser, forgetPassword } from "./api/Usuario.Route";
 import { useContext } from "react";
-import { UserContext } from "./components/userContext"; 
+import { UserContext } from "./components/userContext";
 const Login = () => {
   const [correo, setCorreo] = useState("");
   const [contraseña, setContrasena] = useState("");
@@ -12,98 +12,98 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useContext(UserContext);
 
-// Asegúrate de importar estas funciones correctamente
-// import { LoginUser, InformacionUser, forgetPassword } from "./api/Usuario.Route";
+  // Asegúrate de importar estas funciones correctamente
+  // import { LoginUser, InformacionUser, forgetPassword } from "./api/Usuario.Route";
 
-async function enviarCodigo(correo, navigate, setLoading) {
-  try {
-    setLoading(true);
-    // En la mayoría de APIs el body es un objeto:
-    await forgetPassword( correo );          // 👈 importante: objeto, no string
-    alert("Te enviamos un código a tu correo.");
+  async function enviarCodigo(correo, navigate, setLoading) {
+    try {
+      setLoading(true);
+      // En la mayoría de APIs el body es un objeto:
+      await forgetPassword(correo); // 👈 importante: objeto, no string
+      alert("Te enviamos un código a tu correo.");
 
-    sessionStorage.setItem(
+      sessionStorage.setItem(
         "prelogin",
         JSON.stringify({ correo, contraseña })
       );
 
       // 3) Vamos a verificar el código; ahí recién haremos el login real
       navigate("/verificar-codigoAuth", { state: { correo, contraseña } });
-  } catch (err) {
-    alert(err?.response?.data?.error || "No se pudo enviar el correo.");
-  } finally {
-    setLoading(false);
-  }
-}
-
-const onSubmit = async (e) => {
-  e.preventDefault();
-   const { data } = await LoginUser({ correo, contraseña });
-  if (!data?.token) throw new Error("No se recibió token");
-
-  await login(data.token);
-  if (!correo || !contraseña) {
-    alert("Ingresa correo y contraseña.");
-    return;
+    } catch (err) {
+      alert(err?.response?.data?.error || "No se pudo enviar el correo.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  setLoading(true);
-  try {
-    // 1) Login
+  const onSubmit = async (e) => {
+    e.preventDefault();
     const { data } = await LoginUser({ correo, contraseña });
-    const token = data?.token;
-    if (!token) throw new Error("No se recibió token de autenticación");
+    if (!data?.token) throw new Error("No se recibió token");
 
-    // 2) Guardar token
-    localStorage.setItem("token", token);
+    await login(data.token);
+    if (!correo || !contraseña) {
+      alert("Ingresa correo y contraseña.");
+      return;
+    }
 
-    
-
-    // 3) Obtener info del usuario autenticado (/me)
-    let me;
+    setLoading(true);
     try {
-      const meRes = await InformacionUser(); // 👈 sin parámetros
-      // Si tu backend responde { userId, role, user: {...} }
-      me = meRes?.data?.user ?? meRes?.data ?? null;
-    } catch {
-      me = null; // si falla, tratamos como cliente
+      // 1) Login
+      const { data } = await LoginUser({ correo, contraseña });
+      const token = data?.token;
+      if (!token) throw new Error("No se recibió token de autenticación");
+
+      // 2) Guardar token
+      localStorage.setItem("token", token);
+
+      // 3) Obtener info del usuario autenticado (/me)
+      let me;
+      try {
+        const meRes = await InformacionUser(); // 👈 sin parámetros
+        // Si tu backend responde { userId, role, user: {...} }
+        me = meRes?.data?.user ?? meRes?.data ?? null;
+      } catch {
+        me = null; // si falla, tratamos como cliente
+      }
+
+      // 4) Two-factor (si está activo, salimos luego de navegar)
+      if (me?.autenticacion_dos_pasos === true) {
+        await enviarCodigo(correo, navigate, setLoading); // 👈 hace navigate y finaliza loading
+        return; // 👈 muy importante para NO continuar con más navegación
+      }
+
+      // 5) Resolver rol
+      const roleName =
+        me?.rol?.nombre_rol || // { rol: { nombre_rol: 'administrador' } }
+        me?.rol || // 'administrador'
+        (typeof me?.id_rol === "number" // numérico (1 admin, otro cliente)
+          ? me.id_rol === 1
+            ? "administrador"
+            : "cliente"
+          : "cliente");
+
+      localStorage.setItem("rol", roleName);
+
+      // 6) Redirección por rol (una sola navegación)
+      if (roleName?.toLowerCase() === "administrador") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      console.error(err?.response?.data || err);
+      alert(err?.response?.data?.message || "Error de login");
+    } finally {
+      // OJO: si hubo 2FA, ya hicimos setLoading(false) dentro de enviarCodigo
+      // pero este finally igual lo pondrá false de nuevo (no pasa nada)
+      setLoading(false);
     }
-
-    // 4) Two-factor (si está activo, salimos luego de navegar)
-    if (me?.autenticacion_dos_pasos === true) {
-      await enviarCodigo(correo, navigate, setLoading); // 👈 hace navigate y finaliza loading
-      return; // 👈 muy importante para NO continuar con más navegación
-    }
-
-    // 5) Resolver rol
-    const roleName =
-      me?.rol?.nombre_rol ||              // { rol: { nombre_rol: 'administrador' } }
-      me?.rol ||                           // 'administrador'
-      (typeof me?.id_rol === "number"      // numérico (1 admin, otro cliente)
-        ? (me.id_rol === 1 ? "administrador" : "cliente")
-        : "cliente");
-
-    localStorage.setItem("rol", roleName);
-
-    // 6) Redirección por rol (una sola navegación)
-    if (roleName?.toLowerCase() === "administrador") {
-      navigate("/dashboard");
-    } else {
-      navigate("/");
-    }
-  } catch (err) {
-    console.error(err?.response?.data || err);
-    alert(err?.response?.data?.message || "Error de login");
-  } finally {
-    // OJO: si hubo 2FA, ya hicimos setLoading(false) dentro de enviarCodigo
-    // pero este finally igual lo pondrá false de nuevo (no pasa nada)
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="login-form">
-      <img className="logo-titulo" src="/logo-easyway.jpg" alt="Logo" />
+      <img className="logo-titulo" src="/logo-easyway.png" alt="Logo" />
       <p className="inicio-sesion-text">Inicio de Sesión</p>
       <p className="facil-text">
         Inicia sesion para comprar facil, rapido y seguro
@@ -112,7 +112,7 @@ const onSubmit = async (e) => {
       <hr className="linea"></hr>
 
       <form onSubmit={onSubmit}>
-        <div className="input-wrapper" style={{ marginLeft: 100 }}>
+        <div className="input-wrapper" style={{ marginLeft: 0 }}>
           <input
             type="email"
             className="input-field"
