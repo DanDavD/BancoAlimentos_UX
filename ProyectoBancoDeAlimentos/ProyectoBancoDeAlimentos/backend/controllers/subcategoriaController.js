@@ -1,12 +1,11 @@
-const { subcategoria, producto, categoria, sucursal_producto,subcategory } = require("../models");
+const { subcategoria, producto, categoria, sucursal_producto } = require("../models");
 const { Op } = require("sequelize");
-
 
 // controllers/subcategoriaController.js
 
 exports.listarPorCategoria = async (req, res) => {
   try {
-    const { id_categoria_padre } = req.params;              // ✅ así
+    const { id_categoria_padre } = req.params; // Changed from req.params.id_categoria_padre
     if (!id_categoria_padre) {
       return res.status(400).json({ message: "id_categoria_padre es requerido" });
     }
@@ -16,11 +15,13 @@ exports.listarPorCategoria = async (req, res) => {
     const subcategorias = await subcategoria.findAll({
       where,
       attributes: ["id_subcategoria", "nombre", "id_categoria_padre"],
-      // Usa el mismo alias que definiste en tus modelos:
-      // p.ej. subcategoria.belongsTo(categoria, { foreignKey: 'id_categoria_padre', as: 'categoria' })
-
-      include: [{ model: categoria, as: "categoria", attributes: ["id_categoria", "nombre", "icono_categoria"] }]
-      
+      include: [
+        { 
+          model: categoria, 
+          as: "categoria", 
+          attributes: ["nombre"] 
+        }
+      ]
     });
 
     return res.json(subcategorias);
@@ -30,12 +31,17 @@ exports.listarPorCategoria = async (req, res) => {
   }
 };
 
-
 exports.listar = async (req, res) => {
   try {
     const data = await subcategoria.findAll({
       attributes: ['id_subcategoria', 'nombre', 'id_categoria_padre'],
-      include: { model: categoria, attributes: ['nombre'] }
+      include: [
+        { 
+          model: categoria, 
+          as: 'categoria', 
+          attributes: ['nombre'] 
+        }
+      ]
     });
     res.json(data);
   } catch (e) {
@@ -43,13 +49,17 @@ exports.listar = async (req, res) => {
   }
 };
 
-
-
 exports.obtener = async (req, res) => {
   try {
     const item = await subcategoria.findByPk(req.params.id, {
       attributes: ['id_subcategoria', 'nombre', 'id_categoria_padre'],
-      include: { model: categoria, attributes: ['nombre'] }
+      include: [
+        { 
+          model: categoria, 
+          as: 'categoria', 
+          attributes: ['nombre'] 
+        }
+      ]
     });
     if (!item) return res.status(404).json({ msg: 'Subcategoría no encontrada' });
     res.json(item);
@@ -57,7 +67,6 @@ exports.obtener = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
-
 
 exports.crear = async (req, res) => {
   try {

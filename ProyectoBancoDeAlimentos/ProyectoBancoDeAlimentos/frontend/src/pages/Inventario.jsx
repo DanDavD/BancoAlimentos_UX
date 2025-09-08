@@ -23,15 +23,20 @@ function emptyDraft() {
   return {
     id: "",
     producto: "",
+    descripcion: "",
     marca: "",
+    marcaId: "",
     categoria: "",
+    categoriaId: "",
     subcategoria: "",
+    subcategoriaId: "",
     stockKg: 0,
     precioBase: 0,
     precioVenta: 0,
-    porcentajeGanancia: "",
+    porcentajeGanancia: 0,
     etiquetasText: "",
-    sucursalId: "",
+    etiquetas: [],
+    unidadMedida: "unidad",
     activo: true,
     imagePreviews: [],
     imageFiles: [],
@@ -319,6 +324,14 @@ export default function Inventario() {
   }, [sorted, page]);
 
   // ===== HELPERS =====
+
+  // Devuelve el .nombre del item cuyo .id coincide (o undefined)
+  function nameById(list, maybeId) {
+    if (maybeId === undefined || maybeId === null || maybeId === "")
+      return undefined;
+    return list.find((x) => String(x.id) === String(maybeId))?.nombre;
+  }
+
   function mapApiProduct(p) {
     const activo = p.activo ?? p.is_active ?? p.enabled ?? p.estado ?? true;
     return {
@@ -407,7 +420,11 @@ export default function Inventario() {
     );
   }
 
-  async function listarSubcategoriaPorCategoria(/* categoriaId */) {
+  async function listarSubcategoriaPorCategoria(categoriaId) {
+    if (!categoriaId) {
+      setSubcategorias([]);
+      return;
+    }
     try {
       const res = await listarSubcategoria();
       const subcategoriasRaw = pickArrayPayload(res, [
@@ -416,10 +433,12 @@ export default function Inventario() {
         "results",
         "items",
       ]);
-      const mapped = subcategoriasRaw.map((sc, idx) => ({
-        id: String(sc.id_subcategoria ?? sc.id ?? idx),
-        nombre: sc.nombre ?? `Subcategoría ${idx + 1}`,
-      }));
+      const mapped = subcategoriasRaw
+        .filter(sc => String(sc.id_categoria_padre) === String(categoriaId))
+        .map((sc, idx) => ({
+          id: String(sc.id_subcategoria ?? sc.id ?? idx),
+          nombre: sc.nombre ?? `Subcategoría ${idx + 1}`,
+        }));
       setSubcategorias(mapped);
     } catch (err) {
       console.error("Error cargando subcategorías", err);
@@ -506,47 +525,97 @@ export default function Inventario() {
   function closeModal() {
     setModal((m) => ({ ...m, open: false }));
   }
-
   async function saveModal() {
     const d = modal.draft;
-    if (!d.id || !d.producto) {
-      alert("ID y Producto son obligatorios.");
-      return;
-    }
+
+    // Validaciones mínimas
+    if (!d.producto?.trim())
+      return alert("El nombre del producto es obligatorio.");
+    if (!d.marcaId && !d.marca)
+      return alert("Selecciona una marca.");
+    if (!d.subcategoriaId && !d.subcategoria)
+      return alert("Selecciona una subcategoría.");
+
     try {
       setSavingProduct(true);
-      if (modal.mode === "add") {
-        await crearProducto(d);
-      } else {
+
+      // Preparar etiquetas
+      const etiquetas = (d.etiquetasText || "")
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      if (modal.mode === "edit") {
+        // --- 1) Llamada al backend ---
         await actualizarProducto(
           d.id,
           d.producto,
-          d.descripcion,
-          d.precioBase,
-          d.subcategoria,
-          d.porcentajeGanancia,
-          d.marca,
-          d.etiquetas,
-          d.unidadMedida,
-          d.activo
+          d.descripcion ?? "",
+          Number(d.precioBase ?? 0),
+          Number(d.subcategoriaId ?? d.subcategoria ?? 0),
+          Number(d.porcentajeGanancia ?? 0),
+          Number(d.marcaId ?? d.marca ?? 0),
+          etiquetas,
+          d.unidadMedida ?? "unidad",
+          !!d.activo
         );
+
+        // --- 2) Actualización optimista en la tabla (sin volver a pedir) ---
+        setRows((prev) =>
+          prev.map((row) => {
+            if (String(row.id) !== String(d.id)) return row;
+
+            const marcaNombre =
+              nameById(marcas, d.marcaId ?? d.marca) ?? row.marca;
+            const categoriaNombre =
+              nameById(categorias, d.categoriaId ?? d.categoria) ??
+              row.categoria;
+            const subcatNombre =
+              nameById(subcategorias, d.subcategoriaId ?? d.subcategoria) ??
+              row.subcategoria;
+
+            return {
+              ...row,
+              producto: d.producto ?? row.producto,
+              marca: marcaNombre,
+              categoria: categoriaNombre,
+              subcategoria: subcatNombre,
+              precioBase: Number(
+                d.precioBase !== undefined && d.precioBase !== null
+                  ? d.precioBase
+                  : row.precioBase
+              ),
+              activo: d.activo ?? row.activo,
+            };
+          })
+        );
+      } else {
+        // CREAR producto
+        await crearProducto(
+          d.producto,
+          d.descripcion ?? "",
+          Number(d.precioBase ?? 0),
+          Number(d.subcategoriaId ?? d.subcategoria ?? 0),
+          Number(d.porcentajeGanancia ?? 0),
+          Number(d.marcaId ?? d.marca ?? 0),
+          etiquetas,
+          d.unidadMedida ?? "unidad"
+        );
+
+        // Recargar productos después de crear
+        const prodRes = await getAllProducts();
+        const mapped = ((prodRes?.data ?? prodRes) || []).map(mapApiProduct);
+        setRows(mapped);
       }
-      const refreshed = await getAllProducts();
-      const mapped = pickArrayPayload(refreshed, [
-        "productos",
-        "data",
-        "results",
-        "items",
-      ]).map(mapApiProduct);
-      setRows(mapped);
+
       closeModal();
     } catch (err) {
-      console.error(err);
+      const status = err?.response?.status;
+      const data = err?.response?.data;
       alert(
-        err?.response?.data?.message ||
-          err?.response?.data?.detail ||
-          err?.message ||
-          "No se pudo guardar."
+        `Error ${status ?? ""}: ${
+          data?.message || data?.detail || data?.error || err.message
+        }`
       );
     } finally {
       setSavingProduct(false);
@@ -857,7 +926,7 @@ export default function Inventario() {
                 fill="none"
               >
                 <path
-                  d="M19 11.5V12.5C19 16.9183 15.4183 20.5 11 20.5C6.58172 20.5 3 16.9183 3 12.5C3 8.08172 6.58172 4.5 11 4.5H12"
+                  d="M19 11.5V12.5C19 16.9183 15.4183 20.5 11 20.5C6.58172 20.5 3 8.08172 3 12.5C3 8.08172 6.58172 4.5 11 4.5H12"
                   stroke="currentColor"
                   strokeWidth="1.5"
                   strokeLinecap="round"
@@ -958,6 +1027,14 @@ export default function Inventario() {
             }
           />
 
+          <Input
+            label="Descripción"
+            value={modal.draft.descripcion}
+            onChange={(v) =>
+              setModal((m) => ({ ...m, draft: { ...m.draft, descripcion: v } }))
+            }
+          />
+
           {/* Marca */}
           <label className="flex flex-col gap-1">
             <span className="text-sm text-gray-700">Marca</span>
@@ -965,11 +1042,15 @@ export default function Inventario() {
               <select
                 className="w-full px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2 appearance-none pr-10"
                 style={{ outlineColor: "#2ca9e3" }}
-                value={modal.draft.marca}
+                value={modal.draft.marcaId || modal.draft.marca}
                 onChange={(e) =>
                   setModal((m) => ({
                     ...m,
-                    draft: { ...m.draft, marca: e.target.value },
+                    draft: { 
+                      ...m.draft, 
+                      marcaId: e.target.value,
+                      marca: nameById(marcas, e.target.value) || ""
+                    },
                   }))
                 }
               >
@@ -998,12 +1079,17 @@ export default function Inventario() {
                 style={{ outlineColor: "#2ca9e3" }}
                 value={selectedCategoria}
                 onChange={(e) => {
-                  setSelectedCategoria(e.target.value);
+                  const categoriaId = e.target.value;
+                  setSelectedCategoria(categoriaId);
                   setModal((m) => ({
                     ...m,
-                    draft: { ...m.draft, categoria: e.target.value },
+                    draft: { 
+                      ...m.draft, 
+                      categoriaId: categoriaId,
+                      categoria: nameById(categorias, categoriaId) || ""
+                    },
                   }));
-                  listarSubcategoriaPorCategoria(e.target.value);
+                  listarSubcategoriaPorCategoria(categoriaId);
                 }}
               >
                 <option value="">Selecciona…</option>
@@ -1029,11 +1115,15 @@ export default function Inventario() {
               <select
                 className="w-full px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2 appearance-none pr-10"
                 style={{ outlineColor: "#2ca9e3" }}
-                value={modal.draft.subcategoria}
+                value={modal.draft.subcategoriaId || modal.draft.subcategoria}
                 onChange={(e) =>
                   setModal((m) => ({
                     ...m,
-                    draft: { ...m.draft, subcategoria: e.target.value },
+                    draft: { 
+                      ...m.draft, 
+                      subcategoriaId: e.target.value,
+                      subcategoria: nameById(subcategorias, e.target.value) || ""
+                    },
                   }))
                 }
               >
@@ -1090,8 +1180,16 @@ export default function Inventario() {
             }
           />
 
+          <Input
+            label="Unidad de Medida"
+            value={modal.draft.unidadMedida}
+            onChange={(v) =>
+              setModal((m) => ({ ...m, draft: { ...m.draft, unidadMedida: v } }))
+            }
+          />
+
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-gray-700">Etiqueta</span>
+            <span className="text-sm text-gray-700">Etiquetas (separadas por coma)</span>
             <input
               list="etiquetas_sugeridas"
               className="px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
@@ -1108,6 +1206,8 @@ export default function Inventario() {
             <datalist id="etiquetas_sugeridas">
               <option value="Nuevo" />
               <option value="En oferta" />
+              <option value="Popular" />
+              <option value="Destacado" />
             </datalist>
           </label>
 
@@ -1313,7 +1413,7 @@ function ThFilter({ label, filterKey, value, onChange }) {
           className="p-1 rounded-md hover:bg-white/15"
           title="Filtrar"
         >
-          <Icon.Search className="text-white" />
+      <Icon.Search className="text-white" />
         </button>
       </div>
 

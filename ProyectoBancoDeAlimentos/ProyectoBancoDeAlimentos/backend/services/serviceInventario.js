@@ -172,37 +172,50 @@ async function abastecerPorProductoSucursal({
 
 const UNIDADES_PERMITIDAS = ["unidad", "libra", "litro"];
 
+
 async function crearProductoConStockEnSucursales(payload = {}) {
   const {
     nombre,
     descripcion = null,
     precio_base,
     id_subcategoria,
-    id_marca, // referencia a marca_producto.id_marca_producto
+    id_marca, // -> marca_producto.id_marca_producto
     unidad_medida = "unidad",
     activo = true,
+    etiquetas, // ARRAY(STRING) en Postgres; si usas MySQL => usar JSON
   } = payload;
 
-  // Validaciones básicas
-  if (!nombre || typeof nombre !== "string")
-    throw new Error("nombre es requerido");
+  // --- Validaciones básicas ---
+  if (!nombre || typeof nombre !== "string") throw new Error("nombre es requerido");
+
   const precio = Number(precio_base);
-  if (!Number.isFinite(precio) || precio <= 0)
-    throw new Error("precio_base inválido");
-  const subId = toInt(id_subcategoria);
+  if (!Number.isFinite(precio) || precio <= 0) throw new Error("precio_base inválido");
+
+  const subId   = toInt(id_subcategoria);
   const marcaId = toInt(id_marca);
-  if (Number.isNaN(subId) || subId <= 0)
-    throw new Error("id_subcategoria inválido");
-  if (Number.isNaN(marcaId) || marcaId <= 0)
-    throw new Error("id_marca inválido");
+  if (Number.isNaN(subId)   || subId   <= 0) throw new Error("id_subcategoria inválido");
+  if (Number.isNaN(marcaId) || marcaId <= 0) throw new Error("id_marca inválido");
+
   if (!UNIDADES_PERMITIDAS.includes(unidad_medida)) {
-    throw new Error(
-      `unidad_medida inválida. Usa: ${UNIDADES_PERMITIDAS.join(", ")}`
-    );
+    throw new Error(`unidad_medida inválida. Usa: ${UNIDADES_PERMITIDAS.join(", ")}`);
   }
 
+  // --- Normalizar etiquetas a array<string> o null ---
+  let etiquetasArr = null;
+  if (etiquetas !== undefined && etiquetas !== null) {
+    if (Array.isArray(etiquetas)) {
+      etiquetasArr = etiquetas.map(s => typeof s === "string" ? s.trim() : "")
+                              .filter(Boolean);
+    } else if (typeof etiquetas === "string") {
+      etiquetasArr = etiquetas.split(",").map(s => s.trim()).filter(Boolean);
+    } else {
+      throw new Error("etiquetas debe ser array de strings o string CSV");
+    }
+  }
+
+  // --- Transacción ---
   return await sequelize.transaction(async (t) => {
-    // Verificar FK existentes
+    // FK existentes
     const sub = await subcategoria.findByPk(subId, { transaction: t });
     if (!sub) throw new Error("La subcategoría no existe");
 
@@ -210,20 +223,18 @@ async function crearProductoConStockEnSucursales(payload = {}) {
     if (!marca) throw new Error("La marca no existe");
 
     // 1) Crear producto
-    const prod = await producto.create(
-      {
-        nombre: nombre.trim(),
-        descripcion,
-        precio_base: precio,
-        id_subcategoria: subId,
-        id_marca: marcaId,
-        unidad_medida,
-        activo: !!activo,
-      },
-      { transaction: t }
-    );
+    const prod = await producto.create({
+      nombre: nombre.trim(),
+      descripcion,
+      precio_base: precio,
+      id_subcategoria: subId,
+      id_marca: marcaId,
+      unidad_medida,
+      activo: !!activo,
+      etiquetas: etiquetasArr?.length ? etiquetasArr : null, // requiere ARRAY(STRING) en Postgres
+    }, { transaction: t });
 
-    // 2) Buscar TODAS las sucursales
+    // 2) Traer TODAS las sucursales
     const sucursales = await sucursal.findAll({
       attributes: ["id_sucursal"],
       transaction: t,
@@ -235,13 +246,12 @@ async function crearProductoConStockEnSucursales(payload = {}) {
       const filas = sucursales.map((s) => ({
         id_sucursal: s.id_sucursal,
         id_producto: prod.id_producto,
-        stock_disponible: 0, // ← requisito
-        // etiquetas: null         // opcional, si quisieras setear algo
+        stock_disponible: 0,
       }));
       await sucursal_producto.bulkCreate(filas, { transaction: t });
     }
 
-    // 4) Devolver el producto con relaciones útiles
+    // 4) Devolver el producto con include usando ALIAS correctos
     const creado = await producto.findByPk(prod.id_producto, {
       transaction: t,
       include: [
@@ -250,14 +260,15 @@ async function crearProductoConStockEnSucursales(payload = {}) {
           as: "subcategoria",
           attributes: ["id_subcategoria", "nombre"],
         },
-        { model: marca_producto, attributes: ["id_marca_producto", "nombre"] }, // sin alias en tu index
+        {
+          model: marca_producto,
+          as: "marca",
+          attributes: ["id_marca_producto", "nombre"],
+        },
         {
           model: sucursal_producto,
-          attributes: [
-            "id_sucursal_producto",
-            "id_sucursal",
-            "stock_disponible",
-          ],
+          as: "stock", // <-- alias definido en asociaciones
+          attributes: ["id_sucursal_producto", "id_sucursal", "stock_disponible"],
         },
       ],
     });

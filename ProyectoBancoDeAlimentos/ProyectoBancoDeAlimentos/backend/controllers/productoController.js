@@ -63,7 +63,6 @@ exports.tendencias = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 exports.listarProductos = async (req, res) => {
   try {
     const products = await producto.findAll({
