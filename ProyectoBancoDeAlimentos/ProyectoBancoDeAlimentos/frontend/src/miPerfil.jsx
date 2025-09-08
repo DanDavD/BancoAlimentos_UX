@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./miPerfil.css";
 import { Link } from "react-router-dom";
 import PerfilSidebar from "./components/perfilSidebar";
+
 import {
   InformacionUser,
   EditProfile,
@@ -82,19 +83,18 @@ export default function MiPerfil() {
   const [cargando, setCargando] = useState(true);
   const [datosValidos, setDatosValidos] = useState(true);
   const [editMode, setEditMode] = useState(false);
+  const [fotoBase64, setFotoBase64] = useState(null);
 
   //funcion para manejar la subida de la foto
 
-  const handleFotoChange = async (e) => {
-    if (!editMode) return; // 👈 bloquear si no está en modo edición
-    const file = e.target.files[0];
+  const handleFotoChange = (e) => {
+    if (!editMode) return;
+    const file = e.target.files?.[0];
     if (!file) return;
-    try {
-      const res = await uploadProfilePhoto(file);
-      setFotoUrl(res.data.url);
-    } catch (err) {
-      console.error("Error subiendo foto:", err);
-    }
+    setFotoUrl(URL.createObjectURL(file)); // preview
+    const reader = new FileReader();
+    reader.onload = () => setFotoBase64(reader.result); // data:image/...;base64,...
+    reader.readAsDataURL(file);
   };
 
   // carga la información del usuario autenticado
@@ -261,22 +261,17 @@ export default function MiPerfil() {
                 className="boton-guardar"
                 onClick={async () => {
                   try {
-                    const formData = new FormData();
-                    formData.append("telefono", telefono);
-                    formData.append("nombre", nombre);
-                    formData.append("apellido", apellidos);
-                    formData.append("correo", correo);
-                    formData.append("genero", genero);
-                    if (fotoUrl) {
-                      formData.append("foto_perfil", fotoUrl); // Si hay foto, incluirla
-                    }
-                    // Usa axios directamente para enviar FormData
+                    const payload = {
+                      telefono,
+                      nombre,
+                      apellido: apellidos,
+                      correo,
+                      genero,
+                      ...(fotoBase64 ? { foto_perfil: fotoBase64 } : {}),
+                    };
                     const res = await axiosInstance.put(
                       "/api/MiPerfil/perfil",
-                      formData,
-                      {
-                        headers: { "Content-Type": "multipart/form-data" },
-                      }
+                      payload
                     );
                     console.log("Perfil actualizado", res.data);
                     setEditMode(false);
