@@ -14,7 +14,7 @@ import {
   getMarcas,
 } from "../api/InventarioApi";
 import { ListarCategoria } from "../api/CategoriaApi";
-import { listarPorCategoria } from "../api/SubcategoriaApi";
+import { listarSubcategoria } from "../api/SubcategoriaApi";
 
 /* ===================== Helpers / Const ===================== */
 const PageSize = 10;
@@ -407,9 +407,9 @@ export default function Inventario() {
     );
   }
 
-  async function listarSubcategoriaPorCategoria(categoriaId) {
+  async function listarSubcategoriaPorCategoria(/* categoriaId */) {
     try {
-      const res = await listarPorCategoria(categoriaId);
+      const res = await listarSubcategoria();
       const subcategoriasRaw = pickArrayPayload(res, [
         "subcategorias",
         "data",

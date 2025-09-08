@@ -1,6 +1,6 @@
 // controllers/producto.controller.js
 const { GetAllProductos, GetSucursales,abastecerPorProductoSucursal,  crearProductoConStockEnSucursales } = require('../services/serviceInventario');
-
+const{listarProductos, novedades, tendencias}= require('./productoController');
 function esAdmin(req) {
   return (
     req.auth?.role === 'administrador' ||
@@ -10,8 +10,7 @@ function esAdmin(req) {
 
 exports.listAll = async (req, res) => {
   try {
-    const data = await GetAllProductos(); // trae productos + subcategoria(categoria) + sucursal_producto(sucursal)
-    return res.status(200).json(data);
+    return listarProductos(req, res);
   } catch (e) {
     return res.status(400).json({ message: String(e?.message || e) });
   }
