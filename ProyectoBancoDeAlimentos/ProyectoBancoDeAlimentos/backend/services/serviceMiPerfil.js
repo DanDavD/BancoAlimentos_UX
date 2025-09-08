@@ -47,7 +47,7 @@ async function editPerfil(id_usuario, payload = {}, options = {}) {
   const user = await Usuario.findByPk(id_usuario);
   if (!user) throw new Error('Usuario no encontrado');
 
-  const allowedSelf  = ['nombre', 'telefono', 'foto_perfil_url', 'tema'];
+  const allowedSelf  = ['nombre', 'apellido','telefono', 'foto_perfil_url', 'tema'];
   const allowedAdmin = ['correo', 'id_rol', 'activo'];
   const allowed = new Set(isAdmin ? [...allowedSelf, ...allowedAdmin] : allowedSelf);
 
@@ -58,6 +58,10 @@ async function editPerfil(id_usuario, payload = {}, options = {}) {
     const v = String(payload.nombre || '').trim();
     if (v) updates.nombre = v;
   }
+  if ('apellido' in payload && allowed.has('apellido')) {
+  const v = String(payload.apellido || '').trim();
+  if (v) updates.apellido = v;
+}
   if ('telefono' in payload && allowed.has('telefono')) {
     const v = String(payload.telefono || '').trim();
     updates.telefono = v || null;
