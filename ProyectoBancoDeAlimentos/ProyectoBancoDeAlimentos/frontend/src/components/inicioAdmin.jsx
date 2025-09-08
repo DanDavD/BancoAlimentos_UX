@@ -15,34 +15,34 @@ import pet from "../images/pet.png";
 import ham from "../images/ham.png";
 import cake from "../images/cake.png";
 import bread from "../images/bread.png";
-import juice from "../images/juice.png";
+//import juice from "../images/juice.png";
 import clean from "../images/clean.png";
 import soccer from "../images/soccer.png";
 import phone from "../images/phone.png";
 import pharmacy from "../images/pharmacy.png";
-import milk from "../images/milk.png";
+//import milk from "../images/milk.png";
 import arrowL from "../images/arrowL.png";
 import arrowR from "../images/arrowR.png";
 import appleImage from "../images/appleImage.png";
-import coffee from "../images/coffee.png";
+//import coffee from "../images/coffee.png";
 import banner1 from "../images/banner1.png";
 import banner2 from "../images/banner2.png";
 import banner3 from "../images/banner3.png";
 
 const categories = [
-  { name: "Lácteos", icon: milk },
+  //{ name: "Lácteos", icon: milk },
   { name: "Farmacia", icon: pharmacy },
   { name: "Electrónico", icon: phone },
   { name: "Deportes", icon: soccer },
   { name: "Limpieza", icon: clean },
-  { name: "Bebidas", icon: juice },
+  //{ name: "Bebidas", icon: juice },
   { name: "Panadería", icon: bread },
   { name: "Repostería", icon: cake },
   { name: "Embutidos", icon: ham },
   { name: "Mascotas", icon: pet },
   { name: "Frutas", icon: apple },
   { name: "Verduras", icon: carrot },
-  { name: "Granos", icon: coffee },
+  //{ name: "Granos", icon: coffee },
 ];
 
 const products = [
