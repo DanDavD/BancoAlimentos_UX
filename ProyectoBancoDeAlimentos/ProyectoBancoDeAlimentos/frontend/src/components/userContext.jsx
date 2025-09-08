@@ -12,27 +12,33 @@ function normalizeRole(payload) {
     payload?.role ||
     me?.rol ||
     (typeof me?.id_rol === "number"
-      ? (me.id_rol === 1 ? "administrador" : "cliente")
+      ? me.id_rol === 1
+        ? "administrador"
+        : "cliente"
       : null);
-  return typeof raw === "string" ? raw.toLowerCase() : (raw || null);
+  return typeof raw === "string" ? raw.toLowerCase() : raw || null;
 }
 
 export const UserProvider = ({ children }) => {
-  const [userRole, setUserRole] = useState(null);   // 'administrador' | 'cliente' | null
+  const [userRole, setUserRole] = useState(null); // 'administrador' | 'cliente' | null
+  const [user, setUser] = useState(null); // 👈 nuevo estado para info completa del usuario
   const [loading, setLoading] = useState(true);
 
   const refreshUser = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) {
       setUserRole(null);
+      setUser(null); // 👈 también limpiamos info del usuario
       return;
     }
     try {
-      const res = await InformacionUser();  // tu /api/auth/me
+      const res = await InformacionUser(); // tu /api/auth/me
+      setUser(res.data); // 👈 guardamos info completa
       const roleName = normalizeRole(res?.data);
       setUserRole(roleName);
     } catch (err) {
       setUserRole(null);
+      setUser(null);
     }
   }, []);
 
@@ -59,7 +65,8 @@ export const UserProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("token");
-    setUserRole(null);   // fuerza re-render del header
+    setUserRole(null); // fuerza re-render del header
+    setUser(null); // limpiamos info del usuario
   };
 
   const isAuthenticated = !!userRole;
@@ -67,7 +74,17 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ userRole, loading, isAuthenticated, isAdmin, login, logout, refreshUser }}
+      value={{
+        userRole,
+        user, // 👈 ahora disponible para foto y datos
+        setUser, // 👈 permite actualizar foto desde MiPerfil
+        loading,
+        isAuthenticated,
+        isAdmin,
+        login,
+        logout,
+        refreshUser,
+      }}
     >
       {children}
     </UserContext.Provider>

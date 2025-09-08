@@ -17,10 +17,11 @@ import { UserContext } from "./userContext"; // <- ruta correcta
 const Headerr = ({ isAdminPage }) => {
   const navigate = useNavigate();
   const [logMenu, setLogOpen] = useState(false);
-  const { userRole, loading, isAuthenticated, isAdmin, logout } =
+  const { user, userRole, loading, isAuthenticated, isAdmin, logout } =
     useContext(UserContext);
 
   if (loading) return null;
+  console.log("Header user", user); // 🔹 aquí
 
   const handleLogout = () => {
     logout();
@@ -28,6 +29,8 @@ const Headerr = ({ isAdminPage }) => {
     localStorage.removeItem("rol");
     navigate("/login");
   };
+
+  const fotoUrl = user?.foto_perfil_url ? user.foto_perfil_url : UserIcon; // icono por defecto
 
   return (
     <div style={{ ...styles.fixedShell, boxShadow: "none" }}>
@@ -65,7 +68,7 @@ const Headerr = ({ isAdminPage }) => {
             style={styles.SmallWrapperUser}
             onClick={() => setLogOpen((prev) => !prev)}
           >
-            <img src={UserIcon} alt="User" style={styles.iconUser} />
+            <img src={fotoUrl} alt="User" style={styles.iconUser} />
           </button>
           <span>
             {isAuthenticated ? `Bienvenido, ${userRole}` : "Invitado"}
@@ -254,6 +257,8 @@ const styles = {
   iconUser: {
     height: "40px",
     width: "40px",
+    borderRadius: "50%", // 🔹 hace la imagen redonda
+    objectFit: "cover", // 🔹 mantiene proporción y recorta si es necesario
   },
   SmallWrapperUser: {
     backgroundColor: "transparent",
