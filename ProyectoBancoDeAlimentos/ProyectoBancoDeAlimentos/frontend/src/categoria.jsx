@@ -11,7 +11,7 @@ function Categoria() {
   const [orderby, setOrder] = useState("");
   const [stateProducto, setState] = useState("Agregar");
   const [btnCompare, setCompare] = useState("COMPARAR");
-  const { id } = useParams();
+  const { id } = useParams(); 
 
   const [hoveredProductDest, setHoveredProductDest] = React.useState(null);
 
@@ -224,10 +224,15 @@ function Categoria() {
                 </div>
 
                 <img
-                  src={`/images/categorias/${p.imagenes[0].url_imagen}`}
-                  alt={p.nombre}
-                  style={styles.productImg}
-                />
+  src={
+    p?.imagenes?.[0]?.url_imagen
+      ? `/images/categorias/${p.imagenes[0].url_imagen}`
+      : "/images/PlaceHolder.png" // ruta a imagen por defecto
+  }
+  alt={p?.nombre ?? "Sin nombre"}
+  style={styles.productImg}
+/>
+
                 <p style={styles.productName}>{p.nombre}</p>
                 <p style={styles.productPrice}>{p.precio_base}</p>
                 <button
