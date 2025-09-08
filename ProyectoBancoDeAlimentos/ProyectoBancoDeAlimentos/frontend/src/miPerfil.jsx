@@ -82,6 +82,7 @@ export default function MiPerfil() {
   const [cargando, setCargando] = useState(true);
   const [datosValidos, setDatosValidos] = useState(true);
   const [editMode, setEditMode] = useState(false);
+
   //funcion para manejar la subida de la foto
 
   const handleFotoChange = async (e) => {
@@ -148,6 +149,13 @@ export default function MiPerfil() {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!passwordError) return;
+
+    const timer = setTimeout(() => setPasswordError(""), 2000);
+    return () => clearTimeout(timer);
+  }, [passwordError]);
 
   return (
     <div className="perfil-container">
@@ -253,16 +261,25 @@ export default function MiPerfil() {
                 className="boton-guardar"
                 onClick={async () => {
                   try {
-                    const payload = {
-                      telefono,
-                      nombre,
-                      apellidos,
-                      correo,
-                      genero,
-                    };
-                    const res = await EditProfile(payload);
+                    const formData = new FormData();
+                    formData.append("telefono", telefono);
+                    formData.append("nombre", nombre);
+                    formData.append("apellido", apellidos);
+                    formData.append("correo", correo);
+                    formData.append("genero", genero);
+                    if (fotoUrl) {
+                      formData.append("foto_perfil", fotoUrl); // Si hay foto, incluirla
+                    }
+                    // Usa axios directamente para enviar FormData
+                    const res = await axiosInstance.put(
+                      "/api/MiPerfil/perfil",
+                      formData,
+                      {
+                        headers: { "Content-Type": "multipart/form-data" },
+                      }
+                    );
                     console.log("Perfil actualizado", res.data);
-                    setEditMode(false); // 👈 salir del modo edición
+                    setEditMode(false);
                   } catch (err) {
                     console.error(
                       "Error guardando perfil:",
@@ -299,6 +316,7 @@ export default function MiPerfil() {
                 </div>
                 <div className="modal-body">
                   <label>Contraseña anterior</label>
+
                   <input
                     type="password"
                     value={oldPassword}
@@ -317,7 +335,11 @@ export default function MiPerfil() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   {passwordError && (
-                    <p style={{ color: "red", marginTop: 8 }}>
+                    <p
+                      className="password-error"
+                      role="alert"
+                      aria-live="assertive"
+                    >
                       {passwordError}
                     </p>
                   )}
@@ -329,8 +351,9 @@ export default function MiPerfil() {
                   >
                     Cancelar
                   </button>
+
                   <button
-                    className="btn-secondary"
+                    className="MPbtn-secondary"
                     onClick={async () => {
                       // validar nueva vs confirmacion
                       setPasswordError("");
