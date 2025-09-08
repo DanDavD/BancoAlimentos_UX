@@ -112,7 +112,7 @@ const onSubmit = async (e) => {
       <hr className="linea"></hr>
 
       <form onSubmit={onSubmit}>
-        <div className="input-wrapper" style={{ marginLeft: 100 }}>
+        <div className="input-wrapper" style={{ marginLeft: 0 }}>
           <input
             type="email"
             className="input-field"
