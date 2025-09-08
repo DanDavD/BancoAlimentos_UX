@@ -153,7 +153,21 @@ function AgregarCarrito() {
                 </div>
 
                 <div style={styles.cardImageWrapper}>
-                  <img src={p.img} alt={p.nombre} style={styles.cardImage} />
+                  {p.imagenes &&
+                  p.imagenes.length > 0 &&
+                  p.imagenes[0].url_imagen ? (
+                    <img
+                      src={`/images/productos/${p.imagenes[0].url_imagen}`}
+                      alt={p.nombre}
+                      style={styles.productImg}
+                      onError={(e) => {
+                        e.target.src =
+                          'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999">Imagen no disponible</text></svg>';
+                      }}
+                    />
+                  ) : (
+                    <div style={styles.productImg}>Imagen no disponible</div>
+                  )}{" "}
                 </div>
 
                 <div style={styles.cardContent}>
@@ -183,11 +197,21 @@ function AgregarCarrito() {
             <div style={styles.detailGrid}>
               {/* Imagen */}
               <div style={styles.detailImageWrapper}>
-                <img
-                  src={product.img}
-                  alt={product.nombre}
-                  style={styles.detailImage}
-                />
+                {product.imagenes &&
+                product.imagenes.length > 0 &&
+                product.imagenes[0].url_imagen ? (
+                  <img
+                    src={`/images/productos/${product.imagenes[0].url_imagen}`}
+                    alt={product.nombre}
+                    style={styles.productImg}
+                    onError={(e) => {
+                      e.target.src =
+                        'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999">Imagen no disponible</text></svg>';
+                    }}
+                  />
+                ) : (
+                  <div style={styles.productImg}>Imagen no disponible</div>
+                )}
               </div>
 
               {/* Info */}
