@@ -47,12 +47,48 @@ export default function MisDirecciones() {
 
   useEffect(() => {
     const id_usuario = getUserId();
-    if (!id_usuario) return;
+    if (!id_usuario) {
+      showToast("Usuario no autenticado", "error");
+      return;
+    }
 
-    getDirecciones(id_usuario).then((res) => setDirecciones(res.data));
-    getAllMunicipios().then((res) => setMunicipios(res.data));
-    getAllDepartamentos().then((res) => setDepartamentos(res.data));
-  }, []);
+    const fetchData = async () => {
+      try {
+        // Obtener direcciones del usuario
+        const direccionesRes = await getDirecciones(id_usuario);
+        // Validar que la respuesta sea un array
+        if (Array.isArray(direccionesRes.data)) {
+          setDirecciones(direccionesRes.data);
+        } else {
+          setDirecciones([]);
+        }
+
+        // Obtener municipios
+        const municipiosRes = await getAllMunicipios();
+        if (Array.isArray(municipiosRes.data)) {
+          setMunicipios(municipiosRes.data);
+        } else {
+          setMunicipios([]);
+        }
+
+        // Obtener departamentos
+        const departamentosRes = await getAllDepartamentos();
+        if (Array.isArray(departamentosRes.data)) {
+          setDepartamentos(departamentosRes.data);
+        } else {
+          setDepartamentos([]);
+        }
+      } catch (error) {
+        console.error("Error al cargar datos iniciales:", error);
+        showToast("No tiene direcciones", "error");
+        setDirecciones([]);
+        setMunicipios([]);
+        setDepartamentos([]);
+      }
+    };
+
+    fetchData();
+  }, []); // El array de dependencias vacío asegura que se ejecute solo una vez al montar el componente
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -96,7 +132,12 @@ export default function MisDirecciones() {
 
       await addDireccion(payload);
       const res = await getDirecciones(id_usuario);
-      setDirecciones(res.data);
+      // Validar la respuesta de nuevo por si se vuelve a vaciar
+      if (Array.isArray(res.data)) {
+        setDirecciones(res.data);
+      } else {
+        setDirecciones([]);
+      }
 
       setForm({
         codigoPostal: "",
@@ -106,7 +147,8 @@ export default function MisDirecciones() {
         id_departamento: "",
       });
       showToast("Dirección guardada con éxito ✅", "success");
-    } catch {
+    } catch (error) {
+      console.error("Error al guardar dirección:", error);
       showToast("Error al guardar dirección", "error");
     }
   };
@@ -116,9 +158,15 @@ export default function MisDirecciones() {
       const id_usuario = getUserId();
       await eliminarDireccionApi({ id_usuario, id_direccion: id });
       const res = await getDirecciones(id_usuario);
-      setDirecciones(res.data);
+      // Validar la respuesta de nuevo
+      if (Array.isArray(res.data)) {
+        setDirecciones(res.data);
+      } else {
+        setDirecciones([]);
+      }
       showToast("Dirección eliminada correctamente 🗑️", "success");
-    } catch {
+    } catch (error) {
+      console.error("Error al eliminar dirección:", error);
       showToast("Error al eliminar dirección", "error");
     }
   };
@@ -136,7 +184,7 @@ export default function MisDirecciones() {
   };
 
   return (
-     <div className="mis-direcciones">
+    <div className="mis-direcciones">
       <section className="sidebar">
         <PerfilSidebar />
       </section>
@@ -161,7 +209,7 @@ export default function MisDirecciones() {
           >
             Mis Direcciones
           </h1>
-           <hr className="separador" />
+          <hr className="separador" />
 
           {/* Formulario */}
           <div
@@ -219,7 +267,7 @@ export default function MisDirecciones() {
               <div
                 style={{ display: "flex", gap: "20px", marginBottom: "15px" }}
               >
-                <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                   <label style={{ marginBottom: '5px' }}>Ciudad/Municipio</label>
                   <select
                     name="id_municipio"
@@ -395,7 +443,7 @@ export default function MisDirecciones() {
                             cursor: "pointer",
                           }}
                         >
-                          
+                          <Icon.Edit size={18} color="#2b6daf" />
                         </button>
                         <button
                           onClick={() => removeRow(d.id_direccion)}
@@ -434,6 +482,15 @@ export default function MisDirecciones() {
           >
             {toast.mensaje}
           </div>
+        )}
+        {showModal && (
+          <EditarDireccionModal
+            setShowModal={setShowModal}
+            setDirecciones={setDirecciones}
+            getUserId={getUserId}
+            direcciones={direcciones}
+            setToast={setToast}
+          />
         )}
       </div>
     </div>
