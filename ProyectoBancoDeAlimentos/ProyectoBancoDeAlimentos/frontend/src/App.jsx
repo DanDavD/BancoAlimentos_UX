@@ -32,6 +32,7 @@ import VerificarCodigo from "./verificarcodigo.jsx";
 import { UserProvider } from "./components/userContext";
 import DetalleFactura from "./pages/DetalleFactura.js";
 import Facturas from "./pages/Facturas.js";
+import NotFoundpage from "./notFoundPage.jsx";
 const HEADER_HEIGHT = 144; // px
 
 function App() {
@@ -85,6 +86,9 @@ function App() {
             />
             <Route path="/facturas" element={<Facturas />} />
             <Route path="/factura/:id" element={<DetalleFactura />} />
+
+            <Route path="*" element={<NotFoundpage />} />
+
           </Routes>
         </div>
       </div>
