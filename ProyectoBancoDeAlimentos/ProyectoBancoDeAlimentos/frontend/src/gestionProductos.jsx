@@ -1,5 +1,6 @@
 // GestionProductos.jsx
 import React, { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import {
   ListarCategoria,
   CrearCategoria,
@@ -17,7 +18,7 @@ import Sidebar from "./sidebar";
 
 function GestionProductos() {
   //Sidebar
-  const [moveButton, setLeft] = useState(false);
+  const { moveButton, setMoveButton } = useOutletContext();
   const [showSidebar, setShowSidebar] = useState(false);
 
   //Info del producto a agregar (placeholder)
@@ -53,11 +54,6 @@ function GestionProductos() {
   // Estructura interna: [{ id_categoria, name, icono_categoria, subcategories: [{id_subcategoria, nombre}] }]
   const [categories, setCategories] = useState([]);
 
-  function handleClick() {
-    setLeft((p) => !p);
-    setShowSidebar((p) => !p);
-  }
-
   // ==========================
   // Carga inicial de categorías
   // ==========================
@@ -76,7 +72,8 @@ function GestionProductos() {
 
         // Selección por defecto
         const selected =
-          mapped.find((c) => c.name === categoryName) || (mapped.length ? mapped[0] : null);
+          mapped.find((c) => c.name === categoryName) ||
+          (mapped.length ? mapped[0] : null);
 
         if (selected) {
           setCategoria(selected.name);
@@ -95,11 +92,16 @@ function GestionProductos() {
       const res = await listarPorCategoria(id_categoria);
       const subs = Array.isArray(res?.data) ? res.data : [];
       // Guardamos objetos (id + nombre) para poder editar/eliminar
-      const subsObjs = subs.map((s) => ({ id_subcategoria: s.id_subcategoria, nombre: s.nombre }));
+      const subsObjs = subs.map((s) => ({
+        id_subcategoria: s.id_subcategoria,
+        nombre: s.nombre,
+      }));
 
       setCategories((prev) =>
         prev.map((c) =>
-          c.id_categoria === id_categoria ? { ...c, subcategories: subsObjs } : c
+          c.id_categoria === id_categoria
+            ? { ...c, subcategories: subsObjs }
+            : c
         )
       );
       setSubcategoria("");
@@ -149,11 +151,18 @@ function GestionProductos() {
     setCategories((prev) =>
       prev.map((c) =>
         c.id_categoria === id
-          ? { ...c, name: newName, icono_categoria: newIcon ?? c.icono_categoria }
+          ? {
+              ...c,
+              name: newName,
+              icono_categoria: newIcon ?? c.icono_categoria,
+            }
           : c
       )
     );
-    if (categoryName && categories.find((c) => c.id_categoria === id)?.name === categoryName) {
+    if (
+      categoryName &&
+      categories.find((c) => c.id_categoria === id)?.name === categoryName
+    ) {
       setCategoria(newName);
     }
   }
@@ -186,9 +195,13 @@ function GestionProductos() {
           : c
       )
     );
-    if (subName && subName === categories
-      .find((c) => c.id_categoria === catId)
-      ?.subcategories?.find((s) => s.id_subcategoria === subId)?.nombre) {
+    if (
+      subName &&
+      subName ===
+        categories
+          .find((c) => c.id_categoria === catId)
+          ?.subcategories?.find((s) => s.id_subcategoria === subId)?.nombre
+    ) {
       setSubcategoria(newName);
     }
   }
@@ -199,13 +212,17 @@ function GestionProductos() {
         c.id_categoria === catId
           ? {
               ...c,
-              subcategories: c.subcategories.filter((s) => s.id_subcategoria !== subId),
+              subcategories: c.subcategories.filter(
+                (s) => s.id_subcategoria !== subId
+              ),
             }
           : c
       )
     );
     const currentCat = categories.find((c) => c.id_categoria === catId);
-    const removedName = currentCat?.subcategories?.find((s) => s.id_subcategoria === subId)?.nombre;
+    const removedName = currentCat?.subcategories?.find(
+      (s) => s.id_subcategoria === subId
+    )?.nombre;
     if (removedName && removedName === subName) setSubcategoria("");
   }
 
@@ -231,7 +248,11 @@ function GestionProductos() {
       setNew("");
     } catch (e) {
       console.error("Error creando categoría:", e);
-      alert(e?.response?.data?.error || e?.response?.data?.msg || "No se pudo crear la categoría");
+      alert(
+        e?.response?.data?.error ||
+          e?.response?.data?.msg ||
+          "No se pudo crear la categoría"
+      );
     }
   }
 
@@ -243,7 +264,10 @@ function GestionProductos() {
     try {
       const cat = categories.find((c) => c.name === categoryName);
       if (!cat?.id_categoria) {
-        addSubCategoryLocal({ id_subcategoria: Date.now(), nombre: newSub.trim() });
+        addSubCategoryLocal({
+          id_subcategoria: Date.now(),
+          nombre: newSub.trim(),
+        });
         setNewSub("");
         return;
       }
@@ -259,7 +283,9 @@ function GestionProductos() {
     } catch (e) {
       console.error("Error creando subcategoría:", e);
       alert(
-        e?.response?.data?.error || e?.response?.data?.msg || "No se pudo crear la subcategoría"
+        e?.response?.data?.error ||
+          e?.response?.data?.msg ||
+          "No se pudo crear la subcategoría"
       );
     }
   }
@@ -277,12 +303,24 @@ function GestionProductos() {
   async function submitEditCategory(e) {
     e.preventDefault();
     try {
-      await ActualizarCategoria(editCatId, editCatName.trim(), editCatIcon || "default");
-      updateCategoryLocal(editCatId, editCatName.trim(), editCatIcon || "default");
+      await ActualizarCategoria(
+        editCatId,
+        editCatName.trim(),
+        editCatIcon || "default"
+      );
+      updateCategoryLocal(
+        editCatId,
+        editCatName.trim(),
+        editCatIcon || "default"
+      );
       setShowEditCat(false);
     } catch (e) {
       console.error("Error actualizando categoría:", e);
-      alert(e?.response?.data?.error || e?.response?.data?.msg || "No se pudo actualizar");
+      alert(
+        e?.response?.data?.error ||
+          e?.response?.data?.msg ||
+          "No se pudo actualizar"
+      );
     }
   }
 
@@ -297,12 +335,20 @@ function GestionProductos() {
     try {
       const cat = categories.find((c) => c.name === categoryName);
       if (!cat?.id_categoria || !editSubId) return;
-      await actualizarSubcategoria(editSubId, editSubName.trim(), cat.id_categoria);
+      await actualizarSubcategoria(
+        editSubId,
+        editSubName.trim(),
+        cat.id_categoria
+      );
       updateSubcategoryLocal(cat.id_categoria, editSubId, editSubName.trim());
       setShowEditSub(false);
     } catch (e) {
       console.error("Error actualizando subcategoría:", e);
-      alert(e?.response?.data?.error || e?.response?.data?.msg || "No se pudo actualizar");
+      alert(
+        e?.response?.data?.error ||
+          e?.response?.data?.msg ||
+          "No se pudo actualizar"
+      );
     }
   }
 
@@ -310,14 +356,22 @@ function GestionProductos() {
   // Eliminar categoría / subcategoría
   // ==========================
   async function deleteCategory(cat) {
-    if (!window.confirm(`¿Eliminar la categoría "${cat.name}"? Esto desactivará sus productos.`))
+    if (
+      !window.confirm(
+        `¿Eliminar la categoría "${cat.name}"? Esto desactivará sus productos.`
+      )
+    )
       return;
     try {
       await DesactivarProductosDeCategoria(cat.id_categoria);
       removeCategoryLocal(cat.id_categoria);
     } catch (e) {
       console.error("Error eliminando categoría:", e);
-      alert(e?.response?.data?.error || e?.response?.data?.msg || "No se pudo eliminar");
+      alert(
+        e?.response?.data?.error ||
+          e?.response?.data?.msg ||
+          "No se pudo eliminar"
+      );
     }
   }
 
@@ -326,10 +380,15 @@ function GestionProductos() {
     try {
       await desactivarSubcategoria(sub.id_subcategoria);
       const cat = categories.find((c) => c.name === categoryName);
-      if (cat?.id_categoria) removeSubcategoryLocal(cat.id_categoria, sub.id_subcategoria);
+      if (cat?.id_categoria)
+        removeSubcategoryLocal(cat.id_categoria, sub.id_subcategoria);
     } catch (e) {
       console.error("Error eliminando subcategoría:", e);
-      alert(e?.response?.data?.error || e?.response?.data?.msg || "No se pudo eliminar");
+      alert(
+        e?.response?.data?.error ||
+          e?.response?.data?.msg ||
+          "No se pudo eliminar"
+      );
     }
   }
 
@@ -357,17 +416,10 @@ function GestionProductos() {
   // UI (diseño intacto)
   // ==========================
   return (
-    <div className="bg-gray-100 w-screen pb-8 ">
-      {showSidebar && <Sidebar />}
-      <button
-        onClick={handleClick}
-        className={`btn_sidebar ${moveButton ? "left-[186px]" : "left-2"}`}
-      >
-        <span className="material-symbols-outlined text-[42px] text-white">
-          menu
-        </span>
-      </button>
-
+    <div
+      className="bg-gray-100 w-screen pb-8 "
+      style={{ ...styles.fixedShell, backgroundColor: "#f3f4f6" }}
+    >
       <div
         className={` transition-all duration-300 pt-4 ${
           moveButton ? "ml-[270px] mr-[70px]" : "ml-[70px] mr-[70px]"
@@ -383,7 +435,10 @@ function GestionProductos() {
             <div className=" col-span-1 row-span-2 bg-white w-full rounded-md items-center text-xl overflow-y-auto p-2">
               <h1 className="relative px-2 font-roboto text-gray-500 text-4xl pb-1 text-left">
                 Categorias
-                <button onClick={() => setShowCat(true)} className="absolute right-0">
+                <button
+                  onClick={() => setShowCat(true)}
+                  className="absolute right-0"
+                >
                   <span class="material-symbols-outlined text-5xl">add</span>
                 </button>
               </h1>
@@ -431,48 +486,52 @@ function GestionProductos() {
               <div className=" col-span-1 row-span-2 bg-white w-full rounded-md items-center text-xl overflow-y-auto p-2">
                 <h1 className="relative px-2 font-roboto text-gray-500 text-4xl pb-1 text-left">
                   Subcategorias
-                  <button onClick={() => setShowSub(true)} className="absolute right-0">
+                  <button
+                    onClick={() => setShowSub(true)}
+                    className="absolute right-0"
+                  >
                     <span class="material-symbols-outlined text-5xl">add</span>
                   </button>
                 </h1>
                 <hr className="bg-gray-500 h-[2px]"></hr>
                 <ul className="flex flex-col mt-4">
-                  {(categories.find((c) => c.name === categoryName)?.subcategories || []).map(
-                    (sub, i) => (
-                      <li key={sub.id_subcategoria ?? i}>
-                        <div className="flex">
-                          <button
-                            onClick={() => setSubcategoria(sub.nombre)}
-                            className={`list-item ${
-                              subName === sub.nombre
-                                ? "bg-orange-100 border-orange-500"
-                                : "hover:bg-orange-100 hover:border-orange-500"
-                            }`}
-                          >
-                            {sub.nombre}
-                          </button>
-                          <button
-                            className="border-2 hover:bg-orange-100 hover:border-orange-500 rounded-md p-1"
-                            onClick={() => openEditSubcategory(sub)}
-                            title="Editar subcategoría"
-                          >
-                            <span class="material-symbols-outlined text-3xl">
-                              edit_square
-                            </span>
-                          </button>
-                          <button
-                            className="border-2 hover:bg-orange-100 hover:border-orange-500 rounded-md p-1"
-                            onClick={() => deleteSubcategory(sub)}
-                            title="Eliminar subcategoría"
-                          >
-                            <span class="material-symbols-outlined text-3xl">
-                              delete
-                            </span>
-                          </button>
-                        </div>
-                      </li>
-                    )
-                  )}
+                  {(
+                    categories.find((c) => c.name === categoryName)
+                      ?.subcategories || []
+                  ).map((sub, i) => (
+                    <li key={sub.id_subcategoria ?? i}>
+                      <div className="flex">
+                        <button
+                          onClick={() => setSubcategoria(sub.nombre)}
+                          className={`list-item ${
+                            subName === sub.nombre
+                              ? "bg-orange-100 border-orange-500"
+                              : "hover:bg-orange-100 hover:border-orange-500"
+                          }`}
+                        >
+                          {sub.nombre}
+                        </button>
+                        <button
+                          className="border-2 hover:bg-orange-100 hover:border-orange-500 rounded-md p-1"
+                          onClick={() => openEditSubcategory(sub)}
+                          title="Editar subcategoría"
+                        >
+                          <span class="material-symbols-outlined text-3xl">
+                            edit_square
+                          </span>
+                        </button>
+                        <button
+                          className="border-2 hover:bg-orange-100 hover:border-orange-500 rounded-md p-1"
+                          onClick={() => deleteSubcategory(sub)}
+                          title="Eliminar subcategoría"
+                        >
+                          <span class="material-symbols-outlined text-3xl">
+                            delete
+                          </span>
+                        </button>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -489,7 +548,10 @@ function GestionProductos() {
                 Agregar Categoria
               </h2>
 
-              <form className="flex flex-col space-y-4 pr-6 pl-6 pb-8" onSubmit={addCat}>
+              <form
+                className="flex flex-col space-y-4 pr-6 pl-6 pb-8"
+                onSubmit={addCat}
+              >
                 <div>
                   <p className="text-[18px]">Nombre</p>
                   <input
@@ -527,7 +589,10 @@ function GestionProductos() {
                 Agregar Subcategoria
               </h2>
 
-              <form className="flex flex-col space-y-4 pr-6 pl-6 pb-8" onSubmit={addSubcat}>
+              <form
+                className="flex flex-col space-y-4 pr-6 pl-6 pb-8"
+                onSubmit={addSubcat}
+              >
                 <div>
                   <p className="text-[18px]">Nombre</p>
                   <input
@@ -566,7 +631,10 @@ function GestionProductos() {
             <h2 className="bg-[#2b6daf] text-xl rounded-md font-bold p-2 text-center text-white mb-6">
               Editar Categoria
             </h2>
-            <form className="flex flex-col space-y-4 pr-6 pl-6 pb-8" onSubmit={submitEditCategory}>
+            <form
+              className="flex flex-col space-y-4 pr-6 pl-6 pb-8"
+              onSubmit={submitEditCategory}
+            >
               <div>
                 <p className="text-[18px]">Nombre</p>
                 <input
@@ -612,7 +680,10 @@ function GestionProductos() {
             <h2 className="bg-[#2b6daf] text-xl rounded-md font-bold p-2 text-center text-white mb-6">
               Editar Subcategoria
             </h2>
-            <form className="flex flex-col space-y-4 pr-6 pl-6 pb-8" onSubmit={submitEditSubcategory}>
+            <form
+              className="flex flex-col space-y-4 pr-6 pl-6 pb-8"
+              onSubmit={submitEditSubcategory}
+            >
               <div>
                 <p className="text-[18px]">Nombre</p>
                 <input
@@ -645,5 +716,16 @@ function GestionProductos() {
     </div>
   );
 }
+const styles = {
+  fixedShell: {
+    position: "absolute",
+    top: "145px",
+    left: 0,
+    right: 0,
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+  },
+};
 
 export default GestionProductos;

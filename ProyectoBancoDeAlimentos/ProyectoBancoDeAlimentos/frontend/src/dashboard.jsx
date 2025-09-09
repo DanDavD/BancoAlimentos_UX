@@ -1,7 +1,7 @@
 import "./dashboard.css";
 import Sidebar from "./sidebar";
 import React, { useState } from "react";
-
+import { useOutletContext } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import MiniChart from "./components/miniChart";
 import MiniChart2 from "./components/miniChart2";
@@ -20,13 +20,8 @@ import {
 import { Line, Bar, Pie } from "react-chartjs-2";
 
 function Dashboard() {
-  const [moveButton, setLeft] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
+  const { moveButton, setMoveButton } = useOutletContext();
 
-  const handleClick = () => {
-    setLeft(!moveButton);
-    setShowSidebar(!showSidebar);
-  };
   ChartJS.register(
     ArcElement,
     CategoryScale,
@@ -102,19 +97,13 @@ function Dashboard() {
     { year: "2027", PromoVerano: 75 },
   ];
   return (
-    <div className="w-screen bg-gray-100 px-12 h-screen">
-      {showSidebar && <Sidebar />}
-      <button
-        onClick={handleClick}
-        className={`btn_sidebar ${moveButton ? "left-[180px]" : "left-2"}`}
-      >
-        <span className="material-symbols-outlined text-[42px] text-white">
-          menu
-        </span>
-      </button>
+    <div
+      className=" px-12 "
+      style={{ ...styles.fixedShell, backgroundColor: "#f3f4f6" }}
+    >
       <div
         className={`flex flex-col w-full  pt-2 px-8 transition-all duration-300   ${
-          showSidebar ? "ml-44 pr-44" : "ml-0 "
+          moveButton ? "ml-44" : "ml-0"
         }`}
       >
         <div className="">
@@ -228,5 +217,16 @@ function Dashboard() {
     </div>
   );
 }
+const styles = {
+  fixedShell: {
+    position: "absolute",
+    top: "145px",
+    left: 0,
+    right: 0,
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+  },
+};
 
 export default Dashboard;

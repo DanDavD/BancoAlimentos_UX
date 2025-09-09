@@ -6,7 +6,7 @@ import arrowL from "./images/arrowL.png";
 import arrowR from "./images/arrowR.png";
 import React from "react";
 import { getAllProducts } from "./api/InventarioApi";
-import { useParams } from "react-router-dom"; 
+import { useParams } from "react-router-dom";
 //Agregar Parametro que diga cuantos productos en carrito?
 function Carrito() {
   //Objeto de producto
@@ -59,7 +59,7 @@ function Carrito() {
     return () => {};
   }, []);
   return (
-    <div className="bg-gray-100 w-screen min-h-screen py-4">
+    <div className="bg-gray-100 w-screen min-h-screen py-4 overflow-x-hidden items-center">
       <div className="px-32">
         <div>
           <h1 className="font-roboto text-[#f0833e] text-5xl justify-center pb-3 text-left">
@@ -92,10 +92,23 @@ function Carrito() {
                     {products.map((prod, i) => (
                       <li key={i}>
                         <div className="flex flex-row gap-8">
-                          <img
-                            className="object-cover w-28 h-28"
-                            src={prod.imagenes[0].url_imagen}
-                          ></img>
+                          {prod.imagenes &&
+                          prod.imagenes.length > 0 &&
+                          prod.imagenes[0].url_imagen ? (
+                            <img
+                              src={`/images/productos/${prod.imagenes[0].url_imagen}`}
+                              alt={prod.nombre}
+                              style={styles.productImg}
+                              onError={(e) => {
+                                e.target.src =
+                                  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999">Imagen no disponible</text></svg>';
+                              }}
+                            />
+                          ) : (
+                            <div style={styles.productImg}>
+                              Imagen no disponible
+                            </div>
+                          )}
 
                           <div className="flex flex-col w-full text-left font-medium">
                             <p className="py-2 text-xl">{prod.nombre}</p>
@@ -283,11 +296,21 @@ function Carrito() {
                     </div>
                   </div>
 
-                  <img
-                    src={p.imagenes[0].url_imagen}
-                    alt={p.nombre}
-                    style={styles.productImg}
-                  />
+                  {p.imagenes &&
+                  p.imagenes.length > 0 &&
+                  p.imagenes[0].url_imagen ? (
+                    <img
+                      src={`/images/productos/${p.imagenes[0].url_imagen}`}
+                      alt={p.nombre}
+                      style={styles.productImg}
+                      onError={(e) => {
+                        e.target.src =
+                          'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f0f0"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%23999">Imagen no disponible</text></svg>';
+                      }}
+                    />
+                  ) : (
+                    <div style={styles.productImg}>Imagen no disponible</div>
+                  )}
                   <p style={styles.productName}>{p.nombre}</p>
                   <p style={styles.productPrice}>{p.precio_base}</p>
                   <button
