@@ -25,7 +25,7 @@ export default function PerfilSidebar() {
             to="/metodoPago"
             className="block p-2 rounded hover:bg-[#f0833e] text-gray-700"
           >
-            Métodos de pago
+            Métodos de Pago
           </Link>
         </li>
 
@@ -34,7 +34,7 @@ export default function PerfilSidebar() {
             to="/misDirecciones"
             className="block p-2 rounded hover:bg-[#f0833e] text-gray-700"
           >
-            Mis direcciones
+            Mis Direcciones
           </Link>
         </li>
         <li>
@@ -42,7 +42,7 @@ export default function PerfilSidebar() {
             to="/misCupones"
             className="block p-2 rounded hover:bg-[#f0833e] text-gray-700"
           >
-            Mis cupones
+            Mis Cupones
           </Link>
         </li>
         <li>
@@ -50,7 +50,7 @@ export default function PerfilSidebar() {
             to="/facturas"
             className="block p-2 rounded hover:bg-[#f0833e] text-gray-700"
           >
-            Mis facturas
+            Mis Facturas
           </Link>
         </li>
       </ul>

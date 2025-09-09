@@ -45,20 +45,20 @@ const MisCupones = () => {
       </section>
 
       <div className="titulo">
-        <p className="titulo_texto">Mis cupones</p>
+        <p className="titulo_texto">Mis Cupones</p>
         <hr className="linea"></hr>
       </div>
 
       <div className="titulos_secundarios">
-        <p onClick={() => mostrarCupones("Cupones no utilizados")}>Cupones no utilizados</p>
+        <p onClick={() => mostrarCupones("Cupones no utilizados")}>Cupones No Utilizados</p>
         <p onClick={() => mostrarCupones("Usados")}>Usados</p>
-        <p onClick={() => mostrarCupones("Cupones caducados")}>Cupones caducados</p>
+        <p onClick={() => mostrarCupones("Cupones caducados")}>Cupones Caducados</p>
       </div>
 
       <div className="cupones_reporte">
         <div className="lista_reportes">
           {cuponesMostrados.length === 0 ? (
-            <p>No hay cupones en esta categoría</p>
+            <p>No hay cupones en esta categoría.</p>
           ) : (
             cuponesMostrados.map((cupon) => (
               <div key={cupon.codigo} className="cupones_categoria">
