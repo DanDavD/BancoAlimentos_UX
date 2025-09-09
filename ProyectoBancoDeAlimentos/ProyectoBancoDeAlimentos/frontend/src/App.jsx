@@ -37,6 +37,7 @@ import TablaVentas from "./tablaReportesVentas.jsx";
 import LayoutSidebar from "./layoutSidebar.jsx";
 import AsignarDescuentos from "./asignarDescuentos.jsx";
 import TablaPromociones from "./tablaReportesPromociones.jsx";
+import TablaUsuarios from "./reporteUsuarios.jsx";
 const HEADER_HEIGHT = 116; // px
 
 function App() {
@@ -87,6 +88,7 @@ function App() {
             <Route path="/factura/:id" element={<DetalleFactura />} />
             <Route path="/tablaVentas" element={<TablaVentas />} />
             <Route path="/tablaPromociones" element={<TablaPromociones />} />
+            <Route path="/tablaUsuarios" element={<TablaUsuarios />} />
 
             <Route path="*" element={<NotFoundpage />} />
           </Routes>

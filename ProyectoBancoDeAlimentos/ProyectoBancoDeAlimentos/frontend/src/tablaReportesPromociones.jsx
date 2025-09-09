@@ -44,6 +44,94 @@ const mockData = [
     descuento: 5,
     cuponesUsados: 10,
   },
+  {
+    id: 6,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 7,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 8,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 9,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 10,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 11,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 12,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 13,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 14,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 15,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
+  {
+    id: 16,
+    nombre: "Promo Azúcar",
+    tipo: "Monto",
+    categoria: "Dulces",
+    descuento: 100,
+    cuponesUsados: 15,
+  },
 ];
 
 const Icon = {
@@ -128,7 +216,7 @@ function TablaReportesPromociones() {
   const [categoriaFilter, setCategoriaFilter] = useState("");
   const [showCategoria, setShowCategoria] = useState(false);
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 15;
 
   const filteredData = mockData.filter((item) =>
     categoriaFilter ? item.categoria === categoriaFilter : true
@@ -141,9 +229,50 @@ function TablaReportesPromociones() {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    const worksheet = XLSX.utils.json_to_sheet(filteredData, {
+      header: [
+        "id",
+        "nombre",
+        "tipo",
+        "categoria",
+        "descuento",
+        "cuponesUsados",
+      ],
+    });
+
+    XLSX.utils.sheet_add_aoa(
+      worksheet,
+      [
+        [
+          "ID Promoción",
+          "Nombre Promoción",
+          "Tipo",
+          "Categoría",
+          "Descuento",
+          "Cupones Usados",
+        ],
+      ],
+      { origin: "A1" }
+    );
+
+    const range = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      let maxLength = 10;
+      for (let R = range.s.r; R <= range.e.r; ++R) {
+        const cellAddress = { c: C, r: R };
+        const cellRef = XLSX.utils.encode_cell(cellAddress);
+        const cell = worksheet[cellRef];
+        if (cell && cell.v) {
+          maxLength = Math.max(maxLength, cell.v.toString().length + 2);
+        }
+      }
+      if (!worksheet["!cols"]) worksheet["!cols"] = [];
+      worksheet["!cols"][C] = { wch: maxLength };
+    }
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "ReportePromociones");
+
     const excelBuffer = XLSX.write(workbook, {
       bookType: "xlsx",
       type: "array",
@@ -176,8 +305,9 @@ function TablaReportesPromociones() {
                   onChange={(e) => {
                     setCategoriaFilter(e.target.value);
                     setPage(1);
+                    setShowCategoria(false);
                   }}
-                  className="categoria-select"
+                  className="categoria-select-inline"
                 >
                   <option value="">Todas</option>
                   <option value="Granos">Granos</option>
@@ -207,9 +337,11 @@ function TablaReportesPromociones() {
                 <td>{row.tipo}</td>
                 <td>{row.categoria}</td>
                 <td>
+                  {row.tipo === "Monto" ? "L." : ""}
                   {row.descuento}
-                  {row.tipo === "Descuento" ? "%" : "Lps"}
+                  {row.tipo === "Descuento" ? "%" : ""}
                 </td>
+
                 <td>{row.cuponesUsados}</td>
               </tr>
             ))
@@ -218,7 +350,7 @@ function TablaReportesPromociones() {
       </table>
 
       <div className="inventario-footer">
-        <span>Total promociones: {filteredData.length}</span>
+        <span>Total Promociones: {filteredData.length}</span>
         <button onClick={exportToExcel} className="inventario-export-btn-green">
           📊 Exportar a Excel
         </button>
