@@ -1,16 +1,19 @@
+// src/verificarCofigoAthenticador.jsx (o donde corresponda)
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
-import LoginUser ,{ validarCodigo, InformacionUser } from "./api/Usuario.Route";
+import { useEffect, useMemo, useState, useContext } from "react";
+import LoginUser, { validarCodigo, InformacionUser } from "./api/Usuario.Route";
+import axiosInstance from "./api/axiosInstance";
 import "./verificarcodigo.css";
-import { useContext } from "react";
 import { UserContext } from "./components/userContext";
-
 
 export default function VerificarCodigoAuth() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { login } = useContext(UserContext);
-  // Recupera lo que guardó la pantalla de login
+
+  // Si tu UserContext expone login/logout/usario/rol:
+  const { login, logout, setUserRole } = useContext(UserContext) || {};
+
+  // Recuperado desde la pantalla de login
   const prelogin = useMemo(() => {
     try {
       return JSON.parse(sessionStorage.getItem("prelogin") || "{}");
@@ -19,11 +22,45 @@ export default function VerificarCodigoAuth() {
     }
   }, []);
 
-  const [correo, setCorreo] = useState(state?.correo || prelogin?.correo || "");
+  const initialCorreo =
+    state?.correo || prelogin?.correo || "";
+
+  const initialPass =
+    state?.contraseña ??
+    state?.contrasena ??
+    prelogin?.contraseña ??
+    prelogin?.contrasena ??
+    "";
+
+  const [correo, setCorreo] = useState(initialCorreo);
   const [codigo, setCodigo] = useState("");
+  const [pass, setPass] = useState(initialPass);
   const [loading, setLoading] = useState(false);
 
-  // Si llegaron directo sin correo, deja que lo escriban o regrésalos
+  // Al montar: destruye cualquier sesión previa
+  useEffect(() => {
+    try {
+      // Context
+      if (typeof logout === "function") logout();
+
+      // LocalStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("rol");
+
+      // Header global de axios
+      if (axiosInstance?.defaults?.headers?.common) {
+        delete axiosInstance.defaults.headers.common["Authorization"];
+      }
+    } catch {}
+    // Si llegaron sin correo ni prelogin, mándalos a login
+    if (!initialCorreo || !initialPass) {
+      // Puedes permitir que escriban el correo aquí si prefieres
+      // navigate("/login");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Si el usuario escribe correo manualmente
   useEffect(() => {
     if (!correo && state?.correo) setCorreo(state.correo);
   }, [state, correo]);
@@ -33,7 +70,9 @@ export default function VerificarCodigoAuth() {
     return (
       me?.rol?.nombre_rol ||
       me?.rol ||
-      (typeof me?.id_rol === "number" ? (me.id_rol === 1 ? "administrador" : "cliente") : "cliente")
+      (typeof me?.id_rol === "number"
+        ? (me.id_rol === 1 ? "administrador" : "cliente")
+        : "cliente")
     );
   };
 
@@ -44,64 +83,74 @@ export default function VerificarCodigoAuth() {
     try {
       setLoading(true);
 
-      // 1) Verificar el código (el helper acepta (correo, codigo) y arma { correo, codigo } en el body)
-      const { data } = await validarCodigo(correo, codigo);
+      // 1) Verificación del código
+      const { data } = await validarCodigo(correo, codigo); // tu helper arma {correo,codigo}
       const ok = data?.ok === true || data === "Codigo valido!" || data?.valid === true;
       if (!ok) {
         alert("El código no es válido.");
         return;
       }
 
-      // 2) Tomar la contraseña guardada por Login (puede venir en state o en sessionStorage)
-      const pass =
-        state?.contraseña ??
-        state?.contrasena ??
-        prelogin?.contraseña ??
-        prelogin?.contrasena;
-
+      // 2) Tomar la contraseña guardada por Login
       if (!pass) {
         alert("Sesión temporal expirada. Vuelve a iniciar sesión.");
         return navigate("/login");
       }
 
-      // 3) Hacer el login REAL
-      const loginRes = await LoginUser({ correo, contraseña: pass, contrasena: pass });
-      const token = loginRes?.data?.token;
-      await login(data.token);
-      if (!token) throw new Error("No se recibió token de autenticación");
-      localStorage.setItem("token", token);
+      // 3) Login REAL → crea token nuevo
+      const { data: loginData } = await LoginUser({
+        correo,
+        contraseña: pass,
+        contrasena: pass, // compatibilidad campo
+      });
 
-      // 4) Obtener /me y resolver rol
+      const token = loginData?.token;
+      if (!token) throw new Error("No se recibió token de autenticación");
+
+      // Guardar token y restaurar header global
+      localStorage.setItem("token", token);
+      axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      // Actualizar Context si existe
+      if (typeof login === "function") {
+        try { await login(token); } catch {}
+      }
+
+      // 4) /me para resolver rol
       let me = null;
       try {
-        const meRes = await InformacionUser(); // tu /me
+        const meRes = await InformacionUser();
         me = meRes?.data?.user ?? meRes?.data ?? null;
       } catch {
-        me = null; // si falla, asumimos cliente
+        me = null;
       }
 
       const roleName = resolveRoleName(me);
       localStorage.setItem("rol", roleName);
+      if (typeof setUserRole === "function") setUserRole(roleName);
 
-      // 5) Limpiar y redirigir
+      // 5) Limpiar credenciales temporales y redirigir
       sessionStorage.removeItem("prelogin");
+
       if (roleName.toLowerCase() === "administrador") {
-        navigate("/dashboard");
+        navigate("/dashboard"); // tu ruta admin
       } else {
-        navigate("/");
+        navigate("/"); // home cliente
       }
     } catch (err) {
       console.error(err?.response?.data || err);
-      alert(err?.response?.data?.error || err?.response?.data?.message || "Error al verificar");
+      alert(
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        "Error al verificar"
+      );
     } finally {
       setLoading(false);
     }
   }
 
-
-
   return (
-    <div className="verify-code">        {/* <- wrapper que aísla estilos */}
+    <div className="verify-code">
       <form className="forgot-form" onSubmit={handleVerify}>
         <img className="logo-titulo" src="/logo-easyway.png" alt="Logo" />
         <p className="encontremos-text">Ingresa el código enviado a tu correo</p>
