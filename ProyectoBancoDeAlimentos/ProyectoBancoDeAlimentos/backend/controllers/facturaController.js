@@ -1,5 +1,5 @@
-// controllers/factura.controller.js
-const { factura, factura_detalle, producto, pedido } = require("../models");
+const {Sequelize} = require('sequelize');
+const { factura, factura_detalle, producto, pedido} = require("../models");
 
 exports.getAllFacturasByUserwithDetails = async (req, res) => {
   try {

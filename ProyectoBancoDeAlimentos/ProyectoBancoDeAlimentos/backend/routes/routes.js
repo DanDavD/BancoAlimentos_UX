@@ -23,12 +23,17 @@ router.use("/direcciones", require("./direcciones"));
 router.use("/direccion-default", require("./direcciones"));
 router.use("/actualizar-direccion", require("./direcciones"));
 router.use("/borrar-direccion", require("./direcciones"));
+
 router.use("/metodo-pago", require("./routesMetodoPago"));
+
 router.use("/facturas", require("./routesFactura"));
 
 router.use("/cupones", require("./cupones"));
 
 router.use('/roles-privilegios',require('./roles_privilegios'));
 
+router.use('/pedidos',require('./pedidoRoute'));
+
+router.use('/reportes-usuario', require('./reportesUsuarioRoute'));
+
 module.exports = router;
-//
