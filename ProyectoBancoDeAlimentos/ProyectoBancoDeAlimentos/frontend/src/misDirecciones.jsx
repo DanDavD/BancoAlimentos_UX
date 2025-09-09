@@ -161,7 +161,7 @@ export default function MisDirecciones() {
           >
             Mis Direcciones
           </h1>
-          <hr style={{ marginBottom: "20px" }} />
+           <hr className="separador" />
 
           {/* Formulario */}
           <div
@@ -177,8 +177,8 @@ export default function MisDirecciones() {
               <div
                 style={{ display: "flex", gap: "20px", marginBottom: "15px" }}
               >
-                <div style={{ flex: 1 }}>
-                  <label>Código postal*</label>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <label style={{ marginBottom: '5px' }}>Código postal</label>
                   <input
                     type="text"
                     name="codigoPostal"
@@ -193,8 +193,8 @@ export default function MisDirecciones() {
                     }}
                   />
                 </div>
-                <div style={{ flex: 1 }}>
-                  <label>Departamento*</label>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <label style={{ marginBottom: '5px' }}>Departamento</label>
                   <select
                     name="id_departamento"
                     value={form.id_departamento}
@@ -219,8 +219,8 @@ export default function MisDirecciones() {
               <div
                 style={{ display: "flex", gap: "20px", marginBottom: "15px" }}
               >
-                <div style={{ flex: 1 }}>
-                  <label>Ciudad / Municipio*</label>
+                <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <label style={{ marginBottom: '5px' }}>Ciudad/Municipio</label>
                   <select
                     name="id_municipio"
                     value={form.id_municipio}
@@ -242,8 +242,8 @@ export default function MisDirecciones() {
                       ))}
                   </select>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <label>Calle*</label>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <label style={{ marginBottom: '5px' }}>Calle</label>
                   <input
                     type="text"
                     name="calle"
@@ -260,7 +260,7 @@ export default function MisDirecciones() {
                 </div>
               </div>
 
-              <div style={{ marginBottom: "15px" }}>
+              <div style={{ marginBottom: "15px", display: "flex", alignItems: "center" }}>
                 <input
                   type="checkbox"
                   id="predeterminado"
@@ -421,12 +421,15 @@ export default function MisDirecciones() {
           <div
             style={{
               position: "fixed",
-              bottom: "20px",
+              top: "95px",
               right: "20px",
-              background: toast.tipo === "success" ? "#4caf50" : "#f44336",
+              background: toast.tipo === "success" ? "#2b6daf" : "#d8572f",
               color: "white",
               padding: "12px 20px",
-              borderRadius: "6px",
+              borderRadius: "12px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.5)",
+              zIndex: 1000,
+              animation: "fadein 0.3s, fadeout 0.5s 2.5s",
             }}
           >
             {toast.mensaje}

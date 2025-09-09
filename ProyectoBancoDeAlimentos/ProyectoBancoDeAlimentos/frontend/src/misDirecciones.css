@@ -5,10 +5,19 @@
 
 .titulo {
   text-align: center;
-  font-size: 36px;
+  font-size: 40px;
   color: #f0833e;
   margin-bottom: 20px;
+  font-size: 1.5rem;
 }
+
+.separador {
+  border: none;
+  border-top: 2px solid #f0833e;
+  margin: 0 auto 30px;
+  width: 100%;
+}
+
 
 /* ---------- Formulario ---------- */
 .formulario-direccion {
