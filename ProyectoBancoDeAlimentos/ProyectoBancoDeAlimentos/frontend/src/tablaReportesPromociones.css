@@ -1,0 +1,95 @@
+.inventario-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.inventario-title {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.inventario-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventario-thead th {
+  background-color: #f3f3f3;
+  padding: 8px;
+  text-align: left;
+  position: relative;
+}
+
+.inventario-thead th .categoria-icon {
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.categoria-select {
+  display: block;
+  margin-top: 5px;
+  color: #000;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 3px;
+  min-width: 120px;
+}
+
+.inventario-table td {
+  padding: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.inventario-table-empty {
+  text-align: center;
+  padding: 15px;
+  color: #555;
+}
+
+.inventario-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  gap: 5px;
+}
+
+.inventario-footer {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  align-items: center;
+}
+
+.inventario-pagination-btn {
+  background-color: #fff;
+  border: 1px solid #d8dadc;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.inventario-pagination button.w-9 {
+  background-color: #fff;
+}
+
+.inventario-pagination button.w-9.ring-2 {
+  background-color: #fff;
+  border-color: #d8572f;
+  color: #d8572f;
+}
+
+.inventario-export-btn-green {
+  background-color: #28a745;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.inventario-export-btn-green:hover {
+  background-color: #218838;
+}

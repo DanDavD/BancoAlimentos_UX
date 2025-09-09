@@ -36,6 +36,7 @@ import NotFoundpage from "./notFoundPage.jsx";
 import TablaVentas from "./tablaReportesVentas.jsx";
 import LayoutSidebar from "./layoutSidebar.jsx";
 import AsignarDescuentos from "./asignarDescuentos.jsx";
+import TablaPromociones from "./tablaReportesPromociones.jsx";
 const HEADER_HEIGHT = 116; // px
 
 function App() {
@@ -50,10 +51,7 @@ function App() {
             <Route path="/crear_cuenta" element={<Crear_cuenta />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot_password" element={<ForgotPassword />} />
-            <Route
-              path="/cambiar_contraseña"
-              element={<Cambiar_contraseña />}
-            />
+            <Route path="/cambiar_contraseña" element={<Cambiar_contraseña />} />
             <Route
               element={
                 <LayoutSidebar />
@@ -76,30 +74,19 @@ function App() {
             <Route path="/metodoPago" element={<MetodoPago />} />
             <Route path="/Prueba" element={<TestAuth />} />
             <Route path="/producto/:id" element={<AgregarCarrito />} />
-            <Route
-              path="/compararProductos/:id1/:id2"
-              element={<CompararProducto />}
-            />
+            <Route path="/compararProductos/:id1/:id2" element={<CompararProducto />} />
             <Route path="/historialPedidos" element={<HistorialPedido />} />
             <Route path="/misCupones" element={<MisCupones />} />
             <Route path="/verificar-codigo" element={<VerificarCodigo />} />
-            <Route
-              path="/userManagementViews"
-              element={<UserManagementViews />}
-            />
+            <Route path="/userManagementViews" element={<UserManagementViews />} />
             <Route path="/verificacion" element={<Verificacion />} />
-            <Route
-              path="/campanaPromocional"
-              element={<CampanaPromocional />}
-            />
+            <Route path="/campanaPromocional" element={<CampanaPromocional />} />
             <Route path="/carrito" element={<Carrito />} />
-            <Route
-              path="/verificar-codigoAuth"
-              element={<VerificarCodigoAuth />}
-            />
+            <Route path="/verificar-codigoAuth" element={<VerificarCodigoAuth />} />
             <Route path="/facturas" element={<Facturas />} />
             <Route path="/factura/:id" element={<DetalleFactura />} />
             <Route path="/tablaVentas" element={<TablaVentas />} />
+            <Route path="/tablaPromociones" element={<TablaPromociones />} />
 
             <Route path="*" element={<NotFoundpage />} />
           </Routes>
