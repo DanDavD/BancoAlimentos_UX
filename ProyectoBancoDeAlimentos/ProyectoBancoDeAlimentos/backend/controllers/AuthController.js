@@ -47,7 +47,7 @@ const login = async (req, res) => {
   }
 };
 
- const registrarse = async(req,res) =>{
+const registrarse = async(req,res) =>{
   try{
     const {nombre, apellido, correo, contraseña, telefono, id_rol, foto_perfil_url, genero} = req.body;
 

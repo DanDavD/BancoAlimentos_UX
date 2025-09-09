@@ -49,9 +49,6 @@ exports.allDirections = async (req,res) => {
         const {id_usuario} = req.params;
         const direcciones = await direccion.findAll({where: { id_usuario: id_usuario }});
 
-        if (direcciones.length === 0) {
-            return res.status(404).json({ message: "No se encontraron direcciones!" });
-        }
 
         return res.json(direcciones);
 

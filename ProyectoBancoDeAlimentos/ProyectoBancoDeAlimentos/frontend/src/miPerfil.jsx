@@ -136,6 +136,8 @@ export default function MiPerfil() {
         if (data.genero) setGenero(data.genero);
         if (data.rol?.nombre_rol) setRol(data.rol.nombre_rol);
 
+        console.log("Foto perfil cargada:", data.foto_perfil_url);
+
         if (
           data.foto_perfil_url &&
           typeof data.foto_perfil_url === "string" &&
@@ -173,7 +175,6 @@ export default function MiPerfil() {
       <section className="sidebar">
         <PerfilSidebar />
       </section>
-
       <h1 className="perfil-title">Editar Perfil</h1>
       <hr className="perfil-separator" />
       <p className="Datos-text">Datos Generales</p>
