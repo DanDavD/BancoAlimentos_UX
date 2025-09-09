@@ -1,10 +1,5 @@
-const { pedido, estado_pedido, Usuario } = require('../models');
-
+const { pedido, estado_pedido, factura, factura_detalle, producto, subcategoria, categoria } = require('../models');
 const { Op } = require("sequelize");
-// Definir relaciones si no están en tu index.js
-Usuario.hasMany(pedido, { foreignKey: "id_usuario" });
-pedido.belongsTo(Usuario, { foreignKey: "id_usuario" });
-pedido.belongsTo(estado_pedido, { foreignKey: "id_estado_pedido" });
 
 
 
@@ -46,6 +41,69 @@ exports.getPedidosEntregados = async (req, res) => {
   } catch (error) {
     console.error("Error al obtener pedidos entregados!", error);
     res.status(500).json({ error: "Error al obtener pedidos entregados!" });
+  }
+};
+
+
+exports.getHistorialComprasProductos = async (req, res) => {
+  try {
+    const detalles = await factura_detalle.findAll({
+      attributes: ["subtotal_producto"],
+      include: [
+        {
+          model: producto,
+          attributes: ["nombre"],
+          include: [
+            {
+              model: subcategoria,
+              as: "subcategoria",
+              attributes: ["nombre"],
+              include: [
+                {
+                  model: categoria,
+                  as: "categoria",
+                  attributes: ["nombre"],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          model: factura,
+          attributes: ["id_pedido"],
+          include: [
+            {
+              model: pedido,
+              attributes: ["fecha_pedido"],
+              include: [
+                {
+                  model: estado_pedido,
+                  attributes: ["nombre_pedido"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (detalles.length === 0) {
+      return res.status(404).json({ message: "No hay productos vendidos!" });
+    }
+
+    // Mapear al formato que pediste
+    const resultado = detalles.map(detalle => ({
+      nombre_producto: detalle.producto.nombre,
+      categoria: detalle.producto.subcategoria.categoria.nombre,
+      subtotal_producto: detalle.subtotal_producto,
+      estado_pedido: detalle.factura.pedido.estado_pedido.nombre_pedido,
+      fecha_pedido: detalle.factura.pedido.fecha_pedido,
+    }));
+
+    res.json(resultado);
+  } catch (error) {
+    console.error("Error al obtener historial de productos:", error);
+    res.status(500).json({ error: "Error al obtener historial de productos" });
   }
 };
 
