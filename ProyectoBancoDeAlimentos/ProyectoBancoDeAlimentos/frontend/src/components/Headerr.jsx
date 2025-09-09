@@ -34,8 +34,22 @@ const Headerr = ({ isAdminPage }) => {
   return (
     <div style={{ ...styles.fixedShell, boxShadow: "none" }}>
       <div style={styles.topBar}>
-        <img src={logo} alt="Logo" style={styles.logo} onClick={() => navigate('/')}/>
-
+        <img
+          src={logo}
+          alt="Logo"
+          style={styles.logo}
+          onClick={() => {
+            if (isAuthenticated) {
+              if (isAdmin) {
+                navigate("/dashboard"); // 🔹 ruta del admin
+              } else {
+                navigate("/"); // 🔹 ruta del cliente
+              }
+            } else {
+              navigate("/"); // 🔹 por si no está logueado
+            }
+          }}
+        />
         <div style={styles.divBar}>
           <div style={styles.searchWrapper}>
             <button style={styles.iconBtn}>
