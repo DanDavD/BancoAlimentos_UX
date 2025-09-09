@@ -34,7 +34,9 @@ import DetalleFactura from "./pages/DetalleFactura.js";
 import Facturas from "./pages/Facturas.js";
 import NotFoundpage from "./notFoundPage.jsx";
 import TablaVentas from "./tablaReportesVentas.jsx";
-const HEADER_HEIGHT = 144;// px
+import LayoutSidebar from "./layoutSidebar.jsx";
+import AsignarDescuentos from "./asignarDescuentos.jsx";
+const HEADER_HEIGHT = 116; // px
 
 function App() {
   return (
@@ -52,6 +54,16 @@ function App() {
               path="/cambiar_contraseña"
               element={<Cambiar_contraseña />}
             />
+            <Route
+              element={
+                <LayoutSidebar />
+                //AQUI VAN TODAS LAS VISTAS QUE TIENEN SIDEBAR
+              }
+            >
+              <Route path="/asignarDescuento" element={<AsignarDescuentos />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/gestionProductos" element={<GestionProductos />} />
+            </Route>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/gestionProductos" element={<GestionProductos />} />
             <Route path="/inicio" element={<InicioAdmin />} />
@@ -90,7 +102,6 @@ function App() {
             <Route path="/tablaVentas" element={<TablaVentas />} />
 
             <Route path="*" element={<NotFoundpage />} />
-
           </Routes>
         </div>
       </div>
