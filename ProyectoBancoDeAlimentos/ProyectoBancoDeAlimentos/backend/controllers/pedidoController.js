@@ -1,8 +1,6 @@
 const { pedido, estado_pedido, factura, factura_detalle, producto, subcategoria, categoria } = require('../models');
 const { Op } = require("sequelize");
 
-
-
 //retorna los pedidos del usuario dado, donde el nombre_pedido sea "Enviado".
 exports.getPedidosEntregados = async (req, res) => {
   try {
@@ -44,9 +42,11 @@ exports.getPedidosEntregados = async (req, res) => {
   }
 };
 
-
 exports.getHistorialComprasProductos = async (req, res) => {
   try {
+    const fechaLimite = new Date();
+    fechaLimite.setDate(fechaLimite.getDate() - 30);
+
     const detalles = await factura_detalle.findAll({
       attributes: ["subtotal_producto"],
       include: [
@@ -75,6 +75,7 @@ exports.getHistorialComprasProductos = async (req, res) => {
             {
               model: pedido,
               attributes: ["fecha_pedido"],
+              where: { fecha_pedido: { [Op.gte]: fechaLimite } },
               include: [
                 {
                   model: estado_pedido,
@@ -88,16 +89,15 @@ exports.getHistorialComprasProductos = async (req, res) => {
     });
 
     if (detalles.length === 0) {
-      return res.status(404).json({ message: "No hay productos vendidos!" });
+      return res.status(404).json({ message: "No hay productos vendidos en los últimos 30 días!" });
     }
 
-    // Mapear al formato que pediste
     const resultado = detalles.map(detalle => ({
-      nombre_producto: detalle.producto.nombre,
-      categoria: detalle.producto.subcategoria.categoria.nombre,
+      nombre_producto: detalle.producto?.nombre || "Sin nombre",
+      categoria: detalle.producto?.subcategoria?.categoria?.nombre || "Sin categoría",
       subtotal_producto: detalle.subtotal_producto,
-      estado_pedido: detalle.factura.pedido.estado_pedido.nombre_pedido,
-      fecha_pedido: detalle.factura.pedido.fecha_pedido,
+      estado_pedido: detalle.factura?.pedido?.estado_pedido?.nombre_pedido || "Sin estado",
+      fecha_pedido: detalle.factura?.pedido?.fecha_pedido,
     }));
 
     res.json(resultado);
@@ -106,5 +106,4 @@ exports.getHistorialComprasProductos = async (req, res) => {
     res.status(500).json({ error: "Error al obtener historial de productos" });
   }
 };
-
 
