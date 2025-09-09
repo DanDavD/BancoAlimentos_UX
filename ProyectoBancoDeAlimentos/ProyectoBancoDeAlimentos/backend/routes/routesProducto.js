@@ -18,5 +18,7 @@ router.get('/:id/imagenes', verificarToken, productoCtrl.imagenesProducto);
 router.patch('/desactivar/:id_producto', productoCtrl.desactivarProducto);
 router.put('/actualizar-producto/:id_producto', productoCtrl.actualizarProducto);
 
+router.get('/sucursal/:id_sucursal', productoCtrl.listarProductosporsucursal);
+
 
 module.exports = router;

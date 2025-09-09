@@ -1,4 +1,4 @@
-const { carrito, carrito_detalle, producto,cupon } = require('../models');
+const { carrito, carrito_detalle, producto,cupon,imagen_producto } = require('../models');
 
 exports.agregar = async (req, res) => {
     try {
@@ -31,7 +31,9 @@ exports.verCarrito = async (req, res) => {
             where: { id_usuario },
             include: {
                 model: carrito_detalle,
-                include: { model: producto, attributes: ['id_producto', 'nombre', 'precio_base'] }
+                include: { model: producto, attributes: ['id_producto', 'nombre', 'precio_base'],
+                include: { model: imagen_producto, as: 'imagenes', attributes: ['url_imagen'] }
+                  }
             }
         });
         if (!cart) return res.status(404).json({ msg: 'Carrito vacío' });
@@ -53,7 +55,7 @@ exports.sumarItem = async (req, res) => {
         });
         if (!detail) return res.status(404).json({ msg: 'Item no existe' });
 
-        detail.cantidad_unidad_medida += cantidad;
+        detail.cantidad_unidad_medida = cantidad;
         const prod = await producto.findByPk(id_producto);
         if (!prod) return res.status(404).json({ msg: 'Producto no existe' });
         detail.subtotal_detalle = detail.cantidad_unidad_medida * prod.precio_base;

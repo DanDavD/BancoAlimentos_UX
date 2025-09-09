@@ -58,3 +58,7 @@ export function actualizarProducto(id_producto, nombre, descripcion, precio_base
 export function crearProducto(nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida){
     return axiosInstance.post('/api/Inventario/productos', {nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida});
 }
+
+export function listarProductosporsucursal(id_sucursal){
+    return axiosInstance.get(`/api/producto/sucursal/${id_sucursal}`);
+}

@@ -1,4 +1,4 @@
-const { producto, imagen_producto, categoria, subcategoria, marca_producto  } = require('../models');
+const { producto, imagen_producto, categoria, subcategoria, marca_producto, sucursal_producto, Sequelize } = require('../models');
 
 // Productos destacados (últimos creados) con 1 imagen
 exports.destacados = async (req, res) => {
@@ -17,9 +17,10 @@ exports.destacados = async (req, res) => {
       include: [
         {
           model: imagen_producto,
+          as: 'imagenes',
           attributes: ['url_imagen'],
           limit: 1,
-          separate: true,          
+          separate: true,
           order: [['orden_imagen', 'ASC']]
         }
       ],
@@ -49,6 +50,7 @@ exports.tendencias = async (req, res) => {
       include: [
         {
           model: imagen_producto,
+          as: 'imagenes',
           attributes: ['url_imagen'],
           limit: 1,
           separate: true,
@@ -69,7 +71,9 @@ exports.listarProductos = async (req, res) => {
       where: { activo: true },
       attributes: [
         'id_producto', 'nombre', 'descripcion', 'precio_base',
-        'unidad_medida', 'estrellas', 'etiquetas', 'porcentaje_ganancia'
+        'unidad_medida', 'estrellas', 'etiquetas', 'porcentaje_ganancia',
+        [Sequelize.literal('precio_base * (1 + porcentaje_ganancia / 100)'), 'precio_venta'],
+        [Sequelize.literal('(SELECT SUM(stock_disponible) FROM sucursal_producto WHERE sucursal_producto.id_producto = producto.id_producto)'), 'stock_total']
       ],
       include: [
         { 
@@ -96,19 +100,14 @@ exports.listarProductos = async (req, res) => {
       order: [['id_producto', 'DESC']]
     });
 
-    // Si no hay asociación de stock, podrías necesitar una consulta separada
+    // Calcular stock total sumando stock_disponible de todas las sucursales
     const productsWithCalculations = products.map(product => {
       const productJSON = product.toJSON();
-      
-      // Calcular precio de venta
-      const precioBase = parseFloat(productJSON.precio_base) || 0;
-      const porcentajeGanancia = parseFloat(productJSON.porcentaje_ganancia) || 0;
-      const precioVenta = precioBase * (1 + porcentajeGanancia / 100);
 
       return {
         ...productJSON,
-        stock_total: 0, // Valor temporal, necesitarías implementar la lógica de stock
-        precio_venta: precioVenta.toFixed(2),
+        stock_total: productJSON.stock_total || 0,
+        precio_venta: parseFloat(productJSON.precio_venta || 0).toFixed(2),
         categoria: productJSON.subcategoria?.categoria || null
       };
     });
@@ -117,6 +116,43 @@ exports.listarProductos = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: err.message });
   };
+};
+
+exports.listarProductosporsucursal = async (req, res) => {
+  try {
+    const { id_sucursal } = req.params;
+    const products = await producto.findAll({
+      where: { activo: true },
+      attributes: [
+        'id_producto', 'nombre', 'descripcion', 'precio_base',
+        'unidad_medida', 'estrellas', 'etiquetas', 'porcentaje_ganancia',
+        [Sequelize.literal('precio_base * (1 + porcentaje_ganancia / 100)'), 'precio_venta'],
+        [Sequelize.literal(`(SELECT stock_disponible FROM sucursal_producto WHERE sucursal_producto.id_producto = producto.id_producto AND sucursal_producto.id_sucursal = ${id_sucursal})`), 'stock_en_sucursal']
+      ],
+      include: [
+        { model: imagen_producto, as: 'imagenes', attributes: ['url_imagen', 'orden_imagen'] },
+        {
+          model: subcategoria, as: 'subcategoria',
+          attributes: ['id_subcategoria', 'nombre', 'id_categoria_padre'],
+          include: [{ model: categoria, as: 'categoria', attributes: ['id_categoria', 'nombre', 'icono_categoria'] }]
+        },
+        { model: marca_producto, as: 'marca', attributes: ['id_marca_producto', 'nombre'] }
+      ],
+      order: [['id_producto', 'DESC']]
+    });
+    const productsWithCalculations = products.map(product => {
+      const productJSON = product.toJSON();
+      return {
+        ...productJSON,
+        stock_en_sucursal: productJSON.stock_en_sucursal || 0,
+        precio_venta: parseFloat(productJSON.precio_venta || 0).toFixed(2),
+        categoria: productJSON.subcategoria?.categoria || null
+      };
+    });
+    return res.status(200).json(productsWithCalculations);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }   
 };
 
 exports.listarMarcas = async (req, res) => {
@@ -143,10 +179,12 @@ exports.obtenerProductoPorId = async (req, res) => {
         'precio_base',
         'unidad_medida',
         'estrellas',
-        'etiquetas'
+        'etiquetas',
+        'porcentaje_ganancia',
+        [Sequelize.literal('precio_base * (1 + porcentaje_ganancia / 100)'), 'precio_venta']
       ],
       include: [
-        { model: imagen_producto, attributes: ['url_imagen', 'orden_imagen'] }
+        { model: imagen_producto, as: 'imagenes', attributes: ['url_imagen', 'orden_imagen'] }
       ]
     });
     if (!product) {
@@ -193,7 +231,7 @@ exports.addproducto = async (req, res) => {
     }
 
     const result = await producto.findByPk(prod.id_producto, {
-      include: [{ model: imagen_producto, attributes: ['url_imagen', 'orden_imagen'] }]
+      include: [{ model: imagen_producto, as: 'imagenes', attributes: ['url_imagen', 'orden_imagen'] }]
     });
 
     res.status(201).json({ msg: 'Producto creado', producto: result });
@@ -260,7 +298,8 @@ exports.productosRecomendados = async (req, res) => {
         'unidad_medida',
         'estrellas',
         'etiquetas',
-        'id_subcategoria'
+        'id_subcategoria',
+        'id_marca',
       ],
       include: [
         {
@@ -305,51 +344,116 @@ exports.desactivarProducto = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Error al borrar producto!" });
   }
-};
-//PUT /api/producto/actualizar-producto/:id_producto
-exports.actualizarProducto = async (req, res) => {
+};exports.actualizarProducto = async (req, res) => {
   try {
-    const { nombre, descripcion, precio_base, id_subcategoria, porcentaje_ganancia, id_marca, etiquetas, unidad_medida, activo } = req.body;
+    const { 
+      nombre, 
+      descripcion, 
+      precio_base, 
+      id_subcategoria, 
+      porcentaje_ganancia, 
+      id_marca, 
+      etiquetas, 
+      unidad_medida, 
+      activo 
+    } = req.body;
+    
     const { id_producto } = req.params;
 
+    // Validar que el ID del producto sea numérico
+    if (!id_producto || isNaN(id_producto)) {
+      return res.status(400).json({ message: "ID de producto inválido" });
+    }
+
+    // Buscar el producto
     const product = await producto.findByPk(id_producto);
     if (!product) {
-      return res.status(404).json({ message: "No se pudo encontrar el producto!" });
+      return res.status(404).json({ message: "Producto no encontrado" });
     }
-    const cat = await categoria.findOne({
-      include: [{ model: subcategoria, where: { id_subcategoria } }]
-    });
 
+    // Validar que la subcategoría existe
     const subcat = await subcategoria.findByPk(id_subcategoria);
     if (!subcat) {
-      return res.status(400).json({ message: "La subcategoría no existe!" });
+      return res.status(400).json({ message: "La subcategoría no existe" });
     }
 
-    const marcaz = await marca_producto.findByPk(id_marca);
-    if (!marcaz) {
-      return res.status(400).json({ message: "La marca no existe!" });
+    // Validar que la marca existe
+    const marca = await marca_producto.findByPk(id_marca);
+    if (!marca) {
+      return res.status(400).json({ message: "La marca no existe" });
     }
 
-    product.nombre = nombre;
-    product.descripcion = descripcion;
-    product.precio_base = precio_base;
-    product.cat = cat;
-    product.unidad_medida = unidad_medida;
-    product.id_subcategoria = id_subcategoria;
-    product.porcentaje_ganancia = porcentaje_ganancia;
-    product.id_marca = id_marca;
-    product.etiquetas = etiquetas;
-    product.activo = activo;
+    // Validar datos requeridos
+    if (!nombre || !nombre.trim()) {
+      return res.status(400).json({ message: "El nombre es requerido" });
+    }
 
-    await product.save();
+    if (!precio_base || precio_base <= 0) {
+      return res.status(400).json({ message: "Precio base inválido" });
+    }
+
+    // Preparar etiquetas (asegurar que sea un array)
+    let etiquetasArray = [];
+    if (etiquetas) {
+      if (Array.isArray(etiquetas)) {
+        etiquetasArray = etiquetas;
+      } else if (typeof etiquetas === 'string') {
+        etiquetasArray = etiquetas.split(',').map(tag => tag.trim()).filter(tag => tag);
+      }
+    }
+
+    // Actualizar el producto
+    await product.update({
+      nombre: nombre.trim(),
+      descripcion: descripcion || '',
+      precio_base: parseFloat(precio_base),
+      id_subcategoria: parseInt(id_subcategoria),
+      porcentaje_ganancia: porcentaje_ganancia ? parseFloat(porcentaje_ganancia) : null,
+      id_marca: parseInt(id_marca),
+      etiquetas: etiquetasArray,
+      unidad_medida: unidad_medida || 'unidad',
+      activo: activo !== undefined ? Boolean(activo) : true
+    });
 
     return res.json({
       message: "Producto actualizado correctamente",
-      product
+      product: await producto.findByPk(id_producto, {
+        include: [
+          {
+            model: subcategoria,
+            as: 'subcategoria',
+            attributes: ['id_subcategoria', 'nombre']
+          },
+          {
+            model: marca_producto,
+            as: 'marca',
+            attributes: ['id_marca_producto', 'nombre']
+          }
+        ]
+      })
     });
 
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Error al actualizar producto!" });
+    console.error("Error al actualizar producto:", error);
+    
+    // Manejar errores específicos de Sequelize
+    if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => err.message);
+      return res.status(400).json({ 
+        message: "Error de validación", 
+        errors 
+      });
+    }
+    
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(400).json({ 
+        message: "Error de referencia: verifica que la subcategoría y marca existan" 
+      });
+    }
+
+    return res.status(500).json({ 
+      message: "Error interno al actualizar producto",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
