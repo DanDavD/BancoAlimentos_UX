@@ -159,8 +159,8 @@ const Headerr = ({ isAdminPage }) => {
         </div>
       </div>
 
-      {/* BottomBar sólo clientes (no admin) */}
-      {!isAdmin && (
+      {/* BottomBar sólo clientes (no admin ni invitado) */}
+      {isAuthenticated && (
         <div style={styles.bottomBar}>
           <nav style={styles.nav} aria-label="Categorías">
             <a href="#" style={styles.navLink}>
