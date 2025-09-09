@@ -46,6 +46,7 @@ export default function MisDirecciones() {
   };
 
   useEffect(() => {
+    console.log(" municipios:");
     const id_usuario = getUserId();
     if (!id_usuario) {
       showToast("Usuario no autenticado", "error");
@@ -55,6 +56,7 @@ export default function MisDirecciones() {
     const fetchData = async () => {
       try {
         // Obtener direcciones del usuario
+        
         const direccionesRes = await getDirecciones(id_usuario);
         // Validar que la respuesta sea un array
         if (Array.isArray(direccionesRes.data)) {
@@ -64,7 +66,9 @@ export default function MisDirecciones() {
         }
 
         // Obtener municipios
+        console.log(" municipios:");
         const municipiosRes = await getAllMunicipios();
+        console.log(" municipios:" + municipiosRes);
         if (Array.isArray(municipiosRes.data)) {
           setMunicipios(municipiosRes.data);
         } else {
@@ -73,6 +77,8 @@ export default function MisDirecciones() {
 
         // Obtener departamentos
         const departamentosRes = await getAllDepartamentos();
+        console.log(" departamentos:" + departamentosRes);
+        
         if (Array.isArray(departamentosRes.data)) {
           setDepartamentos(departamentosRes.data);
         } else {
