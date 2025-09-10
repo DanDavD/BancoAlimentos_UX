@@ -1,141 +1,223 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import {
+  getTopProductosUsuario,
+  getProductosRecomendados,
+  getDiasCompra,
+  getTotalAhorrado,
+} from "./api/reporteusuarioApi"; // ajusta ruta si tu archivo está en otra carpeta
 import "./SistemaValoracion.css";
 
-/** LineChart muy simple con SVG */
-function LineChart({ data, height = 180, padding = 24 }) {
-  const width = 360;
-  const points = useMemo(() => {
-    if (!data || data.length === 0) return "";
-    const maxY = Math.max(...data.map((d) => d.value)) || 1;
-    const stepX = (width - padding * 2) / (data.length - 1);
-    return data
-      .map((d, i) => {
-        const x = padding + i * stepX;
-        const y =
-          height - padding - (d.value / maxY) * (height - padding * 2);
-        return `${x},${y}`;
-      })
-      .join(" ");
-  }, [data, height, padding]);
-
-  return (
-    <svg className="chart" viewBox={`0 0 ${width} ${height}`}>
-      {/* Ejes */}
-      <line x1={24} y1={height - 24} x2={width - 8} y2={height - 24} className="axis" />
-      <line x1={24} y1={16} x2={24} y2={height - 24} className="axis" />
-      {/* Línea */}
-      <polyline points={points} className="line" fill="none" />
-      {/* Puntos */}
-      {data.map((d, i) => {
-        const maxY = Math.max(...data.map((p) => p.value)) || 1;
-        const stepX = (width - padding * 2) / (data.length - 1);
-        const cx = padding + i * stepX;
-        const cy =
-          height - padding - (d.value / maxY) * (height - padding * 2);
-        return <circle key={i} cx={cx} cy={cy} r="4" className="dot" />;
-      })}
-      {/* Labels del eje X */}
-      {data.map((d, i) => {
-        const stepX = (width - padding * 2) / (data.length - 1);
-        const x = padding + i * stepX;
-        return (
-          <text key={i} x={x} y={height - 6} className="tick" textAnchor="middle">
-            {d.label}
-          </text>
-        );
-      })}
-    </svg>
-  );
-}
+const USER_ID = 1; // 👈 reemplázalo con el id_usuario real de tu login
 
 export default function SistemaValoracion() {
-  // datos de ejemplo para el gráfico
-  const habitos = [
-    { label: "Lunes", value: 5 },
-    { label: "Martes", value: 9 },
-    { label: "Miérc.", value: 12 },
-    { label: "Jueves", value: 14 },
-    { label: "Viernes", value: 45 },
-    { label: "Sábado", value: 80 },
-    { label: "Domingo", value: 30 },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
 
-  const [idxRec, setIdxRec] = useState(0);
-  const recurrentes = [
-    { nombre: "Leche", detalle: "Compras este producto cada 2 semanas", img: null },
-    { nombre: "Huevos", detalle: "Cada 10 días", img: null },
-    { nombre: "Pan", detalle: "Cada semana", img: null },
-  ];
-  const item = recurrentes[idxRec];
+  const [recurrentes, setRecurrentes] = useState([]);
+  const [recomendados, setRecomendados] = useState([]);
+  const [diasCompra, setDiasCompra] = useState([]);
+  const [ahorro, setAhorro] = useState(0);
+
+  const [currentProductIdx, setCurrentProductIdx] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const [top, recs, dias, ahorroResp] = await Promise.all([
+          getTopProductosUsuario(USER_ID),
+          getProductosRecomendados(USER_ID),
+          getDiasCompra(USER_ID),
+          getTotalAhorrado(USER_ID),
+        ]);
+
+        if (!mounted) return;
+        setRecurrentes(top?.data ?? []);
+        setRecomendados(recs?.data ?? []);
+        setDiasCompra(dias?.data ?? []);
+        setAhorro(Number(ahorroResp?.data?.total_ahorrado ?? 0));
+      } catch (e) {
+        console.error(e);
+        if (mounted) setErr("No se pudieron cargar los datos.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Mapear hábitos de compra a días de la semana
+  const diasLabels = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  const habitData = useMemo(() => {
+    const map = new Map(
+      diasCompra.map((d) => [Number(d.dia_semana), Number(d.total_pedidos)])
+    );
+    return Array.from({ length: 7 }, (_, i) => ({
+      day: diasLabels[i],
+      value: map.get(i) || 0,
+    }));
+  }, [diasCompra]);
+  const maxValue = useMemo(
+    () => Math.max(1, ...habitData.map((h) => h.value)),
+    [habitData]
+  );
+
+  const currentProduct = recurrentes[currentProductIdx] || null;
 
   return (
-    <div className="sv-container">
-      {/* fila superior: sugerencia + recurrentes */}
-      <div className="sv-row">
-        <section className="card sugerencias">
-          <h4 className="card-title">SUGERENCIAS DE COMPRA</h4>
-          <div className="sugerencia-body">
-            <div className="bell">
-              <Icon icon="mdi:bell-outline" width="56" />
+    <div className="supermarket-dashboard">
+      <div className="dashboard-grid">
+        {/* Tarjeta de Sugerencias */}
+        <div className="dashboard-card suggestions-card">
+          <div className="card-header">
+            <h2>SUGERENCIAS DE COMPRA</h2>
+          </div>
+          <div className="card-content">
+            <div className="suggestion-visual">
+              <div className="visual-icon">
+                <Icon icon="mdi:bell-notification-outline" />
+              </div>
             </div>
-            <div className="sugerencia-texto">
-              <h3>Agregar frutas y verduras</h3>
-              <p>a tu carrito de compras</p>
+            <div className="suggestion-text">
+              {loading ? (
+                <p>Cargando…</p>
+              ) : err ? (
+                <p>{err}</p>
+              ) : recomendados?.length ? (
+                <>
+                  <h3>Agregar {recomendados[0].producto?.nombre}</h3>
+                  <p>a tu carrito de compras</p>
+                </>
+              ) : (
+                <>
+                  <h3>Agregar frutas y verduras</h3>
+                  <p>a tu carrito de compras</p>
+                </>
+              )}
             </div>
           </div>
-        </section>
+        </div>
 
-        <section className="card recurrentes">
-          <h4 className="card-title">PRODUCTOS RECURRENTES</h4>
-          <div className="rec-body">
-            <button
-              className="nav-btn"
-              onClick={() => setIdxRec((p) => (p === 0 ? recurrentes.length - 1 : p - 1))}
-              aria-label="Anterior"
-            >
-              <Icon icon="mdi:chevron-left" width="22" />
-            </button>
+        {/* Tarjeta de Productos Recurrentes */}
+        <div className="dashboard-card recurrent-card">
+          <div className="card-header">
+            <h2>PRODUCTOS RECURRENTES</h2>
+          </div>
+          <div className="card-content">
+            {loading ? (
+              <p>Cargando…</p>
+            ) : err ? (
+              <p>{err}</p>
+            ) : recurrentes.length === 0 ? (
+              <p>No hay compras registradas todavía.</p>
+            ) : (
+              <div className="product-navigation">
+                <button
+                  className="nav-arrow"
+                  onClick={() =>
+                    setCurrentProductIdx((p) =>
+                      p === 0 ? recurrentes.length - 1 : p - 1
+                    )
+                  }
+                >
+                  <Icon icon="mdi:chevron-left" />
+                </button>
 
-            <div className="rec-producto">
-              <div className="rec-img">
-                {/* ilustración simple */}
-                <div className="leche-icon">
-                  <Icon icon="mdi:carton-variant" width="64" />
+                <div className="product-display">
+                  <div className="product-image">
+                    <span className="product-emoji">🛒</span>
+                  </div>
+                  <div className="product-info">
+                    <h3>
+                      {currentProduct?.producto?.nombre ??
+                        `ID ${currentProduct?.id_producto}`}
+                    </h3>
+                    <p>
+                      Comprado{" "}
+                      {currentProduct?.dataValues?.total_comprado ??
+                        currentProduct?.total_comprado}{" "}
+                      veces
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  className="nav-arrow"
+                  onClick={() =>
+                    setCurrentProductIdx((p) => (p + 1) % recurrentes.length)
+                  }
+                >
+                  <Icon icon="mdi:chevron-right" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tarjeta de Hábitos de Compra */}
+        <div className="dashboard-card habits-card">
+          <div className="card-header">
+            <h2>HÁBITOS DE COMPRA</h2>
+          </div>
+          <div className="card-content">
+            {loading ? (
+              <p>Cargando…</p>
+            ) : err ? (
+              <p>{err}</p>
+            ) : (
+              <div className="habits-visualization">
+                <div className="bars-container">
+                  {habitData.map((item, index) => (
+                    <div key={index} className="bar-wrapper">
+                      <div className="bar-value">{item.value}</div>
+                      <div
+                        className="habit-bar"
+                        style={{
+                          height: `${(item.value / maxValue) * 80}%`,
+                        }}
+                      />
+                      <div className="bar-label">{item.day}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="rec-info">
-                <h3>{item.nombre}</h3>
-                <p>{item.detalle}</p>
-              </div>
-            </div>
-
-            <button
-              className="nav-btn"
-              onClick={() => setIdxRec((p) => (p + 1) % recurrentes.length)}
-              aria-label="Siguiente"
-            >
-              <Icon icon="mdi:chevron-right" width="22" />
-            </button>
+            )}
           </div>
-        </section>
-      </div>
+        </div>
 
-      {/* fila inferior: hábitos + resumen */}
-      <div className="sv-row">
-        <section className="card habitos">
-          <h4 className="card-title">Hábitos de compra</h4>
-          <LineChart data={habitos} />
-        </section>
-
-        <section className="card resumen">
-          <h4 className="card-title">RESUMEN DE AHORRO</h4>
-          <div className="resumen-cifra">L. 550.56</div>
-          <p className="resumen-texto">
-            Haz ahorrado durante este mes por ofertas <br />
-            promociones y descuentos
-          </p>
-        </section>
+        {/* Tarjeta de Resumen de Ahorro */}
+        <div className="dashboard-card savings-card">
+          <div className="card-header">
+            <h2>RESUMEN DE AHORRO</h2>
+          </div>
+          <div className="card-content">
+            {loading ? (
+              <p>Cargando…</p>
+            ) : err ? (
+              <p>{err}</p>
+            ) : (
+              <>
+                <div className="savings-visual">
+                  <div className="savings-amount">
+                    L. {Number(ahorro).toFixed(2)}
+                  </div>
+                  <div className="savings-icon">
+                    <Icon icon="mdi:piggy-bank-outline" />
+                  </div>
+                </div>
+                <div className="savings-description">
+                  <p>
+                    Has ahorrado durante este mes por ofertas, promociones y
+                    descuentos
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
