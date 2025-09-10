@@ -159,8 +159,13 @@
   margin-bottom: 5px;
 }
 
+.field-icon {
+  background-color: white;
+}
+
 .field-input {
   display: flex;
+  background-color: white;
   align-items: center;
   border: 2px solid #a9acaf;
   border-radius: 0.5rem;
@@ -170,6 +175,25 @@
 .field-container {
   display: flex;
   flex-direction: column; /* etiqueta arriba del input */
+}
+
+.field-input input {
+  border: none; /* quita el borde del input */
+  outline: none; /* quita el resaltado azul feo */
+  background: transparent; /* quita el fondo blanco extra */
+  flex: 1; /* ocupa todo el ancho disponible */
+  font-size: 1rem; /* texto limpio */
+  padding: 6px 8px; /* espacio interno para que no quede pegado */
+  width: 100px;
+  height: 25px;
+}
+
+.field-input select {
+  width: 100%;
+  border: none; /* quita el borde */
+  outline: none; /* evita el resaltado azul al hacer focus */
+  background: transparent; /* hereda el fondo de la cajita */
+  text-align: start;
 }
 
 /* Botones */
@@ -379,4 +403,8 @@
   border-radius: 50%; /* redondea */
   object-fit: cover; /* recorta sin deformar */
   border: 2px solid #2b6daf; /* opcional, como en el header */
+}
+
+.historial-icono {
+  width: 24px;
 }

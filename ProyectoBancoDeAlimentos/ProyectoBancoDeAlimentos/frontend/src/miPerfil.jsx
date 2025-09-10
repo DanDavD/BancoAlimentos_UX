@@ -88,8 +88,20 @@ export default function MiPerfil() {
   const [fotoBase64, setFotoBase64] = useState(null);
   const { user, setUser } = useContext(UserContext);
 
-  //funcion para manejar la subida de la foto
+  // NUEVOS STATES PARA MODALES 2FA
+  const [showTwoFactorModal, setShowTwoFactorModal] = useState(false);
+  const [showTwoFactorCodeModal, setShowTwoFactorCodeModal] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+  const [showHistorial, setShowHistorial] = useState(false);
 
+  const [historial, setHistorial] = useState([
+    { fecha: "14 de enero", hora: "10:45" },
+    { fecha: "12 de enero", hora: "14:08" },
+    { fecha: "05 de enero", hora: "16:31" },
+    { fecha: "03 de enero", hora: "09:45" },
+  ]);
+
+  //funcion para manejar la subida de la foto
   const handleFotoChange = async (e) => {
     if (!editMode) return;
     const file = e.target.files?.[0];
@@ -113,18 +125,16 @@ export default function MiPerfil() {
     let mounted = true;
     const fetchUser = async () => {
       try {
-        // la ruta acepta un id en la URL pero el servidor toma el id del token
         const res = await InformacionUser(1);
         const data = res.data || {};
         if (!mounted) return;
 
-        // Si no hay datos, retorna null
         if (!data || Object.keys(data).length === 0) {
           setDatosValidos(false);
           setCargando(false);
           return;
         }
-        // Asumir nombres de campo comunes; ajustar si el backend devuelve otros
+
         setTelefono(
           data.telefono || data.numero_telefono || data.telefono_usuario || ""
         );
@@ -135,8 +145,6 @@ export default function MiPerfil() {
         setCorreo(data.correo || data.email || "");
         if (data.genero) setGenero(data.genero);
         if (data.rol?.nombre_rol) setRol(data.rol.nombre_rol);
-
-        console.log("Foto perfil cargada:", data.foto_perfil_url);
 
         if (
           data.foto_perfil_url &&
@@ -149,7 +157,6 @@ export default function MiPerfil() {
         }
         setCargando(false);
       } catch (err) {
-        // no interrumpir la UI; podríamos mostrar un toast en el futuro
         console.error(
           "Error cargando usuario:",
           err?.response?.data || err.message || err
@@ -170,6 +177,20 @@ export default function MiPerfil() {
     return () => clearTimeout(timer);
   }, [passwordError]);
 
+  // FUNCIONES MODALES 2FA
+  const handleSendCode = () => {
+    setShowTwoFactorModal(false);
+    setShowTwoFactorCodeModal(true);
+  };
+
+  const handleVerifyCode = () => {
+    console.log("Código ingresado:", twoFactorCode);
+  };
+
+  const handleResendCode = () => {
+    console.log("Reenviar código");
+  };
+
   return (
     <div className="perfil-container">
       <section className="sidebar">
@@ -180,7 +201,6 @@ export default function MiPerfil() {
       <p className="Datos-text">Datos Generales</p>
 
       <div className="perfil-content">
-        {/* Sidebar */}
         <aside className="perfil-sidebar">
           <div className="perfil-avatar">
             {fotoUrl ? (
@@ -207,14 +227,13 @@ export default function MiPerfil() {
             onClick={() => {
               if (editMode) document.getElementById("foto-input").click();
             }}
-            disabled={!editMode} // 👈 deshabilitado si no está en edición
+            disabled={!editMode}
           >
             <Icon name="camera" className="icon-small" />
             <span>Editar foto</span>
           </button>
         </aside>
 
-        {/* Card principal */}
         <section className="perfil-card">
           <div className="fields-grid">
             <Field label="Telefono" icon={<Icon name="number" />}>
@@ -222,7 +241,7 @@ export default function MiPerfil() {
                 placeholder="Telefono"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
-                disabled={!editMode} // 👈 bloqueo por defecto
+                disabled={!editMode}
               />
             </Field>
 
@@ -231,7 +250,7 @@ export default function MiPerfil() {
                 placeholder="Juan Javier"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                disabled={!editMode} // 👈 bloqueo por defecto
+                disabled={!editMode}
               />
             </Field>
             <Field label="Correo" icon={<Icon name="mail" />}>
@@ -279,18 +298,12 @@ export default function MiPerfil() {
                       apellido: apellidos,
                       correo,
                       genero,
-                      foto_perfil_url: fotoUrl, // 🔹 usa _url
+                      foto_perfil_url: fotoUrl,
                     };
-
-                    // Primero actualiza el perfil en backend
                     await axiosInstance.put("/api/MiPerfil/perfil", payload);
-
-                    // Luego obtén la info completa actualizada
                     const fullRes = await InformacionUser();
-                    setUser(fullRes.data); // 🔹 esto actualizará el header
+                    setUser(fullRes.data);
                     setEditMode(false);
-
-                    console.log("Perfil actualizado", fullRes.data);
                   } catch (err) {
                     console.error(
                       "Error guardando perfil:",
@@ -305,7 +318,7 @@ export default function MiPerfil() {
                 className="boton-cancelar"
                 onClick={() => {
                   setEditMode(false);
-                  window.location.reload(); // 👈 recargar datos originales
+                  window.location.reload();
                 }}
               >
                 Cancelar
@@ -327,7 +340,6 @@ export default function MiPerfil() {
                 </div>
                 <div className="modal-body">
                   <label>Contraseña anterior</label>
-
                   <input
                     type="password"
                     value={oldPassword}
@@ -362,11 +374,9 @@ export default function MiPerfil() {
                   >
                     Cancelar
                   </button>
-
                   <button
                     className="MPbtn-secondary"
                     onClick={async () => {
-                      // validar nueva vs confirmacion
                       setPasswordError("");
                       if (!oldPassword || !newPassword || !confirmPassword) {
                         setPasswordError("Completa todos los campos");
@@ -387,21 +397,15 @@ export default function MiPerfil() {
 
                       try {
                         setPasswordLoading(true);
-                        // Verificar contraseña anterior intentando login (no sobrescribimos token manualmente)
                         await axiosInstance.post("/api/auth/login", {
                           correo,
                           ["contraseña"]: oldPassword,
                         });
-
-                        // Si la verificación pasa, llamar al endpoint para cambiar la contraseña
                         await changePassword(correo, newPassword);
-
-                        // limpiar estado y cerrar modal
                         setOldPassword("");
                         setNewPassword("");
                         setConfirmPassword("");
                         setShowPasswordModal(false);
-                        // podría mostrar un toast aquí
                       } catch (err) {
                         const msg =
                           err?.response?.data?.message ||
@@ -425,6 +429,151 @@ export default function MiPerfil() {
               </div>
             </div>
           )}
+
+          {/* ---------------- MODALES 2FA INTEGRADOS ---------------- */}
+          {showTwoFactorModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-0 relative">
+                <div className="bg-[#2b6daf] text-white text-center py-2">
+                  <h2 className="font-semibold text-lg">
+                    Activar autenticación en dos pasos
+                  </h2>
+                </div>
+                <button
+                  className="absolute top-3 right-3 text-white hover:text-gray-200"
+                  onClick={() => setShowTwoFactorModal(false)}
+                >
+                  ✖
+                </button>
+                <div className="p-6">
+                  <div className="flex justify-center mb-4">
+                    <img src="two-factor.png" alt="2FA" className="w-24 h-24" />
+                  </div>
+                  <div className="flex flex-col gap-3 mb-4">
+                    <label className="flex items-center gap-2 border border-[#2b6daf] p-2 rounded">
+                      <input
+                        type="radio"
+                        name="twofactor"
+                        className="accent-[#2b6daf] align-middle m-0"
+                      />
+                      <span className="align-middle">
+                        Enviar SMS al ****1234
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-2 border border-[#2b6daf] p-2 rounded">
+                      <input
+                        type="radio"
+                        name="twofactor"
+                        className="accent-[#2b6daf] align-middle m-0"
+                      />
+                      <span className="align-middle">
+                        Enviar correo al ***@gmail.com
+                      </span>
+                    </label>
+                  </div>
+                  <button
+                    className="w-full bg-[#2b6daf] hover:bg-blue-700 text-white py-2 rounded-md"
+                    onClick={handleSendCode}
+                  >
+                    Enviar código
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showTwoFactorCodeModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-0 relative">
+                <div className="bg-[#2b6daf] text-white text-center py-2">
+                  <h2 className="font-semibold text-lg">
+                    Activar autenticación en dos pasos
+                  </h2>
+                </div>
+                <button
+                  className="absolute top-3 right-3 text-white hover:text-gray-200"
+                  onClick={() => setShowTwoFactorCodeModal(false)}
+                >
+                  ✖
+                </button>
+                <div className="p-6">
+                  <div className="flex flex-col items-center mb-4">
+                    <img
+                      src="two-factor.png"
+                      alt="2FA"
+                      className="w-24 h-24 mb-2"
+                    />
+                    <p className="text-center text-gray-700 text-sm">
+                      Por tu seguridad, ingresa el código que te hemos enviado
+                    </p>
+                  </div>
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      value={twoFactorCode}
+                      onChange={(e) => setTwoFactorCode(e.target.value)}
+                      placeholder="Ingresa el código"
+                      className="w-full border border-[#2b6daf] rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#2b6daf]"
+                    />
+                  </div>
+                  <button
+                    className="w-full bg-[#2b6daf] hover:bg-blue-700 text-white py-2 rounded-md mb-2"
+                    onClick={handleVerifyCode}
+                  >
+                    Verificar
+                  </button>
+                  <div className="text-center">
+                    <button
+                      className="text-[#2b6daf] text-sm hover:underline"
+                      onClick={handleResendCode}
+                    >
+                      Reenviar código
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ---------------- MODAL HISTORIAL DE ACCESOS ---------------- */}
+          {showHistorial && (
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-0 relative">
+                <div className="bg-[#2b6daf] text-white text-center py-2">
+                  <h2 className="font-semibold text-lg">
+                    Historial de accesos
+                  </h2>
+                </div>
+                <button
+                  className="absolute top-3 right-3 text-white hover:text-gray-200"
+                  onClick={() => setShowHistorial(false)}
+                >
+                  ✖
+                </button>
+                <div className="p-6">
+                  <ul className="divide-y divide-gray-200 mb-4">
+                    {historial.map((item, idx) => (
+                      <li
+                        key={idx}
+                        className="flex justify-between items-center py-2"
+                      >
+                        <span className="text-gray-700">
+                          {item.fecha}, {item.hora}
+                        </span>
+                        <span className="text-[#2b6daf]">{">"}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    className="w-full bg-[#2b6daf] hover:bg-blue-700 text-white py-2 rounded-md"
+                    onClick={() => console.log("Ver detalle historial")}
+                  >
+                    Ver detalle
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       </div>
 
@@ -440,19 +589,33 @@ export default function MiPerfil() {
             Cambiar contraseña
           </Link>
         </div>
-
         <div className="f2-autenticacion">
           <img src="/f2.png" alt="imagen" className="f2" />
-          <Link to="#" className="new-link">
+          <Link
+            to="#"
+            className="new-link"
+            onClick={(e) => {
+              e.preventDefault();
+              setShowTwoFactorModal(true);
+            }}
+          >
             Autenticación en dos pasos
           </Link>
         </div>
-
-        <p className="historial">
-          <Link to="#" className="new-link">
-            Historial de actividad
+        <div className="historial">
+          <img
+            src="/historial-perfil.png"
+            alt="imagen"
+            className="historial-icono"
+          />
+          <Link
+            to="#"
+            className="new-link"
+            onClick={() => setShowHistorial(true)}
+          >
+            Historial de Acceso
           </Link>
-        </p>
+        </div>
       </section>
     </div>
   );
