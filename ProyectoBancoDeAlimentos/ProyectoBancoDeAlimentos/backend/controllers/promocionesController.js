@@ -1,4 +1,4 @@
-const { promocion, Usuario, pedido, promocion_pedido, producto, estado_pedido,factura } = require("../models");
+const { promocion, Usuario, pedido, promocion_pedido, producto, estado_pedido,factura,promocion_producto } = require("../models");
 
 
 exports.listar = async (req, res) => {
@@ -97,3 +97,68 @@ exports.getDescuentosPorUsuario = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener descuentos por usuario' });
   }
 };
+
+
+exports.getAllPromotionsWithDetails = async (req, res) => {
+  try {
+    const promotions = await promocion.findAll({
+      attributes: ['id_promocion', 'banner_url'],
+      include: [
+        {
+          model: tipo_promocion,
+          attributes: ['id_tipo_promo', 'nombre_tipo_promocion']
+        },
+        {
+          model: promocion_producto,
+          attributes: [],
+          include: {
+            model: producto,
+            attributes: ['id_producto', 'nombre']
+          }
+        }
+      ],
+      order: [['fecha_inicio', 'DESC']]
+    });
+
+    if (promotions.length === 0) {
+      return res.status(404).json({ message: "No hay promociones disponibles" });
+    }
+
+    res.json(promotions);
+  } catch (error) {
+    console.error('Error al obtener promociones:', error);
+    res.status(500).json({ error: 'Error al obtener promociones' });
+  }
+};
+
+
+exports.listarPromocionesConDetallesURL = async (req, res) => {
+  try {
+    // Buscar todas las promociones
+    const promociones = await promocion.findAll({
+      include: [
+        {
+          model: producto,
+          through: promocion_producto,
+          as: 'productos', // Asegúrate de que el alias 'productos' coincida con el alias definido en las asociaciones
+          attributes: ['id_producto'], // Solo seleccionamos el id del producto
+        }
+      ],
+      attributes: ['id_promocion', 'id_tipo_promo', 'banner_url'] // Campos que queremos de la promoción
+    });
+
+    // Formatear los datos para que cada promoción tenga un array de productos
+    const promocionesConDetalles = promociones.map(promocion => ({
+      id_promocion: promocion.id_promocion,
+      id_tipo_promo: promocion.id_tipo_promo,
+      banner_url: promocion.banner_url,
+      productos: promocion.productos.map(producto => producto.id_producto)
+    }));
+
+    res.json(promocionesConDetalles);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las promociones' });
+  }
+};
+
