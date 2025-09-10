@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import carrito from "./images/carrito_icon.png";
 
 import { useRef } from "react";
@@ -10,12 +10,14 @@ import { SumarItem, ViewCar, eliminarItem } from "./api/CarritoApi";
 import { GetCupones } from "./api/CuponesApi";
 import { getProductosRecomendados } from "./api/InventarioApi";
 import { crearPedido } from "./api/PedidoApi";
+import { UserContext } from "./components/userContext";
 //Agregar Parametro que diga cuantos productos en carrito?
 function Carrito() {
   //Objeto de producto
 
   //Productos de pagina de inicio //necesita cantidad, imagen
   const [detalles, setDetalles] = useState([]);
+
   //Scroll
   const scroll = (direction, ref, itemWidth) => {
     if (ref.current) {
@@ -39,6 +41,7 @@ function Carrito() {
   const [descCupon, setDesc] = useState(1);
   const [showProducts, setShowProd] = useState(true);
   const [total, setTotal] = useState(0);
+  const { user } = useContext(UserContext);
   const obtenerTotal = () => {
     return (total * 1.15 * descCupon).toFixed(2);
   };
@@ -84,9 +87,17 @@ function Carrito() {
         (c) => c.id === cupon // or compare by code: c.code === storedCoupon?.code
       );
       //Muestra el apartado del descuento
-      setVisible(exists);
-      //Poner el descuento del cupon
-      setDesc(15);
+      if (exists) {
+        setVisible(exists);
+        //Poner el descuento del cupon
+        setDesc(15);
+        alert(`Cupon agregado a la compra`);
+      } else {
+        setVisible(exists);
+        //Poner el descuento del cupon
+        setDesc(15);
+        alert(`Cupon invalido`);
+      }
     } catch (err) {
       console.error("Error fetching coupons:", err);
     }
@@ -135,6 +146,7 @@ function Carrito() {
       try {
         const res = await ViewCar();
         const rec = await getProductosRecomendados();
+        console.log("Header user carrito", user);
         console.log(res.data.carrito_detalles);
         const carritoDetalles = res.data.carrito_detalles ?? [];
         setDetalles(carritoDetalles);

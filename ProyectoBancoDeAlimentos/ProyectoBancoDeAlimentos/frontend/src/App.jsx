@@ -44,7 +44,7 @@ import DescuentosAplicados from "./descuentos_aplicados.jsx";
 import Categoria from "./categoria.jsx";
 import HistorialCompras from "./HistorialCompras.jsx";
 
-const HEADER_HEIGHT = 116; // px
+const HEADER_HEIGHT = 60; // px
 
 function App() {
   return (
@@ -77,6 +77,11 @@ function App() {
                 //AQUI VAN TODAS LAS VISTAS QUE TIENEN SIDEBAR
               }
             >
+              <Route path="/inventario" element={<Inventario />} />
+              <Route
+                path="/EditarPerfilAdmin"
+                element={<EditarPerfilAdmin />}
+              />
               <Route path="/asignarDescuento" element={<AsignarDescuentos />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/gestionProductos" element={<GestionProductos />} />
@@ -84,8 +89,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/gestionProductos" element={<GestionProductos />} />
             <Route path="/inicio" element={<InicioAdmin />} />
-            <Route path="/inventario" element={<Inventario />} />
-            <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
+
             <Route path="/miPerfil" element={<MiPerfil />} />
             <Route path="/misPedidos" element={<MisPedidos />} />
             <Route path="/pedidoEmergente" element={<PedidoEmergente />} />

@@ -180,12 +180,6 @@ function Modal({ open, onClose, children, panelClassName = "" }) {
 /* ===================== PAGINA INVENTARIO ===================== */
 export default function Inventario() {
   // Sidebar
-  const [moveButton, setLeft] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
-  const toggleSidebar = () => {
-    setLeft((v) => !v);
-    setShowSidebar((v) => !v);
-  };
 
   // Tabla
   const [rows, setRows] = useState([]);
@@ -982,15 +976,6 @@ export default function Inventario() {
   return (
     <div className="w-full px-4 bg-[#f9fafb]">
       {/* Sidebar */}
-      {showSidebar && <Sidebar />}
-      <button
-        onClick={toggleSidebar}
-        className={`btn_sidebar ${moveButton ? "left-[186px]" : "left-2"}`}
-      >
-        <span className="material-symbols-outlined text-[42px] text-white">
-          menu
-        </span>
-      </button>
 
       <div className="mx-auto py-6 max-w-[1100px]">
         <div className="flex items-center justify-between">
