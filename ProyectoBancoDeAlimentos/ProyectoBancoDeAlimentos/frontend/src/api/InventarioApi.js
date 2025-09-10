@@ -63,3 +63,16 @@ export function listarProductosporsucursal(id_sucursal){
     return axiosInstance.get(`/api/producto/sucursal/${id_sucursal}`);
 }
 
+export function addOrUpdateValoracion(id_producto, { puntuacion, comentario }) {
+  const rating = Math.max(1, Math.min(5, parseInt(puntuacion, 10) || 0));
+  return axiosInstance.post(
+    `/api/producto/${id_producto}/valoraciones`,  // <-- PLURAL
+    { puntuacion: rating, comentario: comentario ?? "" },
+    { headers: { "Content-Type": "application/json" } }
+  );
+}
+
+// (si lo usas después)
+export function AddProductoFav(id_producto) {
+  return axiosInstance.post(`/api/producto/${id_producto}/favoritos`);
+}

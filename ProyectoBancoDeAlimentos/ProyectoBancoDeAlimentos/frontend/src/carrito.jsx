@@ -37,11 +37,12 @@ function Carrito() {
   //Saber si el carrito esta vacio o no
   const productosCarrito = useState(0);
   const [discount, setVisible] = useState(false);
-  const [cupon, setCupon] = useState("");
+  const [cupon, setCupon] = useState("EMPTY");
   const [descCupon, setDesc] = useState(1);
   const [showProducts, setShowProd] = useState(true);
   const [total, setTotal] = useState(0);
   const { user } = useContext(UserContext);
+  console.log("Header user carrito", user);
   const obtenerTotal = () => {
     return (total * 1.15 * descCupon).toFixed(2);
   };
@@ -105,18 +106,29 @@ function Carrito() {
   const realizarCompra = async () => {
     try {
       const total_factura = obtenerTotal();
+      let desc = 0;
+      if (!(descCupon === 1)) {
+        desc = parseFloat(((descCupon / 100) * total).toFixed(2));
+      }
 
+      console.log(user.id_usuario);
+      console.log(user.direccions[0].id_direccion);
+      const id_direccion = user.direccions[0].id_direccion.toString();
+      //console.log(id_sucursal)
+      console.log(cupon);
+      console.log(desc);
+      console.log(total_factura);
       const response = await crearPedido(
-        //id_usuario,
-        //direccion_envio,
-        //id_sucursal,
-        cupon,
-        descCupon,
-        total_factura
+        user.id_usuario, // int
+        id_direccion, // string (o int si cambias el modelo)
+        1, // id_sucursal
+        null, // id_cupon
+        desc // descuento
       );
 
       console.log("Pedido creado:", response.data);
       alert("Pedido creado correctamente!");
+      setShowProd(false);
     } catch (err) {
       console.error("Error creating pedido:", err);
       alert("No se pudo crear el pedido");
@@ -146,7 +158,7 @@ function Carrito() {
       try {
         const res = await ViewCar();
         const rec = await getProductosRecomendados();
-        console.log("Header user carrito", user);
+
         console.log(res.data.carrito_detalles);
         const carritoDetalles = res.data.carrito_detalles ?? [];
         setDetalles(carritoDetalles);

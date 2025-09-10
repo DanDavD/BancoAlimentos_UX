@@ -1,6 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 const productoCtrl = require('../controllers/productoController');
+const ctrl = require('../controllers/InformationProductoController');
 const verificarToken = require('../middleware/verificarToken'); // si quieres proteger con JWT
 router.get('/recomendados', productoCtrl.productosRecomendados);
 router.get('/destacados', productoCtrl.destacados);
@@ -19,6 +20,6 @@ router.patch('/desactivar/:id_producto', productoCtrl.desactivarProducto);
 router.put('/actualizar-producto/:id_producto', productoCtrl.actualizarProducto);
 
 router.get('/sucursal/:id_sucursal', productoCtrl.listarProductosporsucursal);
-
-
+router.get ('/:id/valoraciones', ctrl.listValoracionesByProducto); // No requiere token
+router.post('/:id/valoraciones', verificarToken, ctrl.addOrUpdateValoracion); // Requiere token
 module.exports = router;
