@@ -10,16 +10,18 @@ export default function LoginUser({ correo, contraseña, contrasena }) {
 
 export function RegistrarUser({
   nombre,
+  apellido,
   correo,
   contraseña,
   id_rol,
   telefono,
 }) {
-  if (!nombre || !correo || !contraseña) {
+  if (!nombre || !apellido || !correo || !contraseña) {
     return Promise.reject(new Error("Faltan datos obligatorios"));
   }
   return axiosInstance.post("/api/registrarse", {
     nombre,
+    apellido,
     correo,
     contraseña,
     telefono,
@@ -90,9 +92,14 @@ export function uploadProfilePhoto(file) {
 }
 
 export function validarCodigoDosPasos(correo, codigo) {
-  return axiosInstance.patch("/api/roles-privilegios/verificacion-dos-pasos", { correo, codigo });
+  return axiosInstance.patch("/api/roles-privilegios/verificacion-dos-pasos", {
+    correo,
+    codigo,
+  });
 }
 
 export function enviarCorreoDosPasos(correo) {
-  return axiosInstance.post("/api/roles-privilegios/autenticacion-dos-pasos", { correo });
+  return axiosInstance.post("/api/roles-privilegios/autenticacion-dos-pasos", {
+    correo,
+  });
 }

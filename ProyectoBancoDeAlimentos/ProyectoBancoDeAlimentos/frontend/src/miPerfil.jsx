@@ -129,6 +129,7 @@ export default function MiPerfil() {
       try {
         const res = await InformacionUser(1);
         const data = res.data || {};
+        console.log("Datos usuario:", data);
         if (!mounted) return;
 
         if (!data || Object.keys(data).length === 0) {

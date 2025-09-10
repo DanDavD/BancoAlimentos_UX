@@ -11,7 +11,7 @@ const Crear_cuenta = () => {
     correo: "",
     contraseña: "",
     telefono: "",
-    genero: "otro"
+    genero: "otro",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ const Crear_cuenta = () => {
     let { name, value } = e.target;
 
     if (name === "correo") {
-      value = value.trim().toLowerCase(); 
+      value = value.trim().toLowerCase();
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -31,7 +31,6 @@ const Crear_cuenta = () => {
     setError("");
 
     try {
-      
       if (!formData.nombre || !formData.correo || !formData.contraseña) {
         throw new Error("Nombre, correo y contraseña son obligatorios");
       }
@@ -54,6 +53,7 @@ const Crear_cuenta = () => {
         navigate("/login");
         return;
       }
+      console.log("Respuesta del backend:", res.data);
 
       // Lee msg o message
       const apiMsg = res?.data?.msg || res?.data?.message;
@@ -99,6 +99,16 @@ const Crear_cuenta = () => {
           />
 
           <input
+            type="text"
+            className="input-field"
+            placeholder="Apellido *"
+            name="apellido"
+            value={formData.apellido}
+            onChange={handleChange}
+            required
+          />
+
+          <input
             type="email"
             className="input-field"
             placeholder="Correo electrónico *"
@@ -127,7 +137,6 @@ const Crear_cuenta = () => {
             value={formData.telefono}
             onChange={handleChange}
           />
-
         </div>
 
         <button type="submit" className="crear-button" disabled={loading}>
@@ -135,7 +144,11 @@ const Crear_cuenta = () => {
         </button>
       </form>
 
-      <Link to="/login" className="ya-tienes-cuenta-link" rel="noopener noreferrer">
+      <Link
+        to="/login"
+        className="ya-tienes-cuenta-link"
+        rel="noopener noreferrer"
+      >
         ¿Ya tienes una cuenta?
       </Link>
     </div>
