@@ -1,4 +1,4 @@
-const { pedido, estado_pedido, factura, factura_detalle, producto, subcategoria, categoria } = require('../models');
+const { pedido, estado_pedido, factura, factura_detalle, producto, subcategoria, categoria, Usuario, carrito, carrito_detalle } = require('../models');
 const { Op } = require("sequelize");
 
 //retorna los pedidos del usuario dado, donde el nombre_pedido sea "Enviado".
@@ -106,4 +106,79 @@ exports.getHistorialComprasProductos = async (req, res) => {
     res.status(500).json({ error: "Error al obtener historial de productos" });
   }
 };
+
+exports.crearPedido = async (req, res) => {
+  const t = await pedido.sequelize.transaction();//iniciar transaccion
+  try {
+    const { id_usuario, direccion_envio, id_sucursal, id_cupon, descuento } = req.body;
+
+    //obtener carrito
+    const cart = await carrito.findOne({ where: { id_usuario }, transaction: t });
+    if (!cart) {
+      await t.rollback();
+      return res.status(400).json({ error: "El usuario no tiene carrito" });
+    }
+
+    //sacar items del carrito
+    const itemsCarrito = await carrito_detalle.findAll({
+      where: { id_carrito: cart.id_carrito },
+      include: [{ model: producto }],
+      transaction: t
+    });
+
+    if (itemsCarrito.length === 0) {
+      await t.rollback();
+      return res.status(400).json({ error: "El carrito está vacío" });
+    }
+
+    //crear pedido
+    const nuevoPedido = await pedido.create({
+      id_usuario,
+      direccion_envio,
+      id_sucursal,
+      id_cupon: id_cupon || null,
+      id_estado_pedido: 1, // Pendiente
+      descuento: descuento || 0
+    }, { transaction: t });
+
+    //crear detalles
+    const detalles = itemsCarrito.map(item => ({
+      id_factura: null, // se asigna después
+      id_producto: item.id_producto,
+      cantidad_unidad_medida: item.cantidad_unidad_medida,
+      subtotal_producto: item.cantidad_unidad_medida * item.producto.precio_base
+    }));
+
+    // calcular total
+    const totalFactura = detalles.reduce((sum, item) => sum + item.subtotal_producto, 0) - (descuento || 0);
+
+    //crear factura
+    const nuevaFactura = await factura.create({
+      id_pedido: nuevoPedido.id_pedido,
+      fecha_emision: new Date(),
+      total: totalFactura
+    }, { transaction: t });
+
+    //asignar id factura a cada detalle
+    detalles.forEach(d => d.id_factura = nuevaFactura.id_factura);
+    await factura_detalle.bulkCreate(detalles, { transaction: t });
+
+    //vaciar carrito
+    await carrito_detalle.destroy({
+      where: { id_carrito: cart.id_carrito },
+      transaction: t
+    });
+
+    //confirmar
+    await t.commit();
+
+    res.json({ message: "Pedido creado correctamente!", id_pedido: nuevoPedido.id_pedido, total: totalFactura });
+
+  } catch (error) {
+    await t.rollback();
+    console.error("Error al crear pedido:", error);
+    res.status(500).json({ error: "Error al crear pedido" });
+  }
+};
+
 
