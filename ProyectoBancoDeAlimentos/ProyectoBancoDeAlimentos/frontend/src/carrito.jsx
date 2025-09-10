@@ -5,14 +5,17 @@ import { useRef } from "react";
 import arrowL from "./images/arrowL.png";
 import arrowR from "./images/arrowR.png";
 import React from "react";
-import { getAllProducts } from "./api/InventarioApi";
 import { useParams } from "react-router-dom";
+import { SumarItem, ViewCar, eliminarItem } from "./api/CarritoApi";
+import { GetCupones } from "./api/CuponesApi";
+import { getProductosRecomendados } from "./api/InventarioApi";
+import { crearPedido } from "./api/PedidoApi";
 //Agregar Parametro que diga cuantos productos en carrito?
 function Carrito() {
   //Objeto de producto
 
   //Productos de pagina de inicio //necesita cantidad, imagen
-  const [products, setProducts] = useState([]);
+  const [detalles, setDetalles] = useState([]);
   //Scroll
   const scroll = (direction, ref, itemWidth) => {
     if (ref.current) {
@@ -31,24 +34,112 @@ function Carrito() {
 
   //Saber si el carrito esta vacio o no
   const productosCarrito = useState(0);
+  const [discount, setVisible] = useState(false);
   const [cupon, setCupon] = useState("");
+  const [descCupon, setDesc] = useState(1);
   const [showProducts, setShowProd] = useState(true);
-
-  const updateQuantity = (name, n) => {
-    if (n < 0) return;
-    setProducts((prev) =>
-      prev.map((p) => (p.nombre === name ? { ...p, cantidad: n } : p))
+  const [total, setTotal] = useState(0);
+  const obtenerTotal = () => {
+    return (total * 1.15 * descCupon).toFixed(2);
+  };
+  const sumaCarrito = () => {
+    const subtotal = detalles.reduce(
+      (acc, item) => acc + (item.subtotal_detalle || 0),
+      0
     );
+    setTotal(subtotal);
+    return subtotal;
+  };
+  const SumarBackend = async (id, n) => {
+    await SumarItem(id, n);
+  };
+  const updateQuantity = async (idDetalle, id, n) => {
+    if (n < 1) return;
+    try {
+      await SumarBackend(id, n);
+      setDetalles((prev) =>
+        prev.map((p) =>
+          p.id_carrito_detalle === idDetalle
+            ? {
+                ...p,
+                cantidad_unidad_medida: n,
+                subtotal_detalle: p.producto.precio_base * n,
+              }
+            : p
+        )
+      );
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+      alert("No se pudo actualizar la cantidad");
+    }
   };
   //Verifica si el cupon es valido
-  function checkCupon() {}
-  function realizarCompra() {}
+  const checkCupon = async () => {
+    try {
+      const res = await GetCupones(); // assume this returns an array of coupons
+      const allCoupons = res.data ?? []; // adapt if needed
+
+      // Check if any coupon already exists in storedCoupons
+      const exists = allCoupons.some(
+        (c) => c.id === cupon // or compare by code: c.code === storedCoupon?.code
+      );
+      //Muestra el apartado del descuento
+      setVisible(exists);
+      //Poner el descuento del cupon
+      setDesc(15);
+    } catch (err) {
+      console.error("Error fetching coupons:", err);
+    }
+  };
+  const realizarCompra = async () => {
+    try {
+      const total_factura = obtenerTotal();
+
+      const response = await crearPedido(
+        //id_usuario,
+        //direccion_envio,
+        //id_sucursal,
+        cupon,
+        descCupon,
+        total_factura
+      );
+
+      console.log("Pedido creado:", response.data);
+      alert("Pedido creado correctamente!");
+    } catch (err) {
+      console.error("Error creating pedido:", err);
+      alert("No se pudo crear el pedido");
+    }
+  };
+  const eliminarEnBackend = async (idToDelete) => {
+    await eliminarItem({ id_producto: idToDelete });
+  };
+  const eliminarProducto = async (idToDelete, idProd) => {
+    try {
+      // 1. Eliminar en backend
+      await eliminarEnBackend(idProd);
+
+      // 2. Eliminar en frontend
+      setDetalles((prev) =>
+        prev.filter((p) => p.id_carrito_detalle !== idToDelete)
+      );
+    } catch (err) {
+      console.error("Error eliminando item:", err);
+    }
+  };
+  useEffect(() => {
+    setTotal(sumaCarrito());
+  }, [detalles]);
   useEffect(() => {
     const productos = async () => {
       try {
-        const res = await getAllProducts();
-        console.log(res.data);
-        setProducts(res.data);
+        const res = await ViewCar();
+        const rec = await getProductosRecomendados();
+        console.log(res.data.carrito_detalles);
+        const carritoDetalles = res.data.carrito_detalles ?? [];
+        setDetalles(carritoDetalles);
+
+        // Hacer un único setProducts
       } catch (err) {
         console.error("[REGISTER] error:", err?.response?.data || err);
         alert(err?.response?.data?.message || "Error");
@@ -59,7 +150,10 @@ function Carrito() {
     return () => {};
   }, []);
   return (
-    <div className="bg-gray-100 w-screen min-h-screen py-4 overflow-x-hidden items-center">
+    <div
+      className="bg-gray-100 w-screen min-h-screen py-4 overflow-x-hidden items-center"
+      style={{ ...styles.fixedShell, backgroundColor: "#f3f4f6" }}
+    >
       <div className="px-32">
         <div>
           <h1 className="font-roboto text-[#f0833e] text-5xl justify-center pb-3 text-left">
@@ -89,15 +183,15 @@ function Carrito() {
               showProducts && (
                 <div className="px-6 py-4">
                   <ul className="flex flex-col space-y-4">
-                    {products.map((prod, i) => (
+                    {detalles.map((p, i) => (
                       <li key={i}>
-                        <div className="flex flex-row gap-8">
-                          {prod.imagenes &&
-                          prod.imagenes.length > 0 &&
-                          prod.imagenes[0].url_imagen ? (
+                        <div className="flex flex-row gap-8 justify-between ">
+                          {p.producto.imagenes &&
+                          p.producto.imagenes.length > 0 &&
+                          p.producto.imagenes[0].url_imagen ? (
                             <img
-                              src={`/images/productos/${prod.imagenes[0].url_imagen}`}
-                              alt={prod.nombre}
+                              src={`/images/productos/${p.producto.imagenes[0].url_imagen}`}
+                              alt={p.producto.nombre}
                               style={styles.productImg}
                               onError={(e) => {
                                 e.target.src =
@@ -111,11 +205,15 @@ function Carrito() {
                           )}
 
                           <div className="flex flex-col w-full text-left font-medium">
-                            <p className="py-2 text-xl">{prod.nombre}</p>
+                            <p className="py-2 text-xl">{p.producto.nombre}</p>
                             <div className="flex flex-row gap-1">
                               <button
                                 onClick={() =>
-                                  updateQuantity(prod.nombre, 5 - 1)
+                                  updateQuantity(
+                                    p.id_carrito_detalle,
+                                    p.producto.id_producto,
+                                    p.cantidad_unidad_medida - 1
+                                  )
                                 }
                                 className=" bg-[#114C87] text-white rounded-md h-9 px-1"
                               >
@@ -125,11 +223,15 @@ function Carrito() {
                               </button>
                               <input
                                 className="border-2 border-black rounded-md text-center"
-                                value={5}
+                                value={p.cantidad_unidad_medida}
                               ></input>
                               <button
                                 onClick={() =>
-                                  updateQuantity(prod.nombre, 5 + 1)
+                                  updateQuantity(
+                                    p.id_carrito_detalle,
+                                    p.producto.id_producto,
+                                    p.cantidad_unidad_medida + 1
+                                  )
                                 }
                                 className="bg-[#114C87] text-white rounded-md h-9 px-1"
                               >
@@ -137,14 +239,22 @@ function Carrito() {
                                   add
                                 </span>
                               </button>
-                              <div className="flex justify-center w-full">
-                                <p className="text-xl pl-6">
-                                  {prod.precio_base}
+                              <div className="flex  w-full h-full justify-center items-center ">
+                                <p className="text-2xl pl-16 ">
+                                  L. {p.subtotal_detalle}
                                 </p>
                               </div>
                             </div>
                           </div>
-                          <button className=" text-black hover:bg-red-500 hover:text-white rounded-md px-6">
+                          <button
+                            onClick={() =>
+                              eliminarProducto(
+                                p.id_carrito_detalle,
+                                p.producto.id_producto
+                              )
+                            }
+                            className=" text-black hover:bg-red-500 hover:text-white rounded-md p-8"
+                          >
                             <span class="material-symbols-outlined text-5xl ">
                               delete
                             </span>
@@ -200,24 +310,27 @@ function Carrito() {
                   <ul className="text-left space-y-3 font-medium text-md">
                     <li className="flex justify-between">
                       <span>Subtotal</span>
-                      <span>L.32</span>
+                      <span>
+                        L.
+                        {total}
+                      </span>
                     </li>
-                    <li className="flex justify-between">
-                      <span>Entrega</span>
-                      <span>L.5</span>
-                    </li>
+
                     <li className="flex justify-between">
                       <span>Impuesto</span>
                       <span>15%</span>
                     </li>
-                    <li className="flex justify-between">
-                      <span>Descuento</span>
-                      <span>15%</span>
-                    </li>
+                    {discount && (
+                      <li className="flex justify-between">
+                        <span>Descuento</span>
+                        <span>{descCupon}%</span>
+                      </li>
+                    )}
+
                     <hr className="bg-black h-[3px] w-full" />
                     <li className="text-lg font-bold flex justify-between">
                       <span>Total</span>
-                      <span>L.37</span>
+                      <span>{obtenerTotal()}</span>
                     </li>
                     <button
                       onClick={realizarCompra}
@@ -253,7 +366,10 @@ function Carrito() {
           </div>
         </div>
       </div>
-      <div className="pt-6">
+      <div
+        className=""
+        style={{ ...styles.fixedShell2, backgroundColor: "#f3f4f6" }}
+      >
         <h1 className="font-roboto text-[#f0833e] text-3xl justify-center text-left px-32">
           Recomendaciones
         </h1>
@@ -272,7 +388,7 @@ function Carrito() {
             </button>
 
             <div style={styles.divProducts} ref={prodRefRecomendados}>
-              {products.map((p, i) => (
+              {detalles.map((p, i) => (
                 <div
                   key={i}
                   style={{
@@ -296,11 +412,9 @@ function Carrito() {
                     </div>
                   </div>
 
-                  {p.imagenes &&
-                  p.imagenes.length > 0 &&
-                  p.imagenes[0].url_imagen ? (
+                  {p.imagenes && p.imagenes.url_imagen ? (
                     <img
-                      src={`/images/productos/${p.imagenes[0].url_imagen}`}
+                      src={`/images/productos/${p.imagenes.url_imagen}`}
                       alt={p.nombre}
                       style={styles.productImg}
                       onError={(e) => {
@@ -429,6 +543,25 @@ const styles = {
     height: "70px",
     objectFit: "contain",
     marginTop: "8px",
+  },
+
+  fixedShell: {
+    position: "absolute",
+    top: "145px",
+    left: 0,
+    right: 0,
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+  },
+  fixedShell2: {
+    position: "relative",
+    top: "24px",
+    left: 0,
+    right: 0,
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
   },
 };
 
