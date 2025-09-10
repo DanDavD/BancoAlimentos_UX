@@ -434,7 +434,7 @@ export default function Inventario() {
         "items",
       ]);
       const mapped = subcategoriasRaw
-        .filter(sc => String(sc.id_categoria_padre) === String(categoriaId))
+        .filter((sc) => String(sc.id_categoria_padre) === String(categoriaId))
         .map((sc, idx) => ({
           id: String(sc.id_subcategoria ?? sc.id ?? idx),
           nombre: sc.nombre ?? `Subcategoría ${idx + 1}`,
@@ -531,8 +531,7 @@ export default function Inventario() {
     // Validaciones mínimas
     if (!d.producto?.trim())
       return alert("El nombre del producto es obligatorio.");
-    if (!d.marcaId && !d.marca)
-      return alert("Selecciona una marca.");
+    if (!d.marcaId && !d.marca) return alert("Selecciona una marca.");
     if (!d.subcategoriaId && !d.subcategoria)
       return alert("Selecciona una subcategoría.");
 
@@ -711,7 +710,19 @@ export default function Inventario() {
 
   /* ===================== UI ===================== */
   return (
-    <div className="w-screen px-4 bg-[#f9fafb]">
+    <div
+      className="w-screen px-4 bg-[#f9fafb]"
+      style={{
+        position: "absolute",
+        top: "145px",
+        left: 0,
+        right: 0,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       {/* Sidebar */}
       {showSidebar && <Sidebar />}
       <button
@@ -1046,10 +1057,10 @@ export default function Inventario() {
                 onChange={(e) =>
                   setModal((m) => ({
                     ...m,
-                    draft: { 
-                      ...m.draft, 
+                    draft: {
+                      ...m.draft,
                       marcaId: e.target.value,
-                      marca: nameById(marcas, e.target.value) || ""
+                      marca: nameById(marcas, e.target.value) || "",
                     },
                   }))
                 }
@@ -1083,10 +1094,10 @@ export default function Inventario() {
                   setSelectedCategoria(categoriaId);
                   setModal((m) => ({
                     ...m,
-                    draft: { 
-                      ...m.draft, 
+                    draft: {
+                      ...m.draft,
                       categoriaId: categoriaId,
-                      categoria: nameById(categorias, categoriaId) || ""
+                      categoria: nameById(categorias, categoriaId) || "",
                     },
                   }));
                   listarSubcategoriaPorCategoria(categoriaId);
@@ -1119,10 +1130,11 @@ export default function Inventario() {
                 onChange={(e) =>
                   setModal((m) => ({
                     ...m,
-                    draft: { 
-                      ...m.draft, 
+                    draft: {
+                      ...m.draft,
                       subcategoriaId: e.target.value,
-                      subcategoria: nameById(subcategorias, e.target.value) || ""
+                      subcategoria:
+                        nameById(subcategorias, e.target.value) || "",
                     },
                   }))
                 }
@@ -1184,12 +1196,17 @@ export default function Inventario() {
             label="Unidad de Medida"
             value={modal.draft.unidadMedida}
             onChange={(v) =>
-              setModal((m) => ({ ...m, draft: { ...m.draft, unidadMedida: v } }))
+              setModal((m) => ({
+                ...m,
+                draft: { ...m.draft, unidadMedida: v },
+              }))
             }
           />
 
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-gray-700">Etiquetas (separadas por coma)</span>
+            <span className="text-sm text-gray-700">
+              Etiquetas (separadas por coma)
+            </span>
             <input
               list="etiquetas_sugeridas"
               className="px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
@@ -1413,7 +1430,7 @@ function ThFilter({ label, filterKey, value, onChange }) {
           className="p-1 rounded-md hover:bg-white/15"
           title="Filtrar"
         >
-      <Icon.Search className="text-white" />
+          <Icon.Search className="text-white" />
         </button>
       </div>
 

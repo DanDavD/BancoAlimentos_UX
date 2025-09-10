@@ -216,7 +216,7 @@ function TablaReportesPromociones() {
   const [categoriaFilter, setCategoriaFilter] = useState("");
   const [showCategoria, setShowCategoria] = useState(false);
 
-  const itemsPerPage = 15;
+  const itemsPerPage = 7;
 
   const filteredData = mockData.filter((item) =>
     categoriaFilter ? item.categoria === categoriaFilter : true
@@ -282,7 +282,19 @@ function TablaReportesPromociones() {
   };
 
   return (
-    <div className="inventario-container">
+    <div
+      className="inventario-container"
+      style={{
+        position: "absolute",
+        top: "145px",
+        left: 0,
+        right: 0,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <h1 className="inventario-title">Reporte de Promociones y Descuentos</h1>
 
       <table className="inventario-table">
