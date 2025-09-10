@@ -11,7 +11,7 @@ export default function Error404() {
       className="ntF-error-container"
       style={{
         position: "absolute",
-        top: "145px",
+        top: "90px",
         left: 0,
         right: 0,
         width: "100%",

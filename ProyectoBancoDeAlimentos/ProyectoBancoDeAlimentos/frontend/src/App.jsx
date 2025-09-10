@@ -37,12 +37,9 @@ import TablaVentas from "./tablaReportesVentas.jsx";
 import LayoutSidebar from "./layoutSidebar.jsx";
 import AsignarDescuentos from "./asignarDescuentos.jsx";
 import TablaPromociones from "./tablaReportesPromociones.jsx";
-<<<<<<< Updated upstream
 import TablaUsuarios from "./reporteUsuarios.jsx";
 import SistemaValoracion from "./SistemaValoracion.jsx";
-=======
 import PersonalizacionReportes from "./PersonalizacionReportes.jsx";
->>>>>>> Stashed changes
 const HEADER_HEIGHT = 116; // px
 
 function App() {
@@ -116,14 +113,15 @@ function App() {
             <Route path="/facturas" element={<Facturas />} />
             <Route path="/factura/:id" element={<DetalleFactura />} />
             <Route path="/tablaVentas" element={<TablaVentas />} />
-<<<<<<< Updated upstream
             <Route path="/tablaPromociones" element={<TablaPromociones />} />
             <Route path="/tablaUsuarios" element={<TablaUsuarios />} />
             <Route path="/sistemaValoracion" element={<SistemaValoracion />} />
+            <Route
+              path="/personalizacionReportes"
+              element={<PersonalizacionReportes />}
+            />
 
             <Route path="*" element={<NotFoundpage />} />
-=======
->>>>>>> Stashed changes
           </Routes>
         </div>
       </div>
