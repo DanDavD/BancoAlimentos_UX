@@ -2,38 +2,42 @@
   --bg: #f6f8fb;
   --text: #1f2937;
   --border: #d8dadc;
-  --blue: #2b6daf; /* cabecera de tabla */
+  --blue: #2b6daf;
   --blue-line: #1f4f8a;
+  --title: #e96803;
+  --rule: #f0833e;
 
-  --title: #e96803; /* color del título */
-  --rule: #f0833e; /* línea sobre la tabla */
-
-  --pager-accent: #e96803; /* borde/activo del número */
-  --btn-size: 44px; /* tamaño de los círculos de la paginación */
+  --panel-max: 900px; /* ancho del panel centrado */
+  --pager-size: 40px; /* tamaño de los círculos de paginación */
 }
 
-* {
-  box-sizing: border-box;
-}
-
-.cupones {
+/* ===== Panel centrado, sin huecos laterales ===== */
+.discounts {
   background: var(--bg);
   color: var(--text);
-  padding: 16px;
+  /* centramos el panel y evitamos el gran espacio: */
+  max-width: var(--panel-max);
+  margin: 12px auto 24px; /* arriba más corto, abajo cómodo */
+  padding: 0 12px; /* pequeño gutter lateral */
 }
 
-.cupones__title {
-  margin: 0 0 6px 0;
+/* ===== Título compacto, pegado a la línea ===== */
+.discounts__header {
   text-align: center;
+  margin: 10px 0 10px;
+}
+.discounts__title {
+  margin: 3;
   color: var(--title);
   font-weight: 800;
-  font-size: clamp(22px, 3vw, 34px);
-  letter-spacing: 0.3px;
+  font-size: clamp(22px, 2.6vw, 32px);
+  letter-spacing: 0px;
 }
 
-.cupones__tableWrap {
-  width: min(860px, 96%);
-  margin: 8px auto 0;
+/* ===== Tabla centrada ===== */
+.discounts__tableWrap {
+  width: 100%;
+  margin: 0 auto;
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
@@ -41,10 +45,11 @@
   position: relative;
 }
 
-.cupones__tableWrap::before {
+/* LÍNEA naranja SOLO arriba de la tabla, mismo ancho que el wrap */
+.discounts__tableWrap::before {
   content: "";
   position: absolute;
-  top: -12px;
+  top: -10px; /* separación mínima del título */
   left: 0;
   right: 0;
   height: 2px;
@@ -52,7 +57,8 @@
   border-radius: 999px;
 }
 
-.cupones__table {
+/* Tabla */
+.discounts__table {
   width: 100%;
   table-layout: fixed;
   border-collapse: separate;
@@ -60,7 +66,7 @@
   font-size: 14.5px;
 }
 
-.cupones__table thead th {
+.discounts__table thead th {
   background: var(--blue);
   color: #fff;
   padding: 12px 14px;
@@ -68,69 +74,61 @@
   border-bottom: 1px solid var(--blue-line);
   font-weight: 700;
 }
-.cupones__table thead th:first-child {
+.discounts__table thead th:first-child {
   border-top-left-radius: 10px;
 }
-.cupones__table thead th:last-child {
+.discounts__table thead th:last-child {
   border-top-right-radius: 10px;
 }
-.cupones__table thead th.num {
+.discounts__table thead th.num {
   text-align: right;
 }
 
-.cupones__table tbody td {
+.discounts__table tbody td {
   padding: 12px 14px;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text);
 }
-.cupones__table tbody td.num {
+.discounts__table tbody td.num {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.cupones__table tbody tr:hover td {
+.discounts__table tbody tr:hover td {
   background: #f7f9fc;
 }
-.cupones__table tbody tr:last-child td {
+.discounts__table tbody tr:last-child td {
   border-bottom: none;
 }
-.cupones__table .empty {
+
+.discounts__table .empty {
   text-align: center;
   color: #6b7280;
   padding: 24px 0;
 }
 
-/* ===== Paginación tipo “círculos” ===== */
-.cupones__pager {
+/* ===== Paginación compacta centrada ===== */
+.discounts__pager {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  width: min(860px, 96%);
-  margin-left: auto !important;
-  margin-right: auto !important;
+  gap: 12px;
+  margin-top: 12px; /* pegado a la tabla */
 }
 
 .pager__btn {
-  width: var(--btn-size);
-  height: var(--btn-size);
+  width: var(--pager-size);
+  height: var(--pager-size);
   border-radius: 999px;
   border: 1px solid var(--border);
   background: #fff;
   color: var(--text);
-  font-size: 22px;
-  line-height: 1;
+  font-size: 20px;
   display: grid;
   place-items: center;
   cursor: pointer;
-  transition: transform 0.05s ease, box-shadow 0.15s ease;
-}
-.pager__btn:hover {
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-}
-.pager__btn:active {
-  transform: translateY(1px);
 }
 .pager__btn[disabled] {
   opacity: 0.45;
@@ -138,19 +136,12 @@
 }
 
 .pager__page {
-  min-width: var(--btn-size);
-  height: var(--btn-size);
-  padding: 0 10px;
+  min-width: var(--pager-size);
+  height: var(--pager-size);
   border-radius: 999px;
-  border: 2px solid var(--border);
-  background: #fff;
-  color: var(--text);
-  font-weight: 800;
+  border: 2px solid var(--title);
   display: grid;
   place-items: center;
-}
-.pager__page.is-active {
-  border-color: var(--pager-accent);
-  background: #fff7f1; /* sutil */
-  color: var(--text);
+  font-weight: 800;
+  background: #fff;
 }
