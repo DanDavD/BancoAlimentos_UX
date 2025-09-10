@@ -30,7 +30,11 @@ import banner1 from "../images/banner1.png";
 import banner2 from "../images/banner2.png";
 import banner3 from "../images/banner3.png";
 
-const banners = [banner1, banner3, banner2];
+const banners = [
+  {idCategoriaEnDescuento: 1, imagen: banner1},
+  {idCategoriaEnDescuento: 2, imagen: banner2},
+  {idCategoriaEnDescuento: 3, imagen: banner3}
+];
 
 const InicioUsuario = () => {
   const navigate = useNavigate();
@@ -38,10 +42,12 @@ const InicioUsuario = () => {
   const catRef = useRef(null);
   const prodRefDestacados = useRef(null);
   const prodRefTendencias = useRef(null);
+  const swiperRef = useRef(null);
 
   const [hoveredIndex, setHoveredIndex] = React.useState(null);
   const [hoveredProductDest, setHoveredProductDest] = React.useState(null);
   const [hoveredProductTrend, setHoveredProductTrend] = React.useState(null);
+  const [hoveredBanner, setHoveredBanner] = React.useState(null);
 
   const [products, setProducts] = useState([]);
 
@@ -205,26 +211,24 @@ const InicioUsuario = () => {
           onClick={() => handleCategoryClick(cat?.id_categoria)}
         >
           <img
-  src={
-    cat?.icono_categoria
-      ? `/images/categorias/${cat.icono_categoria}`
-      : "/PlaceHolder.png"
-  }
-  alt={cat?.nombre ?? "Categoría"}
-  style={{ width: 70, height: 70, objectFit: "contain" }}
-  onError={(e) => {
-    e.currentTarget.onerror = null;
-    e.currentTarget.src = "/PlaceHolder.png";
-  }}
-/>
+          src={
+            cat?.icono_categoria
+              ? `/images/categorias/${cat.icono_categoria}`
+              : "/PlaceHolder.png"
+          }
+          alt={cat?.nombre ?? "Categoría"}
+          style={{ width: 70, height: 70, objectFit: "contain" }}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = "/PlaceHolder.png";
+          }}
+        />
+                </div>
+                <span style={styles.catTitle}>{cat?.nombre ?? "-"}</span>
+              </div>
+            );
+          })}
         </div>
-        <span style={styles.catTitle}>{cat?.nombre ?? "-"}</span>
-      </div>
-    );
-  })}
-</div>
-
-
         <button
           style={styles.arrow}
           onClick={() => scroll("right", catRef, 140)}
@@ -237,39 +241,96 @@ const InicioUsuario = () => {
         </button>
       </div>
 
-      {/* Banner */}
-      <div style={{ margin: "40px 0" }}>
-        <Swiper
-          modules={[EffectCoverflow, Autoplay]}
-          effect="coverflow"
-          centeredSlides={false}
-          slidesPerView={3}
-          loop={true}
-          autoplay={{ delay: 3000 }}
-          coverflowEffect={{
-            rotate: 0,
-            stretch: 0,
-            depth: 100,
-            modifier: 2.5,
-            slideShadows: true,
+      {/* Banner - Fixed Swiper */}
+      <div style={{ position: "relative", margin: "40px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* Left button */}
+        <button 
+          className="arrow-button" 
+          style={{ 
+            position: "absolute", 
+            left: 0, 
+            zIndex: 10,
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            width: "40px",
+            height: "40px"
           }}
-          style={{ padding: "20px 0" }}
+          onClick={() => swiperRef.current?.slidePrev()}
         >
-          {banners.map((banner, index) => (
-            <SwiperSlide key={index}>
-              <img
-                src={banner}
-                alt={`banner-${index}`}
-                style={{
-                  width: "100%",
-                  height: "300px",
-                  borderRadius: "16px",
-                  objectFit: "cover",
-                }}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+          <img
+            src={arrowL}
+            alt="left"
+            style={{ width: "100%", height: "100%" }}
+          />
+        </button>
+        
+        {/* Swiper */}
+        <div style={{ width: "90%", margin: "0 auto" }}>
+          <Swiper
+            modules={[EffectCoverflow, Autoplay]}
+            effect={"coverflow"}
+            centeredSlides={true}
+            slidesPerView={1}
+            loop={false}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            coverflowEffect={{
+              rotate: 0,
+              stretch: 0,
+              depth: 100,
+              modifier: 2.5,
+              slideShadows: true,
+            }}
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+            }}
+          >
+            {banners.map((banner, index) => (
+              <SwiperSlide key={index} style={{width: "33.333%", padding: "10px" }}>
+                <div onMouseEnter={() => setHoveredBanner(index)}
+                  onMouseLeave={() => setHoveredBanner(null)}
+                  style={{transform:
+                  hoveredBanner === index ? "scale(1.017)" : "scale(1)", transition: "all 0.5s ease-in-out",
+                  cursor: "pointer", display: "flex", justifyContent: "center" }}
+                  onClick={() => handleCategoryClick(banner.idCategoriaEnDescuento)}>
+                  <img
+                    src={banner.imagen}
+                    alt={banner.categoriaEnDescuento}
+                    className="banner-img"
+                    style={{
+                      width: "100%",
+                      height: "350px",
+                      borderRadius: "16px",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+        
+        {/* Right button */}
+        <button 
+          className="arrow-button" 
+          style={{ 
+            position: "absolute", 
+            right: 0, 
+            zIndex: 10,
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            width: "40px",
+            height: "40px"
+          }}
+          onClick={() => swiperRef.current?.slideNext()}
+        >
+          <img
+            src={arrowR}
+            alt="right"
+            style={{ width: "100%", height: "100%" }}
+          />
+        </button>
       </div>
 
       {/* Productos Destacados */}

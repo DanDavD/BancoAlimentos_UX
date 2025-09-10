@@ -216,7 +216,7 @@ function TablaReportesPromociones() {
   const [categoriaFilter, setCategoriaFilter] = useState("");
   const [showCategoria, setShowCategoria] = useState(false);
 
-  const itemsPerPage = 7;
+  const itemsPerPage = 10;
 
   const filteredData = mockData.filter((item) =>
     categoriaFilter ? item.categoria === categoriaFilter : true

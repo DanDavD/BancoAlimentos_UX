@@ -41,7 +41,10 @@ import TablaUsuarios from "./reporteUsuarios.jsx";
 import SistemaValoracion from "./SistemaValoracion.jsx";
 import PersonalizacionReportes from "./PersonalizacionReportes.jsx";
 import DescuentosAplicados from "./descuentos_aplicados.jsx";
-const HEADER_HEIGHT = 116; // px
+import Categoria from "./categoria.jsx";
+import HistorialCompras from "./HistorialCompras.jsx";
+
+const HEADER_HEIGHT = 60; // px
 
 function App() {
   return (
@@ -63,10 +66,7 @@ function App() {
             <Route path="/crear_cuenta" element={<Crear_cuenta />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot_password" element={<ForgotPassword />} />
-            <Route
-              path="/cambiar_contraseña"
-              element={<Cambiar_contraseña />}
-            />
+            <Route path="/cambiar_contraseña" element={<Cambiar_contraseña />} />
 
             <Route
               element={
@@ -74,15 +74,17 @@ function App() {
                 //AQUI VAN TODAS LAS VISTAS QUE TIENEN SIDEBAR
               }
             >
+              <Route path="/inventario" element={<Inventario />} />
+              <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
               <Route path="/asignarDescuento" element={<AsignarDescuentos />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/gestionProductos" element={<GestionProductos />} />
+              <Route path="/tablaPromociones" element={<TablaPromociones />} />
             </Route>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/gestionProductos" element={<GestionProductos />} />
             <Route path="/inicio" element={<InicioAdmin />} />
-            <Route path="/inventario" element={<Inventario />} />
-            <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
+
             <Route path="/miPerfil" element={<MiPerfil />} />
             <Route path="/misPedidos" element={<MisPedidos />} />
             <Route path="/pedidoEmergente" element={<PedidoEmergente />} />
@@ -90,43 +92,27 @@ function App() {
             <Route path="/metodoPago" element={<MetodoPago />} />
             <Route path="/Prueba" element={<TestAuth />} />
             <Route path="/producto/:id" element={<AgregarCarrito />} />
-            <Route
-              path="/compararProductos/:id1/:id2"
-              element={<CompararProducto />}
-            />
+            <Route path="/compararProductos/:id1/:id2" element={<CompararProducto />} />
             <Route path="/historialPedidos" element={<HistorialPedido />} />
             <Route path="/misCupones" element={<MisCupones />} />
             <Route path="/verificar-codigo" element={<VerificarCodigo />} />
-            <Route
-              path="/userManagementViews"
-              element={<UserManagementViews />}
-            />
+            <Route path="/userManagementViews" element={<UserManagementViews />} />
             <Route path="/verificacion" element={<Verificacion />} />
-            <Route
-              path="/campanaPromocional"
-              element={<CampanaPromocional />}
-            />
+            <Route path="/campanaPromocional" element={<CampanaPromocional />} />
             <Route path="/carrito" element={<Carrito />} />
-            <Route
-              path="/verificar-codigoAuth"
-              element={<VerificarCodigoAuth />}
-            />
+            <Route path="/verificar-codigoAuth" element={<VerificarCodigoAuth />} />
             <Route path="/facturas" element={<Facturas />} />
             <Route path="/factura/:id" element={<DetalleFactura />} />
             <Route path="/tablaVentas" element={<TablaVentas />} />
             <Route path="/tablaPromociones" element={<TablaPromociones />} />
             <Route path="/tablaUsuarios" element={<TablaUsuarios />} />
             <Route path="/sistemaValoracion" element={<SistemaValoracion />} />
-            <Route
-              path="/personalizacionReportes"
-              element={<PersonalizacionReportes />}
-            />
-            <Route
-              path="/descuentos_aplicados"
-              element={<DescuentosAplicados />}
-            />
+            <Route path="/personalizacionReportes" element={<PersonalizacionReportes />} />
+            <Route path="/descuentos_aplicados" element={<DescuentosAplicados />} />
 
             <Route path="*" element={<NotFoundpage />} />
+            <Route path="/categoria/:id" element={<Categoria />} />
+            <Route path="/historialCompras" element={<HistorialCompras />} />
           </Routes>
         </div>
       </div>

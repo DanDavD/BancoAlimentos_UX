@@ -9,5 +9,8 @@ router.post('/asignar-rol-privilegio/:id_usuario',roles_privilegiosController.as
 router.get('/mostrar-roles',roles_privilegiosController.getRoles);//si
 router.get('/mostrar-privilegios',roles_privilegiosController.getPrivilegios);//si
 router.get('/mostrar-roles-privilegios-usuario/:id_usuario',roles_privilegiosController.getRolesYPrivilegiosDeUsuario);//si
+router.post('/autenticacion-dos-pasos', roles_privilegiosController.enviarCorreoDosPasos);
+router.patch('/verificacion-dos-pasos', roles_privilegiosController.validarCodigoDosPasos);
+
 
 module.exports = router;

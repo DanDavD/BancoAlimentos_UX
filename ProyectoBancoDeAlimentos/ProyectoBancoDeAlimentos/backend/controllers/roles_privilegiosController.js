@@ -1,6 +1,7 @@
 const sequelize = require('../config/db');
 const { DataTypes } = require('sequelize');
 const { Usuario, rol, privilegio, rol_privilegio } = require('../models');
+const nodemailer = require('nodemailer');
 
 const codes = {};
 
