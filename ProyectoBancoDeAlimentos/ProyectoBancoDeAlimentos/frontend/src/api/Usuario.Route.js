@@ -40,7 +40,9 @@ export function EditProfile(payload) {
 }
 
 export function updateUserById(id, payload) {
+  console.log("ID y Payload enviados:", id, payload);
   return axiosInstance.put(`/api/MiPerfil/perfil/${id}`, payload);
+  
 }
 
 export function forgetPassword(correo) {
@@ -78,6 +80,10 @@ export function asignarPrivilegioARol(id_usuario, id_rol, id_privilegio) {
 
 export function getRoles() {
   return axiosInstance.get("/api/roles-privilegios/mostrar-roles");
+}
+
+export function getPrivilegios() {
+  return axiosInstance.get("/api/roles-privilegios/mostrar-privilegios");
 }
 
 export function getAllInformacionUsuario() {

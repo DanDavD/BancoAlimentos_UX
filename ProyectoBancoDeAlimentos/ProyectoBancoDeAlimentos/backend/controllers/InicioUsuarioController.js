@@ -97,6 +97,7 @@ exports.updateById = async (req, res) => {
     }
 
     const data = await editPerfil(id, req.body, { isAdmin }); // 👈 definido arriba
+    console.log("Data actualizada:", data);
     return res.status(200).json(data);
   } catch (e) {
     return res.status(400).json({ message: String(e?.message || e) });

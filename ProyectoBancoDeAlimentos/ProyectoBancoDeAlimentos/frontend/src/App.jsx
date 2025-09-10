@@ -194,6 +194,15 @@ function App() {
               }
             />
 
+            <Route
+              path="/misPedidos"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <MisPedidos />
+                </ProtectedRoute>
+              }
+            />
+
             {/* ---------- OTROS ---------- */}
             <Route path="/inicio" element={<InicioAdmin />} />
             <Route path="/Prueba" element={<TestAuth />} />
