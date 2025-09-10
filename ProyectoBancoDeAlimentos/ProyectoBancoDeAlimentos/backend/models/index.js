@@ -48,8 +48,13 @@ const metodo_pago           = require('./metodo_pago.js')(sequelize, Sequelize.D
 const estado_pedido         = require('./estado_pedido.js')(sequelize, Sequelize.DataTypes);
 const historial_accesos     = require('./historial_accesos.js')(sequelize, Sequelize.DataTypes);
 const lista_deseos          = require('./lista_deseos.js')(sequelize, Sequelize.DataTypes);
+const usuario_log          = require('./usuario_log.js')(sequelize, Sequelize.DataTypes);
 
 // ================== ASOCIACIONES ================== //
+
+
+Usuario.hasMany(usuario_log, { foreignKey: 'id_usuario' });
+usuario_log.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 
 // --- Identity ---
 Usuario.hasMany(historial_accesos, { foreignKey: 'id_usuario' });
@@ -197,5 +202,6 @@ module.exports = {
   metodo_pago,
   estado_pedido,
   historial_accesos,
-  lista_deseos
+  lista_deseos,
+  usuario_log
 };

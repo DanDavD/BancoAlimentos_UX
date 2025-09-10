@@ -83,6 +83,7 @@ export function getRoles() {
 export function getAllInformacionUsuario() {
   return axiosInstance.get("/api/auth/GetAllUser");
 }
+
 export function uploadProfilePhoto(file) {
   const formData = new FormData();
   formData.append("foto", file);
@@ -98,8 +99,14 @@ export function validarCodigoDosPasos(correo, codigo) {
   });
 }
 
-export function enviarCorreoDosPasos(correo) {
-  return axiosInstance.post("/api/roles-privilegios/autenticacion-dos-pasos", {
-    correo,
-  });
+export function enviarCorreoDosPasos(correo){
+    return axiosInstance.post("/api/roles-privilegios/autenticacion-dos-pasos", { correo });
+}
+
+export function createLog(id_usuario) {
+  return axiosInstance.post("/api/forget-password/crear-log", { id_usuario });
+}
+
+export function getLogsUsuario(id_usuario) {
+  return axiosInstance.get(`/api/forget-password/get-log/${id_usuario}`);
 }

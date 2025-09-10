@@ -1,4 +1,4 @@
-const { Usuario } = require('../models');
+const { Usuario , usuario_log} = require('../models');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 
@@ -94,3 +94,53 @@ exports.changePassword = async (req,res) => {
     return res.status(500).json({ message: 'Error, no se pudo cambiar contraseña.' });
   }
 }
+
+exports.createLog = async (req, res) => {
+  try {
+    const { id_usuario } = req.body;
+
+    const user = await Usuario.findOne({ where: { id_usuario } });
+
+    if (!user) {
+      return res.status(404).json({ message: "No se pudo encontrar el usuario!" });
+    }
+
+    await usuario_log.create({
+      id_usuario,
+      fecha_actualizacion: new Date()
+    });
+
+    return res.status(201).json({ message: "Log creado correctamente!" });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error al crear log!" });
+  }
+};
+
+exports.getLogsUsuario = async (req, res) => {
+  try {
+    console.log("pene 1");
+    const { id_usuario } = req.params;
+    console.log("pene 2");
+    const logs = await usuario_log.findAll({
+      where: { id_usuario },
+      attributes: ['id_usuario', ['fecha_actualizacion', 'fecha_conexion']],
+      include: [
+        {
+          model: Usuario,
+          attributes: ['nombre']
+        }
+      ],
+      order: [['fecha_actualizacion', 'DESC']]
+    });
+
+    console.log("pene 3");
+    return res.status(200).json(logs);
+
+  } catch (error) {
+    console.log("pene 4");
+    console.error(error);
+    return res.status(500).json({ message: "Error al obtener logs del usuario!" });
+  }
+};
