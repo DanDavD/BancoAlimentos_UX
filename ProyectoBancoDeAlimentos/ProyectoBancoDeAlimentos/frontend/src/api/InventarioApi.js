@@ -62,3 +62,7 @@ export function crearProducto(nombre, descripcion, precio_base, id_subcategoria,
 export function listarProductosporsucursal(id_sucursal){
     return axiosInstance.get(`/api/producto/sucursal/${id_sucursal}`);
 }
+
+export function getPromociones(){
+    return axiosInstance.get('/api/promociones');
+}
