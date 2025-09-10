@@ -88,3 +88,11 @@ export function uploadProfilePhoto(file) {
     headers: { "Content-Type": "multipart/form-data" },
   });
 }
+
+export function validarCodigoDosPasos(correo, codigo) {
+  return axiosInstance.patch("/api/roles-privilegios/verificacion-dos-pasos", { correo, codigo });
+}
+
+export function enviarCorreoDosPasos(correo) {
+  return axiosInstance.post("/api/roles-privilegios/autenticacion-dos-pasos", { correo });
+}
