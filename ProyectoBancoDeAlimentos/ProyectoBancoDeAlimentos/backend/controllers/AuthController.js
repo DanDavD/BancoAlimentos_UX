@@ -42,24 +42,27 @@ const login = async (req, res) => {
     
     return res.json({ message: 'Login exitoso', token });
   } catch (error) {
-    console.error('❌ Error en login:', error.stack);
+    console.error('Error en login:', error.stack);
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
 
-const registrarse = async(req,res) =>{
-  try{
-    const {nombre, apellido, correo, contraseña, telefono, id_rol, foto_perfil_url, genero} = req.body;
+const registrarse = async (req, res) => {
+  try {
+    let { nombre, apellido, correo, contraseña, telefono, id_rol, foto_perfil_url, genero } = req.body;
 
-    const user_existence = await Usuario.findOne({where : {correo}});
+    // Normaliza el correo (trim + lowercase)
+    correo = (correo || '').trim().toLowerCase();
 
-    if(user_existence){
-      return res.status(400).json({ msg: 'El correo ya esta registrado' });
+    // Pre-chequeo (sigue siendo útil para la mayoría de casos)
+    const user_existence = await Usuario.findOne({ where: { correo } });
+    if (user_existence) {
+      return res.status(400).json({ msg: 'El correo ya está registrado' });
     }
 
     const hashedPassword = await bcrypt.hash(contraseña, 10);
 
-    const new_user = await Usuario.create({
+    await Usuario.create({
       nombre,
       apellido,
       correo,
@@ -70,18 +73,25 @@ const registrarse = async(req,res) =>{
       genero
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Usuario registrado correctamente',
-        nombre: new_user.nombre,
-        correo: new_user.correo,
-        telefono: new_user.telefono,
-        rol: new_user.id_rol
+      nombre,
+      correo,
+      telefono,
+      rol: id_rol
     });
 
-  }catch (error){
+  } catch (error) {
+     if (
+      error?.name === 'SequelizeUniqueConstraintError' ||
+      String(error?.original?.detail || '').includes('already exists') // Postgres
+    ) {
+      return res.status(400).json({ msg: 'El correo ya está registrado' });
+    }
     console.error('No se pudo registrar el usuario!', error);
-    res.status(500).json({ message: 'Error interno del servidor' });
+    return res.status(500).json({ message: 'Error interno del servidor' });
   }
-}
+};
+
 
 module.exports = { login, registrarse };

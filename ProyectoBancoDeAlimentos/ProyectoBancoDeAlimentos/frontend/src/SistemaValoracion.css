@@ -14,15 +14,15 @@
   background-color: var(--light-bg);
   min-height: 100vh;
   padding: 2rem;
-  display: block;     /* 👈 quitamos flex */
+  display: block;    
 }
 
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(500px, 1fr));
   gap: 2.5rem;
-  max-width: 1400px;  /* 👈 ancho máximo del bloque */
-  margin: 0 auto;     /* 👈 centra el grid horizontalmente */
+  max-width: 1400px;  
+  margin: 0 auto;     
   align-items: stretch;
 }
 
@@ -34,7 +34,7 @@
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  min-height: 360px;   /* 👆 más altura */
+  min-height: 360px;  
 }
 
 
