@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { Upload, ChevronDown, Calendar } from "lucide-react";
 
-import Sidebar from "../sidebar";
-
 const CampanaPromocional = () => {
   const [moveButton, setMoveButton] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -30,16 +28,6 @@ const CampanaPromocional = () => {
 
   return (
     <div style={styles.pageWrapper}>
-      {showSidebar && <Sidebar />}
-      <button
-        onClick={handleClick}
-        className={`btn_sidebar ${moveButton ? "left-[186px]" : "left-2"}`}
-      >
-        <span className="material-symbols-outlined text-[42px] text-white">
-          menu
-        </span>
-      </button>
-
       <div style={styles.container}>
         {/* Header */}
         <div style={styles.headerWrapper}>
