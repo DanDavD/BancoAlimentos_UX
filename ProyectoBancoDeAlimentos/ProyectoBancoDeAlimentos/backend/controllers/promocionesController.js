@@ -1,4 +1,4 @@
-const { promocion, Usuario, pedido, promocion_pedido, producto, estado_pedido } = require("../models");
+const { promocion, Usuario, pedido, promocion_pedido, producto, estado_pedido,factura } = require("../models");
 
 
 exports.listar = async (req, res) => {
@@ -47,61 +47,53 @@ exports.getpromocionbyusuario = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-exports.getDescuentosAplicadosPorUsuario = async (req, res) => {
+
+exports.getDescuentosPorUsuario = async (req, res) => {
   try {
     const { id_usuario } = req.params;
 
-    // Obtener los pedidos del usuario con sus detalles y promociones aplicadas
-    const pedidos = await pedido.findAll({
-      where: { id_usuario },
+    const descuentos = await pedido.findAll({
+      attributes: ['id_pedido', 'fecha_pedido'],
+      where: {
+        id_usuario: id_usuario
+      },
       include: [
         {
-          model: promocion_pedido,
-          include: [
-            {
-              model: promocion,
-              attributes: ['nombre_promocion', 'valor_fijo', 'valor_porcentaje']
-            },
-            {
-              model: producto,
-              attributes: ['nombre']
-            }
-          ],
-          attributes: ['id_promocion', 'id_pedido', 'monto_descuento']
+          model: promocion,
+          through: {
+            attributes: ['monto_descuento'], // Atributos de promocion_pedido
+            as: 'promocion_pedido'
+          },
+          attributes: ['nombre_promocion']
         },
         {
-          model: estado_pedido,
-          attributes: ['nombre_pedido']
+          model: factura,
+          attributes: ['id_factura']
+        },
+        {
+          model: Usuario,
+          attributes: ['nombre', 'apellido']
         }
       ],
       order: [['fecha_pedido', 'DESC']]
     });
 
-    if (!pedidos || pedidos.length === 0) {
-      return res.status(404).json({ message: "No hay pedidos para este usuario" });
+    if (descuentos.length === 0) {
+      return res.status(404).json({ message: "No hay descuentos aplicados para este usuario" });
+      
     }
 
     // Preparar la información para la vista
-    const descuentos = pedidos.flatMap((pedido) => {
-      return pedido.promocion_pedido.map((promo) => {
-        const monto = promo.promocion.valor_porcentaje
-          ? `${(promo.promocion.valor_porcentaje * 100).toFixed(2)}%`
-          : `L. ${parseFloat(promo.promocion.valor_fijo).toFixed(2)}`;
+    const descuentosInfo = descuentos.map(descuento => ({
+      fecha: descuento.pedido.fecha_pedido,
+      factura: descuento.pedido.factura.id_factura,
+      descuento: descuento.monto_descuento,
+      promocion: descuento.promocion.nombre_promocion
+    }));
 
-        return {
-          fecha: pedido.fecha_pedido,
-          producto: promo.producto.nombre,
-          categoria: promo.producto.subcategoria.nombre, // Asegurarse de que la subcategoria esté definida
-          estado: pedido.estado_pedido.nombre_pedido,
-          monto: monto
-        };
-      });
-    });
-
-    res.json(descuentos);
+    res.json(descuentosInfo);
   } catch (error) {
-    console.error('Error al obtener descuentos aplicados por usuario:', error);
-    res.status(500).json({ error: 'Error al obtener descuentos aplicados por usuario' });
+    console.error('Error al obtener descuentos por usuario:', error);
+    res.status(500).json({ error: 'Error al obtener descuentos por usuario' });
   }
 };
-

@@ -1,6 +1,8 @@
 // src/TestAuth.jsx
 import React, { useEffect, useState } from "react";
 import { getAllProducts } from "../api/InventarioApi";
+import {getPromocionById, getPromocionesByUsuario,getDescuentosAplicadosPorUsuario} from "../api"
+
 
 export default function TestAuth() {
   const [products, setProducts] = useState([]);

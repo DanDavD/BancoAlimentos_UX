@@ -5,6 +5,6 @@ const promocionesController = require('../controllers/promocionesController');
 router.get('/', promocionesController.listar);
 router.get('/:id', promocionesController.getpromocionById);
 router.get('/usuario/:id_usuario', promocionesController.getpromocionbyusuario);
-router.get('/descuentos/aplicados/:id_usuario', promocionesController.getDescuentosAplicadosPorUsuario);
+router.get('/descuentos/aplicados/:id_usuario', promocionesController.getDescuentosPorUsuario);
 
 module.exports = router;
