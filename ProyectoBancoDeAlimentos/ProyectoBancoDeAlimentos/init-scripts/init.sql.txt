@@ -49,7 +49,9 @@ ON CONFLICT DO NOTHING;
 INSERT INTO categoria (id_categoria, nombre, icono_categoria) VALUES
   (1,'Granos','coffee.png'),
   (2,'Lácteos','milk.png'),
-  (3,'Bebidas','juice.png')
+  (3,'Enlatados','lata.png'),
+  (4,'Bebidas','soda.png'),
+  (5,'Panaderia','bread.png'),
 ON CONFLICT DO NOTHING;
 
 INSERT INTO subcategoria (id_subcategoria, nombre, id_categoria_padre) VALUES
