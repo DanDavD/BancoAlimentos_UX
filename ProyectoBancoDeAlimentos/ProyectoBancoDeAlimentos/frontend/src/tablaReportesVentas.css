@@ -1,118 +1,118 @@
-
 .inventario-container {
-	padding: 2rem;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-    width: 100dvh;
+  padding: 0; /* Quita el padding en todos los lados */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  position: absolute;
 }
 
 .inventario-title {
-    border-bottom: #E95C1A 4px solid;
-	color: #E95C1A;
-	font-weight: bold;
-	font-size: 2.2rem;
-    margin-bottom: 1rem;
-	width: 100%;
+  border-bottom: #e95c1a 4px solid;
+  color: #e95c1a;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+  font-size: 24px;
+  width: 100%;
 }
-
 
 .inventario-filter {
-	background: #f9f9f9;
-	display: flex;
-	justify-content: flex-end;
-	margin-bottom: 1rem;
-	width: 100%;
+  background: #f9f9f9;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  width: 100%;
 }
-
-
 
 .inventario-table {
-	background: #ffffff;
-	width: 80vw;
-	max-width: 1200px;
-	min-width: 700px;
-	border-collapse: collapse;
-	border-radius: 8px;
-	overflow: hidden;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-	margin: 0 auto;
-	table-layout: fixed;
+  background: #ffffff;
+  width: 60vw;
+  min-width: 700px;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  table-layout: fixed;
 }
 
-
-.inventario-table th, .inventario-table td {
-	padding: 0.75rem;
-	text-align: center;
-	width: 5%;
-	word-break: break-word;
+.inventario-table th,
+.inventario-table td {
+  padding: 0.75rem;
+  text-align: center;
+  width: 5%;
+  word-break: break-word;
 }
-.inventario-table th:first-child, .inventario-table td:first-child {
-	width: 5%;
-	min-width: 60px;
-	max-width: 80px;
-	text-align: center;
+.inventario-table th:first-child,
+.inventario-table td:first-child {
+  width: 5%;
+  min-width: 60px;
+  max-width: 80px;
+  text-align: center;
 }
 
 .inventario-container .inventario-thead th {
-	background-color: #2B6DAF;
-	color: #fff;
+  background-color: #2b6daf;
+  color: #fff;
+  width: 120px;
+  text-align: center;
 }
 
 .inventario-table tbody tr {
-	border-bottom: 1px solid #eee;
-    width: 100%;
+  border-bottom: 1px solid #eee;
+  width: 100%;
 }
 
 .inventario-table tbody tr:last-child {
-	border-bottom: none;
+  border-bottom: none;
 }
 
 .inventario-table td {
-	background: #fff;
-    width: 100%;
+  background: #fff;
+  width: 100%;
 }
 
 .inventario-table-empty {
-	text-align: center;
-	padding: 2rem;
-	color: #888;
+  text-align: center;
+  padding: 2rem;
+  color: #888;
 }
 
 .inventario-pagination {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	margin-top: 1rem;
-    gap: 0.7rem;
-	width: 100%;
+  flex: auto;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  gap: 1.2rem;
+  width: auto;
 }
 
 .inventario-pagination-btn {
-	background: #fff;
-	border: 1px solid #1976d2;
-	border-radius: 50%;
-	width: 32px;
-	height: 32px;
-	margin: 0 8px;
-	cursor: pointer;
-	transition: background 0.2s;
+  background: #fff;
+  border: 1px solid #1976d2;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 0 8px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 .inventario-pagination-btn:hover {
-    background: #e3eafc;
+  background: #e3eafc;
 }
 .inventario-pagination-btn:disabled {
-	cursor: not-allowed;
-	opacity: 0.5;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 .inventario-pagination-btn:hover:not(:disabled) {
-	background: #e3eafc;
+  background: #e3eafc;
 }
 
 .inventario-pagination-page {
-	font-weight: bold;
-	color: #E95C1A;
-	margin: 0 8px;
+  font-weight: bold;
+  color: #e95c1a;
+  margin: 0 8px;
 }
 .mini-modal {
   position: fixed;
@@ -120,7 +120,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -131,7 +131,7 @@
   background: #fff;
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
   width: 300px;
   animation: fadeIn 0.3s ease;
@@ -188,10 +188,28 @@
 
 .inventario-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Centra los botones horizontalmente */
+  align-items: center;
   margin-bottom: 1rem;
+  padding-top: 80px;
+  width: 100%;
+  gap: 840px; /* Espacio entre los botones */
 }
 
+.Button-Back-Inventario {
+  width: auto;
+  margin-right: auto;
+  background-color: #e95c1a;
+  font-size: 20px;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  margin-bottom: 30px;
+}
 .inventario-export-btn {
   background-color: #2f8f2f;
   font-size: 20px;
@@ -205,26 +223,30 @@
 }
 
 .inventario-filter-btn {
-	background: #2B6DAF;
-	color: #fff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-	transition: background 0.2s;
-    margin-right: 44rem;
+  background: #2b6daf;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
 }
 .inventario-filter-btn:hover {
-	background: #125ea2;
+  background: #125ea2;
 }
 
 .inventario-export-btn:hover {
   background-color: #257a25;
 }
 
-
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

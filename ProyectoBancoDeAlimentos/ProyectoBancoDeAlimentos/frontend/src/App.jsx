@@ -37,8 +37,12 @@ import TablaVentas from "./tablaReportesVentas.jsx";
 import LayoutSidebar from "./layoutSidebar.jsx";
 import AsignarDescuentos from "./asignarDescuentos.jsx";
 import TablaPromociones from "./tablaReportesPromociones.jsx";
+<<<<<<< Updated upstream
 import TablaUsuarios from "./reporteUsuarios.jsx";
 import SistemaValoracion from "./SistemaValoracion.jsx";
+=======
+import PersonalizacionReportes from "./PersonalizacionReportes.jsx";
+>>>>>>> Stashed changes
 const HEADER_HEIGHT = 116; // px
 
 function App() {
@@ -49,11 +53,23 @@ function App() {
 
         <div style={{ marginTop: `${HEADER_HEIGHT}px` }}>
           <Routes>
+            <Route path="/tablaPromociones" element={<TablaPromociones />} />
+            <Route
+              path="/personalizacionReportes"
+              element={<PersonalizacionReportes />}
+            />
+
+            <Route path="*" element={<NotFoundpage />} />
+
             <Route path="/" element={<InicioUsuario />} />
             <Route path="/crear_cuenta" element={<Crear_cuenta />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot_password" element={<ForgotPassword />} />
-            <Route path="/cambiar_contraseña" element={<Cambiar_contraseña />} />
+            <Route
+              path="/cambiar_contraseña"
+              element={<Cambiar_contraseña />}
+            />
+
             <Route
               element={
                 <LayoutSidebar />
@@ -76,23 +92,38 @@ function App() {
             <Route path="/metodoPago" element={<MetodoPago />} />
             <Route path="/Prueba" element={<TestAuth />} />
             <Route path="/producto/:id" element={<AgregarCarrito />} />
-            <Route path="/compararProductos/:id1/:id2" element={<CompararProducto />} />
+            <Route
+              path="/compararProductos/:id1/:id2"
+              element={<CompararProducto />}
+            />
             <Route path="/historialPedidos" element={<HistorialPedido />} />
             <Route path="/misCupones" element={<MisCupones />} />
             <Route path="/verificar-codigo" element={<VerificarCodigo />} />
-            <Route path="/userManagementViews" element={<UserManagementViews />} />
+            <Route
+              path="/userManagementViews"
+              element={<UserManagementViews />}
+            />
             <Route path="/verificacion" element={<Verificacion />} />
-            <Route path="/campanaPromocional" element={<CampanaPromocional />} />
+            <Route
+              path="/campanaPromocional"
+              element={<CampanaPromocional />}
+            />
             <Route path="/carrito" element={<Carrito />} />
-            <Route path="/verificar-codigoAuth" element={<VerificarCodigoAuth />} />
+            <Route
+              path="/verificar-codigoAuth"
+              element={<VerificarCodigoAuth />}
+            />
             <Route path="/facturas" element={<Facturas />} />
             <Route path="/factura/:id" element={<DetalleFactura />} />
             <Route path="/tablaVentas" element={<TablaVentas />} />
+<<<<<<< Updated upstream
             <Route path="/tablaPromociones" element={<TablaPromociones />} />
             <Route path="/tablaUsuarios" element={<TablaUsuarios />} />
             <Route path="/sistemaValoracion" element={<SistemaValoracion />} />
 
             <Route path="*" element={<NotFoundpage />} />
+=======
+>>>>>>> Stashed changes
           </Routes>
         </div>
       </div>
