@@ -15,7 +15,7 @@
 
 .inventario-table {
   padding: 12px 14px;
-  width: 150%;
+  width: 100%;
   border-collapse: collapse;
   margin-bottom: 8px;
 }
@@ -39,7 +39,7 @@
 }
 
 .categoria-select-inline {
-  margin-left: 5px; /* un poco de espacio respecto a la flecha */
+  margin-left: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 2px 6px;
