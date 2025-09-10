@@ -10,6 +10,8 @@ import {
   EditProfile,
   changePassword,
   uploadProfilePhoto,
+  enviarCorreoDosPasos,
+  validarCodigoDosPasos,
 } from "./api/Usuario.Route";
 import axiosInstance from "./api/axiosInstance";
 
@@ -178,17 +180,41 @@ export default function MiPerfil() {
   }, [passwordError]);
 
   // FUNCIONES MODALES 2FA
-  const handleSendCode = () => {
-    setShowTwoFactorModal(false);
-    setShowTwoFactorCodeModal(true);
+  const handleSendCode = async () => {
+    if (!correo) return;
+    try {
+      await enviarCorreoDosPasos(correo);
+      alert("Se ha enviado el código a tu correo");
+      setShowTwoFactorModal(false);
+      setShowTwoFactorCodeModal(true);
+    } catch (err) {
+      console.error("Error enviando código:", err);
+      alert("No se pudo enviar el código. Intenta nuevamente.");
+    }
   };
 
-  const handleVerifyCode = () => {
-    console.log("Código ingresado:", twoFactorCode);
+  const handleVerifyCode = async () => {
+    if (!twoFactorCode) return alert("Ingresa el código recibido");
+    try {
+      const res = await validarCodigoDosPasos(correo, twoFactorCode);
+      console.log("Código verificado:", res.data);
+      alert("Autenticación de dos pasos activada correctamente");
+      setShowTwoFactorCodeModal(false);
+      setTwoFactorCode(""); // limpiar input
+    } catch (err) {
+      console.error("Error verificando código:", err);
+      alert("Código inválido o expirado. Intenta de nuevo.");
+    }
   };
 
-  const handleResendCode = () => {
-    console.log("Reenviar código");
+  const handleResendCode = async () => {
+    try {
+      await enviarCorreoDosPasos(correo);
+      alert("Se ha reenviado el código a tu correo");
+    } catch (err) {
+      console.error("Error reenviando código:", err);
+      alert("No se pudo reenviar el código. Intenta más tarde.");
+    }
   };
 
   return (
@@ -450,16 +476,6 @@ export default function MiPerfil() {
                     <img src="two-factor.png" alt="2FA" className="w-24 h-24" />
                   </div>
                   <div className="flex flex-col gap-3 mb-4">
-                    <label className="flex items-center gap-2 border border-[#2b6daf] p-2 rounded">
-                      <input
-                        type="radio"
-                        name="twofactor"
-                        className="accent-[#2b6daf] align-middle m-0"
-                      />
-                      <span className="align-middle">
-                        Enviar SMS al ****1234
-                      </span>
-                    </label>
                     <label className="flex items-center gap-2 border border-[#2b6daf] p-2 rounded">
                       <input
                         type="radio"

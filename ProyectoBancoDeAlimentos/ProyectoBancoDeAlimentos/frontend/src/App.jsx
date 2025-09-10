@@ -1,6 +1,7 @@
 // src/App.jsx
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 
 import Dashboard from "./dashboard.jsx";
 import Login from "./login.jsx";
@@ -43,6 +44,7 @@ import PersonalizacionReportes from "./PersonalizacionReportes.jsx";
 import DescuentosAplicados from "./descuentos_aplicados.jsx";
 import Categoria from "./categoria.jsx";
 import HistorialCompras from "./HistorialCompras.jsx";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const HEADER_HEIGHT = 60; // px
 
@@ -54,65 +56,151 @@ function App() {
 
         <div style={{ marginTop: `${HEADER_HEIGHT}px` }}>
           <Routes>
-            <Route path="/tablaPromociones" element={<TablaPromociones />} />
-            <Route
-              path="/personalizacionReportes"
-              element={<PersonalizacionReportes />}
-            />
-
-            <Route path="*" element={<NotFoundpage />} />
-
+            {/* ---------- PÚBLICAS ---------- */}
             <Route path="/" element={<InicioUsuario />} />
             <Route path="/crear_cuenta" element={<Crear_cuenta />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot_password" element={<ForgotPassword />} />
-            <Route path="/cambiar_contraseña" element={<Cambiar_contraseña />} />
+            <Route
+              path="/cambiar_contraseña"
+              element={<Cambiar_contraseña />}
+            />
+            <Route path="/verificar-codigo" element={<VerificarCodigo />} />
+            <Route
+              path="/verificar-codigoAuth"
+              element={<VerificarCodigoAuth />}
+            />
+            <Route path="/verificacion" element={<Verificacion />} />
+            <Route path="/producto/:id" element={<AgregarCarrito />} />
+            <Route
+              path="/compararProductos/:id1/:id2"
+              element={<CompararProducto />}
+            />
+            <Route path="/categoria/:id" element={<Categoria />} />
 
+            {/* ---------- CON SIDEBAR + PROTEGIDAS ---------- */}
             <Route
               element={
-                <LayoutSidebar />
-                //AQUI VAN TODAS LAS VISTAS QUE TIENEN SIDEBAR
+                <ProtectedRoute rolesPermitidos={["administrador"]}>
+                  <LayoutSidebar />
+                </ProtectedRoute>
               }
             >
-              <Route path="/inventario" element={<Inventario />} />
-              <Route path="/EditarPerfilAdmin" element={<EditarPerfilAdmin />} />
-              <Route path="/asignarDescuento" element={<AsignarDescuentos />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/inventario" element={<Inventario />} />
               <Route path="/gestionProductos" element={<GestionProductos />} />
               <Route path="/tablaPromociones" element={<TablaPromociones />} />
+              <Route
+                path="/personalizacionReportes"
+                element={<PersonalizacionReportes />}
+              />
+              <Route
+                path="/EditarPerfilAdmin"
+                element={<EditarPerfilAdmin />}
+              />
+              <Route path="/asignarDescuento" element={<AsignarDescuentos />} />
+              <Route
+                path="/userManagementViews"
+                element={<UserManagementViews />}
+              />
+              <Route
+                path="/campanaPromocional"
+                element={<CampanaPromocional />}
+              />
+              <Route path="/tablaUsuarios" element={<TablaUsuarios />} />
+              <Route path="/tablaVentas" element={<TablaVentas />} />
+              <Route path="/facturas" element={<Facturas />} />
+              <Route path="/factura/:id" element={<DetalleFactura />} />
+              <Route
+                path="/descuentos_aplicados"
+                element={<DescuentosAplicados />}
+              />
+              <Route
+                path="/sistemaValoracion"
+                element={<SistemaValoracion />}
+              />
             </Route>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/gestionProductos" element={<GestionProductos />} />
+
+            {/* ---------- CLIENTE LOGUEADO ---------- */}
+            <Route
+              path="/miPerfil"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <MiPerfil />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/misPedidos"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <MisPedidos />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pedidoEmergente"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <PedidoEmergente />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/misDirecciones"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <MisDirecciones />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/metodoPago"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <MetodoPago />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/historialPedidos"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <HistorialPedido />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/misCupones"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <MisCupones />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/carrito"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <Carrito />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/historialCompras"
+              element={
+                <ProtectedRoute rolesPermitidos={["cliente"]}>
+                  <HistorialCompras />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ---------- OTROS ---------- */}
             <Route path="/inicio" element={<InicioAdmin />} />
-
-            <Route path="/miPerfil" element={<MiPerfil />} />
-            <Route path="/misPedidos" element={<MisPedidos />} />
-            <Route path="/pedidoEmergente" element={<PedidoEmergente />} />
-            <Route path="/misDirecciones" element={<MisDirecciones />} />
-            <Route path="/metodoPago" element={<MetodoPago />} />
             <Route path="/Prueba" element={<TestAuth />} />
-            <Route path="/producto/:id" element={<AgregarCarrito />} />
-            <Route path="/compararProductos/:id1/:id2" element={<CompararProducto />} />
-            <Route path="/historialPedidos" element={<HistorialPedido />} />
-            <Route path="/misCupones" element={<MisCupones />} />
-            <Route path="/verificar-codigo" element={<VerificarCodigo />} />
-            <Route path="/userManagementViews" element={<UserManagementViews />} />
-            <Route path="/verificacion" element={<Verificacion />} />
-            <Route path="/campanaPromocional" element={<CampanaPromocional />} />
-            <Route path="/carrito" element={<Carrito />} />
-            <Route path="/verificar-codigoAuth" element={<VerificarCodigoAuth />} />
-            <Route path="/facturas" element={<Facturas />} />
-            <Route path="/factura/:id" element={<DetalleFactura />} />
-            <Route path="/tablaVentas" element={<TablaVentas />} />
-            <Route path="/tablaPromociones" element={<TablaPromociones />} />
-            <Route path="/tablaUsuarios" element={<TablaUsuarios />} />
-            <Route path="/sistemaValoracion" element={<SistemaValoracion />} />
-            <Route path="/personalizacionReportes" element={<PersonalizacionReportes />} />
-            <Route path="/descuentos_aplicados" element={<DescuentosAplicados />} />
 
+            {/* ---------- NOT FOUND ---------- */}
             <Route path="*" element={<NotFoundpage />} />
-            <Route path="/categoria/:id" element={<Categoria />} />
-            <Route path="/historialCompras" element={<HistorialCompras />} />
           </Routes>
         </div>
       </div>
