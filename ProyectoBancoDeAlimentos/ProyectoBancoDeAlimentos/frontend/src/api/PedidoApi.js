@@ -13,8 +13,7 @@ export function crearPedido(
   direccion_envio,
   id_sucursal,
   id_cupon,
-  descuento,
-  total
+  descuento
 ) {
   return axiosInstance.post("/api/pedidos/crear-pedido/", {
     id_usuario,
@@ -22,7 +21,6 @@ export function crearPedido(
     id_sucursal,
     id_cupon,
     descuento,
-    total,
   });
 }
 

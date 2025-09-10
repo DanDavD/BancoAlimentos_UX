@@ -106,9 +106,9 @@ function Carrito() {
   const realizarCompra = async () => {
     try {
       const total_factura = obtenerTotal();
-      let descuento = 0;
+      let desc = 0;
       if (!(descCupon === 1)) {
-        descuento = parseFloat(((descCupon / 100) * total).toFixed(2));
+        desc = parseFloat(((descCupon / 100) * total).toFixed(2));
       }
 
       console.log(user.id_usuario);
@@ -116,15 +116,14 @@ function Carrito() {
       const id_direccion = user.direccions[0].id_direccion.toString();
       //console.log(id_sucursal)
       console.log(cupon);
-      console.log(descuento);
+      console.log(desc);
       console.log(total_factura);
       const response = await crearPedido(
-        user.id_usuario,
-        id_direccion,
-        1,
-        1,
-        descuento,
-        total_factura
+        user.id_usuario, // int
+        id_direccion, // string (o int si cambias el modelo)
+        1, // id_sucursal
+        null, // id_cupon
+        desc // descuento
       );
 
       console.log("Pedido creado:", response.data);

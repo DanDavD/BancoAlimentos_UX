@@ -125,16 +125,12 @@ exports.getHistorialComprasProductos = async (req, res) => {
 };
 
 exports.crearPedido = async (req, res) => {
+  console.log("BODY:", req.body);
+
   const t = await pedido.sequelize.transaction(); //iniciar transaccion
   try {
-    const {
-      id_usuario,
-      direccion_envio,
-      id_sucursal,
-      id_cupon,
-      descuento,
-      total,
-    } = req.body;
+    const { id_usuario, direccion_envio, id_sucursal, id_cupon, descuento } =
+      req.body;
 
     //obtener carrito
     const cart = await carrito.findOne({
@@ -180,11 +176,14 @@ exports.crearPedido = async (req, res) => {
         item.cantidad_unidad_medida * item.producto.precio_base,
     }));
     //crear factura
+    const totalFactura =
+      detalles.reduce((sum, item) => sum + item.subtotal_producto, 0) -
+      (descuento || 0);
     const nuevaFactura = await factura.create(
       {
         id_pedido: nuevoPedido.id_pedido,
         fecha_emision: new Date(),
-        total,
+        total: totalFactura,
       },
       { transaction: t }
     );
@@ -205,12 +204,12 @@ exports.crearPedido = async (req, res) => {
     res.json({
       message: "Pedido creado correctamente!",
       id_pedido: nuevoPedido.id_pedido,
-      total: total,
+      total: totalFactura,
     });
   } catch (error) {
     await t.rollback();
     console.error("Error al crear pedido:", error);
-    res.status(500).json({ error: "Error al crear pedido" });
+    res.status(500).json({ error: error.message, stack: error.stack });
   }
 };
 
