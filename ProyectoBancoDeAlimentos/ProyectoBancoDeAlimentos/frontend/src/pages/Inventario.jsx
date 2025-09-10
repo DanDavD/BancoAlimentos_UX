@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Sidebar from "../sidebar";
-
+import axiosInstance from "../api/axiosInstance";
 import {
   getAllProducts,
   getAllSucursales,
@@ -12,6 +12,7 @@ import {
   desactivarProducto,
   crearProducto,
   getMarcas,
+  listarProductosporsucursal,
 } from "../api/InventarioApi";
 import { ListarCategoria } from "../api/CategoriaApi";
 import { listarSubcategoria } from "../api/SubcategoriaApi";
@@ -40,8 +41,21 @@ function emptyDraft() {
     activo: true,
     imagePreviews: [],
     imageFiles: [],
+
+    descuentoGeneral: false,
+    tipoDescuento: "", // "porcentaje" | "monto"
+    valorDescuento: "",
+    fechaDesde: "", // "YYYY-MM-DD"
+    fechaHasta: "",
+    preciosEscalonados: false,
+    escalones: [],
   };
 }
+
+const DISCOUNT_TYPES = [
+  { id: "PORCENTAJE", label: "% Porcentaje" },
+  { id: "FIJO", label: "Monto fijo" },
+];
 
 const Icon = {
   Search: (props) => (
@@ -203,6 +217,14 @@ export default function Inventario() {
   const [subcategorias, setSubcategorias] = useState([]);
   const [selectedCategoria, setSelectedCategoria] = useState("");
 
+  // Filtro por sucursal
+  const [selectedSucursalId, setSelectedSucursalId] = useState("");
+  const [sucursalMenuOpen, setSucursalMenuOpen] = useState(false);
+  const sucursalMenuRef = useRef(null);
+  const [selectedSucursalName, setSelectedSucursalName] = useState("");
+  //const sucMenuRef = useRef(null);
+  const [showSucursalPicker, setShowSucursalPicker] = useState(false);
+
   // Abastecer
   const [savingSupply, setSavingSupply] = useState(false);
   const [supplyModal, setSupplyModal] = useState({
@@ -289,9 +311,24 @@ export default function Inventario() {
     };
   }, []);
 
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (
+        sucursalMenuOpen &&
+        sucursalMenuRef.current &&
+        !sucursalMenuRef.current.contains(e.target)
+      ) {
+        setSucursalMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [sucursalMenuOpen]);
+
   // ===== DERIVADOS =====
   const filtered = useMemo(() => {
-    const f = (t) => t.toString().toLowerCase();
+    const f = (t) =>
+      (t === null || t === undefined ? "" : String(t)).toLowerCase();
     return rows.filter(
       (r) =>
         f(r.id).includes(f(filters.id)) &&
@@ -325,6 +362,130 @@ export default function Inventario() {
 
   // ===== HELPERS =====
 
+  async function loadProductsBySucursal(sucursalId = "") {
+    try {
+      setLoading(true);
+
+      const useAll = !sucursalId;
+      const res = useAll
+        ? await getAllProducts()
+        : await listarProductosporsucursal(sucursalId);
+
+      const raw = pickArrayPayload(res, [
+        "productos",
+        "data",
+        "results",
+        "items",
+      ]);
+      // 👇 pasa el flag para que el mapper lea el campo de stock correcto
+      const mapped = raw.map((x) =>
+        mapApiProduct(x, { fromSucursal: !useAll })
+      );
+
+      setRows(mapped);
+      setPage(1);
+      // Limpia filtros de texto para no ocultar nada por accidente
+      setFilters({
+        id: "",
+        producto: "",
+        marca: "",
+        categoria: "",
+        subcategoria: "",
+      });
+    } catch (e) {
+      console.error("Error cargando productos por sucursal:", e);
+      alert("No se pudo cargar productos. Revisa la conexión.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Usa este helper para cargar según la sucursal seleccionada
+  async function handleSelectSucursal(id) {
+    try {
+      setSelectedSucursalId(id || "");
+      setLoading(true);
+
+      // Elegimos endpoint
+      const useAll = !id;
+      console.log(
+        "➡️  Endpoint usado:",
+        useAll ? "/api/Inventario/" : `/api/producto/sucursal/${id}`
+      );
+
+      const res = useAll
+        ? await getAllProducts()
+        : await listarProductosporsucursal(id);
+
+      // Normaliza el payload
+      const raw = pickArrayPayload(res, [
+        "productos",
+        "data",
+        "results",
+        "items",
+      ]);
+      console.log("RAW sucursal:", raw);
+      const mapped = raw.map(mapApiProduct);
+      console.log("mapped length:", mapped.length);
+
+      // 🚀 Actualiza la tabla y RESETEA PAGINACIÓN
+      setRows(mapped);
+      setPage(1); // <<<<<< CLAVE: evita que la tabla quede vacía
+      // (opcional) limpia filtros de texto si quieres evitar que “coman” resultados
+      // setFilters({ id:"", producto:"", marca:"", categoria:"", subcategoria:"" });
+    } catch (e) {
+      console.error(e);
+      alert("No se pudo cargar productos para la sucursal seleccionada.");
+    } finally {
+      setLoading(false);
+      setShowSucursalPicker(false);
+    }
+  }
+
+  async function refreshProductsBySucursal(sucursalId = "") {
+    setLoading(true);
+    try {
+      const res = sucursalId
+        ? await listarProductosporsucursal(Number(sucursalId))
+        : await getAllProducts();
+      console.log(
+        "➡️ Endpoint usado:",
+        sucursalId
+          ? `/api/producto/sucursal/${Number(sucursalId)}`
+          : "/api/Inventario/"
+      );
+      console.log("RAW sucursal:", res?.data);
+
+      const productsRaw = pickArrayPayload(res, [
+        "productos",
+        "data",
+        "results",
+        "items",
+        "rows",
+        "content",
+      ]);
+      const mapped = (productsRaw || []).map(mapApiProduct);
+      console.log("mapped length:", mapped.length);
+      setRows(mapped);
+      setPage(1); // vuelve a la primera página al filtrar
+    } catch (e) {
+      console.error("Error cargando productos:", e);
+      alert(
+        "No se pudo cargar productos. Verifica la conexión o la URL del API."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Cuando seleccionas en el menú de sucursal
+  function handleSucursalPick(id, nombre) {
+    setSelectedSucursalId(id);
+    setSelectedSucursalName(nombre);
+    setSucursalMenuOpen(false);
+    refreshProductsBySucursal(id);
+  }
+
   // Devuelve el .nombre del item cuyo .id coincide (o undefined)
   function nameById(list, maybeId) {
     if (maybeId === undefined || maybeId === null || maybeId === "")
@@ -332,22 +493,68 @@ export default function Inventario() {
     return list.find((x) => String(x.id) === String(maybeId))?.nombre;
   }
 
-  function mapApiProduct(p) {
-    const activo = p.activo ?? p.is_active ?? p.enabled ?? p.estado ?? true;
+  // 👇 acepta un flag fromSucursal para mapear el stock correcto
+  function mapApiProduct(p, { fromSucursal = false } = {}) {
+    // Muchos endpoints de sucursal devuelven { producto: {...}, stock: N }
+    const prod = p.producto ?? p.Producto ?? p.item ?? p;
+
+    const activo =
+      prod.activo ?? prod.is_active ?? prod.enabled ?? prod.estado ?? true;
+
+    // ids para selects
+    const marcaId = prod.id_marca ?? prod.marca?.id ?? prod.marca_id ?? "";
+    const categoriaId =
+      prod.id_categoria ?? prod.categoria?.id ?? prod.categoria_id ?? "";
+    const subcatId =
+      prod.id_subcategoria ??
+      prod.subcategoria?.id ??
+      prod.subcategoria_id ??
+      "";
+
+    // 🔥 stock: si viene de sucursal, prioriza campos típicos de stock-por-sucursal,
+    // si no, toma los del total del producto.
+    let stock = 0;
+    if (fromSucursal) {
+      stock = Number(
+        // campos típicos en respuestas por sucursal:
+        p.stock_sucursal ??
+          p.stockSucursal ??
+          p.sucursal_stock ??
+          p.cantidad ??
+          p.cantidad_stock ??
+          p.existencias ??
+          p.stock ?? // a veces ya se llama "stock"
+          prod.stock_sucursal ??
+          prod.stockSucursal ??
+          0
+      );
+    } else {
+      stock = Number(
+        prod.stock_total ?? prod.stock ?? prod.existencia ?? prod.stockKg ?? 0
+      );
+    }
+
     return {
-      id: String(p.id ?? p.id_producto ?? p.producto_id ?? ""),
-      producto: p.producto ?? p.nombre ?? "",
-      marca: p.marca?.nombre ?? p.marca ?? "",
-      categoria: p.categoria?.nombre ?? p.categoria ?? "",
-      subcategoria: p.subcategoria?.nombre ?? p.subcategoria ?? "",
-      stockKg: Number(
-        p.stockKg ?? p.stock_total ?? p.stock ?? p.existencia ?? 0
-      ),
-      precioBase: Number(p.precioBase ?? p.precio_base ?? 0),
-      precioVenta: Number(p.precioVenta ?? p.precio_venta ?? 0),
+      id: String(prod.id ?? prod.id_producto ?? prod.producto_id ?? ""),
+      producto: prod.producto ?? prod.nombre ?? "",
+
+      // nombres para la tabla
+      marca: prod.marca?.nombre ?? prod.marca ?? "",
+      categoria: prod.categoria?.nombre ?? prod.categoria ?? "",
+      subcategoria: prod.subcategoria?.nombre ?? prod.subcategoria ?? "",
+
+      // ids para selects
+      marcaId: String(marcaId || ""),
+      categoriaId: String(categoriaId || ""),
+      subcategoriaId: String(subcatId || ""),
+
+      stockKg: stock,
+      precioBase: Number(prod.precioBase ?? prod.precio_base ?? 0),
+      precioVenta: Number(prod.precioVenta ?? prod.precio_venta ?? 0),
       activo,
     };
   }
+
   function pickArrayPayload(
     res,
     keys = ["sucursales", "results", "data", "items", "content", "rows"]
@@ -403,15 +610,40 @@ export default function Inventario() {
     }
     return { id: String(idVal), nombre: nom };
   }
-  function mapApiImagen(i) {
-    return (
-      i?.url ??
-      i?.imagen_url ??
-      i?.src ??
-      i?.path ??
-      (typeof i === "string" ? i : "")
-    );
+
+  function toAbsoluteUrl(u) {
+    if (!u) return "";
+    // ¿ya es absoluta?
+    if (/^https?:\/\//i.test(u)) return u;
+    // base del backend (usa la de axios si existe, o el origen actual)
+    const base =
+      (typeof axiosInstance !== "undefined" &&
+        axiosInstance?.defaults?.baseURL) ||
+      window.location.origin;
+    const b = String(base).replace(/\/$/, "");
+    if (u.startsWith("/")) return b + u;
+    return `${b}/${u}`;
   }
+
+  function mapApiImagen(i) {
+    if (!i) return "";
+    if (typeof i === "string") return toAbsoluteUrl(i.trim());
+
+    const raw =
+      i.url_imagen || // 👈 ESTE es el que devuelve tu API
+      i.imagen_url ||
+      i.image_url ||
+      i.url ||
+      i.src ||
+      i.path ||
+      i.ruta ||
+      i.link ||
+      i.ubicacion ||
+      "";
+
+    return toAbsoluteUrl(String(raw).trim());
+  }
+
   function toggleSort(key) {
     setSort((s) =>
       s.key === key
@@ -444,6 +676,32 @@ export default function Inventario() {
       console.error("Error cargando subcategorías", err);
       alert("No se pudo cargar las subcategorías.");
     }
+  }
+
+  function addEscalon() {
+    setModal((m) => ({
+      ...m,
+      draft: {
+        ...m.draft,
+        escalones: [...(m.draft.escalones || []), { cantidad: "", precio: "" }],
+      },
+    }));
+  }
+
+  function updateEscalon(index, key, value) {
+    setModal((m) => {
+      const next = [...(m.draft.escalones || [])];
+      next[index] = { ...next[index], [key]: value };
+      return { ...m, draft: { ...m.draft, escalones: next } };
+    });
+  }
+
+  function removeEscalon(index) {
+    setModal((m) => {
+      const next = [...(m.draft.escalones || [])];
+      next.splice(index, 1);
+      return { ...m, draft: { ...m.draft, escalones: next } };
+    });
   }
 
   // === IMÁGENES ===
@@ -590,6 +848,7 @@ export default function Inventario() {
         );
       } else {
         // CREAR producto
+        const etiquetas = ["Nuevo"];
         await crearProducto(
           d.producto,
           d.descripcion ?? "",
@@ -664,11 +923,22 @@ export default function Inventario() {
     });
     try {
       const res = await getImagenesProducto(productToSupply.id);
-      const imgsRaw = (res?.data ?? res) || [];
-      const imgs = imgsRaw.map(mapApiImagen).filter(Boolean);
+      // extrae el array aunque venga anidado
+      const imgsRaw = pickArrayPayload(res, [
+        "imagenes",
+        "images",
+        "fotos",
+        "data",
+        "items",
+        "results",
+      ]);
+      const imgs = (imgsRaw || []).map(mapApiImagen).filter(Boolean);
+
+      // si no hay imágenes del backend, deja vacío (o pon un placeholder si quieres)
       setSupplyModal((m) => ({ ...m, images: imgs }));
     } catch (e) {
       console.warn("No se pudieron cargar imágenes del producto", e);
+      setSupplyModal((m) => ({ ...m, images: [] }));
     }
   }
   function closeSupply() {
@@ -710,19 +980,7 @@ export default function Inventario() {
 
   /* ===================== UI ===================== */
   return (
-    <div
-      className="w-screen px-4 bg-[#f9fafb]"
-      style={{
-        position: "absolute",
-        top: "145px",
-        left: 0,
-        right: 0,
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
+    <div className="w-full px-4 bg-[#f9fafb]">
       {/* Sidebar */}
       {showSidebar && <Sidebar />}
       <button
@@ -750,6 +1008,46 @@ export default function Inventario() {
           </button>
         </div>
         <div className="h-1 w-full rounded-md bg-[#f0833e] mt-2" />
+
+        {/* Barra de acciones encima de la tabla */}
+        <div className="mt-3 flex items-center justify-end">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowSucursalPicker((s) => !s)}
+              className="px-3 py-2 rounded-xl border border-[#d8dadc] bg-gray-100 hover:bg-gray-200 text-gray-700"
+              title="Filtrar stock por sucursal"
+            >
+              Stock por sucursal
+            </button>
+
+            {showSucursalPicker && (
+              <div className="absolute right-0 mt-2 w-64 rounded-xl border border-[#d8dadc] bg-white shadow-lg p-3 z-20">
+                <label className="text-sm text-gray-700 block mb-1">
+                  Sucursal
+                </label>
+                <select
+                  className="w-full px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
+                  style={{ outlineColor: "#2ca9e3" }}
+                  value={selectedSucursalId}
+                  onChange={async (e) => {
+                    const id = e.target.value;
+                    setSelectedSucursalId(id);
+                    await loadProductsBySucursal(id); // 🔥 carga según selección
+                    setShowSucursalPicker(false);
+                  }}
+                >
+                  <option value="">Todas las sucursales</option>
+                  {sucursales.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="mt-4 overflow-hidden rounded-2xl shadow-sm border border-[#d8dadc] bg-white">
           <div className="overflow-x-auto">
@@ -1023,14 +1321,6 @@ export default function Inventario() {
 
           {/* Campos */}
           <Input
-            label="ID"
-            value={modal.draft.id}
-            onChange={(v) =>
-              setModal((m) => ({ ...m, draft: { ...m.draft, id: v } }))
-            }
-            disabled={isEdit} /* no editable en editar */
-          />
-          <Input
             label="Producto"
             value={modal.draft.producto}
             onChange={(v) =>
@@ -1154,16 +1444,6 @@ export default function Inventario() {
               </svg>
             </div>
           </label>
-
-          <Input
-            type="number"
-            label="Stock (kg)"
-            value={modal.draft.stockKg}
-            onChange={(v) =>
-              setModal((m) => ({ ...m, draft: { ...m.draft, stockKg: v } }))
-            }
-            disabled={isEdit} /* no editable en editar */
-          />
           <Input
             type="number"
             label="Precio Base (L.)"
@@ -1172,26 +1452,6 @@ export default function Inventario() {
               setModal((m) => ({ ...m, draft: { ...m.draft, precioBase: v } }))
             }
           />
-          <Input
-            type="number"
-            label="Precio Venta (L.)"
-            value={modal.draft.precioVenta}
-            onChange={(v) =>
-              setModal((m) => ({ ...m, draft: { ...m.draft, precioVenta: v } }))
-            }
-          />
-          <Input
-            type="number"
-            label="Porcentaje de ganancia"
-            value={modal.draft.porcentajeGanancia || ""}
-            onChange={(v) =>
-              setModal((m) => ({
-                ...m,
-                draft: { ...m.draft, porcentajeGanancia: v },
-              }))
-            }
-          />
-
           <Input
             label="Unidad de Medida"
             value={modal.draft.unidadMedida}
@@ -1202,31 +1462,28 @@ export default function Inventario() {
               }))
             }
           />
-
-          <label className="flex flex-col gap-1">
-            <span className="text-sm text-gray-700">
-              Etiquetas (separadas por coma)
-            </span>
-            <input
-              list="etiquetas_sugeridas"
-              className="px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
-              style={{ outlineColor: "#2ca9e3" }}
-              value={modal.draft.etiquetasText || ""}
-              onChange={(e) =>
-                setModal((m) => ({
-                  ...m,
-                  draft: { ...m.draft, etiquetasText: e.target.value },
-                }))
-              }
-              placeholder="Escribe o elige…"
-            />
-            <datalist id="etiquetas_sugeridas">
-              <option value="Nuevo" />
-              <option value="En oferta" />
-              <option value="Popular" />
-              <option value="Destacado" />
-            </datalist>
-          </label>
+          {isEdit && (
+            <label className="flex flex-col gap-1">
+              <span className="text-sm text-gray-700">Etiqueta</span>
+              <input
+                list="etiquetas_sugeridas"
+                className="px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
+                style={{ outlineColor: "#2ca9e3" }}
+                value={modal.draft.etiquetasText || ""}
+                onChange={(e) =>
+                  setModal((m) => ({
+                    ...m,
+                    draft: { ...m.draft, etiquetasText: e.target.value },
+                  }))
+                }
+                placeholder="Escribe o elige…"
+              />
+              <datalist id="etiquetas_sugeridas">
+                <option value="Nuevo" />
+                <option value="En oferta" />
+              </datalist>
+            </label>
+          )}
 
           <label className="col-span-2 inline-flex items-center gap-2">
             <input
@@ -1242,6 +1499,215 @@ export default function Inventario() {
             />
             <span className="text-sm text-gray-700">Activo</span>
           </label>
+
+          {/* ===== Descuentos (solo en EDITAR) ===== */}
+          {/* ==================== DESCUENTOS / ESCALONADOS ==================== */}
+          {/* Toggle (mutuamente excluyentes) */}
+          <div className="col-span-2 border-t mt-4 pt-4">
+            <div className="flex items-center gap-10">
+              <label className="inline-flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 accent-[#2b6daf]"
+                  checked={!!modal.draft.descuentoGeneral}
+                  onChange={(e) =>
+                    setModal((m) => ({
+                      ...m,
+                      draft: {
+                        ...m.draft,
+                        descuentoGeneral: e.target.checked,
+                        // si activo descuento general, apago escalonados
+                        preciosEscalonados: e.target.checked
+                          ? false
+                          : m.draft.preciosEscalonados,
+                      },
+                    }))
+                  }
+                />
+                <span className="text-sm text-gray-700">Descuento general</span>
+              </label>
+
+              <label className="inline-flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 accent-[#2b6daf]"
+                  checked={!!modal.draft.preciosEscalonados}
+                  onChange={(e) =>
+                    setModal((m) => ({
+                      ...m,
+                      draft: {
+                        ...m.draft,
+                        preciosEscalonados: e.target.checked,
+                        // si activo escalonados, apago descuento general
+                        descuentoGeneral: e.target.checked
+                          ? false
+                          : m.draft.descuentoGeneral,
+                      },
+                    }))
+                  }
+                />
+                <span className="text-sm text-gray-700">
+                  Precios escalonados
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* --------- Sección: Descuento general --------- */}
+          {modal.draft.descuentoGeneral && (
+            <div className="col-span-2 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Tipo de descuento */}
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm text-gray-700">
+                    Tipo de descuento
+                  </span>
+                  <div className="relative">
+                    <select
+                      className="w-full px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2 appearance-none pr-10"
+                      style={{ outlineColor: "#2ca9e3" }}
+                      value={modal.draft.descuentoTipo}
+                      onChange={(e) =>
+                        setModal((m) => ({
+                          ...m,
+                          draft: { ...m.draft, descuentoTipo: e.target.value },
+                        }))
+                      }
+                    >
+                      <option value="">Selecciona...</option>
+                      {DISCOUNT_TYPES.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.label}
+                        </option>
+                      ))}
+                    </select>
+                    <svg
+                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M7 10l5 5 5-5" fill="currentColor" />
+                    </svg>
+                  </div>
+                </label>
+
+                {/* Valor */}
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm text-gray-700">Valor</span>
+                  <input
+                    type="number"
+                    className="px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
+                    style={{ outlineColor: "#2ca9e3" }}
+                    value={modal.draft.descuentoValor}
+                    onChange={(e) =>
+                      setModal((m) => ({
+                        ...m,
+                        draft: { ...m.draft, descuentoValor: e.target.value },
+                      }))
+                    }
+                    placeholder="Ej: 10 (o 150)"
+                  />
+                </label>
+
+                {/* Válido desde */}
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm text-gray-700">Válido desde</span>
+                  <input
+                    type="date"
+                    className="px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
+                    style={{ outlineColor: "#2ca9e3" }}
+                    value={modal.draft.descuentoDesde}
+                    onChange={(e) =>
+                      setModal((m) => ({
+                        ...m,
+                        draft: { ...m.draft, descuentoDesde: e.target.value },
+                      }))
+                    }
+                  />
+                </label>
+
+                {/* Hasta */}
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm text-gray-700">Hasta</span>
+                  <input
+                    type="date"
+                    className="px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
+                    style={{ outlineColor: "#2ca9e3" }}
+                    value={modal.draft.descuentoHasta}
+                    onChange={(e) =>
+                      setModal((m) => ({
+                        ...m,
+                        draft: { ...m.draft, descuentoHasta: e.target.value },
+                      }))
+                    }
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* --------- Sección: Precios escalonados --------- */}
+          {modal.draft.preciosEscalonados && (
+            <div className="col-span-2 mt-4">
+              {/* cabecera */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">Cantidad</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">Precio</span>
+                </div>
+              </div>
+
+              {/* filas */}
+              <div className="mt-2 space-y-2">
+                {(modal.draft.escalones || []).map((row, i) => (
+                  <div key={i} className="grid grid-cols-2 gap-4">
+                    <input
+                      type="number"
+                      className="px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
+                      style={{ outlineColor: "#2ca9e3" }}
+                      placeholder="Ej: 3"
+                      value={row.cantidad}
+                      onChange={(e) =>
+                        updateEscalon(i, "cantidad", e.target.value)
+                      }
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        className="flex-1 px-3 py-2 rounded-xl border border-[#d8dadc] focus:outline-none focus:ring-2"
+                        style={{ outlineColor: "#2ca9e3" }}
+                        placeholder="Ej: 100"
+                        value={row.precio}
+                        onChange={(e) =>
+                          updateEscalon(i, "precio", e.target.value)
+                        }
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeEscalon(i)}
+                        className="px-3 rounded-xl border border-[#d8dadc] hover:bg-red-50"
+                        title="Eliminar fila"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* botón agregar */}
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={addEscalon}
+                  className="px-3 py-2 rounded-xl border border-[#d8dadc] hover:bg-gray-50 text-sm"
+                >
+                  + Agregar
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="p-5 pt-0 flex items-center justify-end gap-2 sticky bottom-0 bg-white">
@@ -1273,6 +1739,16 @@ export default function Inventario() {
           style={{ backgroundColor: "#2b6daf" }}
         >
           <h3 className="text-white font-medium">Abastecer producto</h3>
+        </div>
+        {/* Galería de imágenes del producto */}
+        <div className="col-span-2">
+          {supplyModal.images && supplyModal.images.length > 0 ? (
+            <ImageCarousel images={supplyModal.images} />
+          ) : (
+            <div className="w-full border border-dashed border-[#d8dadc] rounded-xl p-6 text-center text-gray-500">
+              Sin imágenes para este producto
+            </div>
+          )}
         </div>
 
         <div className="px-5 pb-5 grid grid-cols-2 gap-4">
@@ -1378,6 +1854,86 @@ export default function Inventario() {
 }
 
 /* ---------------- Subcomponentes ---------------- */
+function ImageCarousel({ images = [] }) {
+  const [idx, setIdx] = React.useState(0);
+  const safe = (images || []).filter(Boolean);
+  if (safe.length === 0) return null;
+
+  const prev = () => setIdx((i) => (i - 1 + safe.length) % safe.length);
+  const next = () => setIdx((i) => (i + 1) % safe.length);
+
+  return (
+    <div className="w-full">
+      <div className="relative rounded-2xl border border-dashed border-[#d8dadc] p-3">
+        <img
+          src={safe[idx]}
+          alt={`img-${idx + 1}`}
+          className="w-full h-56 md:h-64 object-contain rounded-xl"
+        />
+
+        {/* Flechas */}
+        <button
+          type="button"
+          onClick={prev}
+          className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 border border-[#d8dadc] shadow flex items-center justify-center"
+          title="Anterior"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-700">
+            <path
+              d="M15 6l-6 6 6 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={next}
+          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 border border-[#d8dadc] shadow flex items-center justify-center"
+          title="Siguiente"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-700">
+            <path
+              d="M9 6l6 6-6 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Miniaturas */}
+      {safe.length > 1 && (
+        <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
+          {safe.map((src, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setIdx(i)}
+              className={`rounded-lg border ${
+                i === idx
+                  ? "ring-2 ring-[#2b6daf] border-[#2b6daf]"
+                  : "border-[#d8dadc]"
+              }`}
+              title={`Imagen ${i + 1}`}
+            >
+              <img
+                src={src}
+                alt={`thumb-${i + 1}`}
+                className="w-16 h-12 object-cover rounded-md"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Th({ label, className = "", sortKey, sort, onSort }) {
   const active = sort.key === sortKey;
   return (

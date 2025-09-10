@@ -40,6 +40,7 @@ import TablaPromociones from "./tablaReportesPromociones.jsx";
 import TablaUsuarios from "./reporteUsuarios.jsx";
 import SistemaValoracion from "./SistemaValoracion.jsx";
 import PersonalizacionReportes from "./PersonalizacionReportes.jsx";
+import DescuentosAplicados from "./descuentos_aplicados.jsx";
 const HEADER_HEIGHT = 116; // px
 
 function App() {
@@ -119,6 +120,10 @@ function App() {
             <Route
               path="/personalizacionReportes"
               element={<PersonalizacionReportes />}
+            />
+            <Route
+              path="/descuentos_aplicados"
+              element={<DescuentosAplicados />}
             />
 
             <Route path="*" element={<NotFoundpage />} />
