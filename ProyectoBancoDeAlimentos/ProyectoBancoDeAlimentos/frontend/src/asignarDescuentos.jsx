@@ -14,7 +14,7 @@ import { Switch, Slider } from "@mui/material";
  * #d8dadc (gris bordes)
  */
 
-const PageSize = 10;
+const PageSize = 8;
 
 const initialData = [
   {
@@ -349,7 +349,19 @@ export default function AsignarDescuentos() {
   const [checked, setChecked] = useState(false);
 
   return (
-    <div className="bg-gray-100 w-screen flex flex-col px-12">
+    <div
+      className="bg-gray-100 w-screen flex flex-col px-12"
+      style={{
+        position: "absolute",
+        top: "145px",
+        left: 0,
+        right: 0,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <div className="flex flex-row gap-4">
         <div className="">
           {showSidebar && <Sidebar />}
