@@ -182,3 +182,140 @@ exports.crearPedido = async (req, res) => {
 };
 
 
+exports.getPedidosConDetalles = async (req, res) => {
+  try {
+    const pedidos = await pedido.findAll({
+      include: [
+        {
+          model: estado_pedido,
+          attributes: ['nombre_pedido'] // Incluye solo el nombre del estado del pedido
+        },
+        {
+          model: factura,
+          include: [
+            {
+              model: factura_detalle,
+              include: [
+                {
+                  model: producto,
+                  attributes: ['nombre', 'precio_base'], // Incluye solo el nombre y precio del producto
+                  include: [
+                    {
+                      model: subcategoria,
+                      as: 'subcategoria',
+                      attributes: ['nombre'],
+                      include: [
+                        {
+                          model: categoria,
+                          as: 'categoria',
+                          attributes: ['nombre']
+                        }
+                      ]
+                    }
+                  ] // Incluye la subcategoría y categoría del producto
+                }
+              ]
+            } 
+          ]
+        }
+      ]
+    });
+    res.json(pedidos);
+  } catch (error) {
+    console.error("Error al obtener pedidos con detalles:", error);
+    res.status(500).json({ error: "Error al obtener pedidos con detalles" });
+  }
+};
+
+
+exports.listarPedido = async (req, res) => {
+  try {
+    const { id_pedido } = req.params;
+
+    // Buscar el pedido y sus detalles
+    const pedidoDetalle = await pedido.findOne({
+      where: { id_pedido },
+      include: [
+        {
+          model: factura,
+          include: [
+            {
+              model: factura_detalle,
+              include: [
+                {
+                  model: producto,
+                  attributes: ['id_producto', 'nombre']
+                }
+              ],
+              attributes: ['cantidad_unidad_medida']
+            }
+          ]
+        }
+      ]
+    });
+
+    if (!pedidoDetalle) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    // Preparar la información para la vista
+    const productos = pedidoDetalle.factura.factura_detalles.map(detalle => ({
+      codigo: detalle.producto.id_producto.toString().padStart(4, '0'), // Asegurar 4 dígitos
+      nombre: detalle.producto.nombre,
+      cantidad: detalle.cantidad_unidad_medida
+    }));
+
+    // Devolver la información del pedido formateada
+    res.json({
+      numero_pedido: `#${pedidoDetalle.id_pedido.toString().padStart(6, '0')}`, // Asegurar 6 dígitos
+      productos
+    });
+  } catch (error) {
+    console.error('Error al obtener detalles del pedido para vista:', error);
+    res.status(500).json({ error: 'Error al obtener detalles del pedido para vista' });
+  }
+};
+
+exports.getPedidoDetalles = async (req, res) => {
+  try {
+    const { id_pedido } = req.params;
+
+    const pedidoEncontrado = await pedido.findByPk(id_pedido, {
+      include: [
+        {
+          model: factura,
+          include: [
+            {
+              model: factura_detalle,
+              include: [
+                {
+                  model: producto,
+                  attributes: ['id_producto', 'nombre']
+                }
+              ],
+              attributes: ['cantidad_unidad_medida']
+            }
+          ]
+        }
+      ]
+    });
+
+    if (!pedidoEncontrado) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    const productos = pedidoEncontrado.factura?.factura_detalles?.map(detalle => ({
+      codigo: detalle.producto.id_producto,
+      nombre: detalle.producto.nombre,
+      cantidad: detalle.cantidad_unidad_medida
+    })) || [];
+
+    res.json({
+      id_pedido: pedidoEncontrado.id_pedido,
+      productos
+    });
+  } catch (error) {
+    console.error('Error al obtener detalles del pedido:', error);
+    res.status(500).json({ error: 'Error al obtener detalles del pedido' });
+  }
+};
