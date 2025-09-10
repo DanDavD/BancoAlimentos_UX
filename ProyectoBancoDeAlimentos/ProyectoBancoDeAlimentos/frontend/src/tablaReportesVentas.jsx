@@ -196,7 +196,7 @@ function TablaReportesVentas() {
   const [filterText, setFilterText] = useState("");
   const [appliedFilter, setAppliedFilter] = useState("");
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 6;
 
   // Ordenar por ID
   const sortedData = [...mockData].sort((a, b) =>
@@ -241,7 +241,6 @@ function TablaReportesVentas() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        backgroundColor: "#F5F5F5",
       }}
     >
       <h1 className="inventario-title">Tabla de Reportes De Ventas</h1>
@@ -272,7 +271,7 @@ function TablaReportesVentas() {
       <table
         className="inventario-table"
         style={{
-          width: "65%",
+          width: "100%",
         }}
       >
         <thead className="inventario-thead">

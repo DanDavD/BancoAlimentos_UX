@@ -19,7 +19,6 @@
 }
 
 .inventario-filter {
-  background: #f9f9f9;
   display: flex;
   justify-content: flex-end;
   margin-bottom: 1rem;
@@ -27,9 +26,8 @@
 }
 
 .inventario-table {
-  background: #ffffff;
-  width: 60vw;
-  min-width: 700px;
+  width: auto;
+  min-width: 600px;
   border-collapse: collapse;
   border-radius: 8px;
   overflow: hidden;
@@ -41,21 +39,21 @@
 .inventario-table td {
   padding: 0.75rem;
   text-align: center;
-  width: 5%;
+  width: 100%;
   word-break: break-word;
 }
 .inventario-table th:first-child,
 .inventario-table td:first-child {
-  width: 5%;
-  min-width: 60px;
-  max-width: 80px;
+  width: 100%;
+  min-width: 80px;
+  max-width: 200px;
   text-align: center;
 }
 
 .inventario-container .inventario-thead th {
   background-color: #2b6daf;
   color: #fff;
-  width: 120px;
+  width: 135px;
   text-align: center;
 }
 
@@ -153,7 +151,7 @@
 .mini-modal-actions {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 1px;
 }
 
 .btn-apply {
@@ -188,12 +186,12 @@
 
 .inventario-actions {
   display: flex;
-  justify-content: center; /* Centra los botones horizontalmente */
+  justify-content: center;
   align-items: center;
   margin-bottom: 1rem;
   padding-top: 80px;
   width: 100%;
-  gap: 840px; /* Espacio entre los botones */
+  gap: 790px; /* Espacio entre los botones */
 }
 
 .Button-Back-Inventario {
