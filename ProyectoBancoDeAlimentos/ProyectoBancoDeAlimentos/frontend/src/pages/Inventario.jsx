@@ -218,6 +218,7 @@ export default function Inventario() {
   const [selectedSucursalName, setSelectedSucursalName] = useState("");
   //const sucMenuRef = useRef(null);
   const [showSucursalPicker, setShowSucursalPicker] = useState(false);
+  const [sucursalFiltro, setSucursalFiltro] = useState("");
 
   // Abastecer
   const [savingSupply, setSavingSupply] = useState(false);
@@ -356,6 +357,39 @@ export default function Inventario() {
 
   // ===== HELPERS =====
 
+  async function cargarProductosPorSucursal(sucursalId) {
+    try {
+      let res;
+      if (sucursalId) {
+        // 🔹 solo esa sucursal
+        console.log("Endpoint usado: /api/producto/sucursal/" + sucursalId);
+        res = await listarProductosporsucursal(sucursalId);
+      } else {
+        // 🔹 todas las sucursales (inventario general)
+        console.log("Endpoint usado: /api/Inventario/");
+        res = await getAllProducts();
+      }
+
+      const productsRaw = pickArrayPayload(res, [
+        "productos",
+        "data",
+        "results",
+        "items",
+      ]);
+
+      // si hay sucursal, mapeamos prefiriendo el stock_en_sucursal
+      const mapped = productsRaw.map((p) =>
+        mapApiProduct(p, { preferSucursalStock: !!sucursalId })
+      );
+
+      setRows(mapped);
+      setSucursalFiltro(String(sucursalId || ""));
+    } catch (err) {
+      console.error("Error cargando productos:", err);
+      alert("No se pudo cargar los productos.");
+    }
+  }
+
   async function loadProductsBySucursal(sucursalId = "") {
     try {
       setLoading(true);
@@ -371,7 +405,7 @@ export default function Inventario() {
         "results",
         "items",
       ]);
-      // 👇 pasa el flag para que el mapper lea el campo de stock correcto
+
       const mapped = raw.map((x) =>
         mapApiProduct(x, { fromSucursal: !useAll })
       );
@@ -394,7 +428,6 @@ export default function Inventario() {
     }
   }
 
-  // Usa este helper para cargar según la sucursal seleccionada
   async function handleSelectSucursal(id) {
     try {
       setSelectedSucursalId(id || "");
@@ -487,64 +520,66 @@ export default function Inventario() {
     return list.find((x) => String(x.id) === String(maybeId))?.nombre;
   }
 
-  // 👇 acepta un flag fromSucursal para mapear el stock correcto
-  function mapApiProduct(p, { fromSucursal = false } = {}) {
-    // Muchos endpoints de sucursal devuelven { producto: {...}, stock: N }
-    const prod = p.producto ?? p.Producto ?? p.item ?? p;
+  function mapApiProduct(p, { preferSucursalStock = false } = {}) {
+    const activo = p.activo ?? p.is_active ?? p.enabled ?? p.estado ?? true;
 
-    const activo =
-      prod.activo ?? prod.is_active ?? prod.enabled ?? prod.estado ?? true;
-
-    // ids para selects
-    const marcaId = prod.id_marca ?? prod.marca?.id ?? prod.marca_id ?? "";
+    // IDs (para selects)
+    const marcaId =
+      p.id_marca ??
+      p.marca?.id_marca_producto ??
+      p.marca?.id ??
+      p.marca_id ??
+      "";
     const categoriaId =
-      prod.id_categoria ?? prod.categoria?.id ?? prod.categoria_id ?? "";
-    const subcatId =
-      prod.id_subcategoria ??
-      prod.subcategoria?.id ??
-      prod.subcategoria_id ??
+      p.id_categoria ??
+      p.categoria?.id_categoria ??
+      p.categoria?.id ??
+      p.categoria_id ??
+      "";
+    const subcategoriaId =
+      p.id_subcategoria ??
+      p.subcategoria?.id_subcategoria ??
+      p.subcategoria?.id ??
+      p.subcategoria_id ??
       "";
 
-    // 🔥 stock: si viene de sucursal, prioriza campos típicos de stock-por-sucursal,
-    // si no, toma los del total del producto.
-    let stock = 0;
-    if (fromSucursal) {
-      stock = Number(
-        // campos típicos en respuestas por sucursal:
-        p.stock_sucursal ??
-          p.stockSucursal ??
-          p.sucursal_stock ??
-          p.cantidad ??
-          p.cantidad_stock ??
-          p.existencias ??
-          p.stock ?? // a veces ya se llama "stock"
-          prod.stock_sucursal ??
-          prod.stockSucursal ??
-          0
-      );
-    } else {
-      stock = Number(
-        prod.stock_total ?? prod.stock ?? prod.existencia ?? prod.stockKg ?? 0
-      );
-    }
+    // STOCK: si viene de sucursal, usa el campo expuesto por el controller
+    // (stock_en_sucursal) y si no, usa los totales.
+    const stockSucursal =
+      p.stock_en_sucursal ??
+      p.stockSucursal ??
+      p.stock_sucursal ??
+      p.stock_suc ??
+      null;
+
+    const stockTotal = p.stock_total ?? p.stock ?? p.existencia ?? null;
+
+    const stock = preferSucursalStock
+      ? stockSucursal ?? stockTotal ?? 0
+      : stockTotal ?? stockSucursal ?? 0;
 
     return {
-      id: String(prod.id ?? prod.id_producto ?? prod.producto_id ?? ""),
-      producto: prod.producto ?? prod.nombre ?? "",
+      id: String(p.id ?? p.id_producto ?? p.producto_id ?? ""),
+      producto: p.producto ?? p.nombre ?? "",
 
-      // nombres para la tabla
-      marca: prod.marca?.nombre ?? prod.marca ?? "",
-      categoria: prod.categoria?.nombre ?? prod.categoria ?? "",
-      subcategoria: prod.subcategoria?.nombre ?? prod.subcategoria ?? "",
+      // nombres (para la tabla)
+      marca: p.marca?.nombre ?? p.marca ?? "",
+      categoria:
+        p.categoria?.nombre ??
+        p.categoria?.nombre_categoria ??
+        p.categoria ??
+        "",
+      subcategoria: p.subcategoria?.nombre ?? p.subcategoria ?? "",
 
-      // ids para selects
+      // ids (para selects)
       marcaId: String(marcaId || ""),
       categoriaId: String(categoriaId || ""),
-      subcategoriaId: String(subcatId || ""),
+      subcategoriaId: String(subcategoriaId || ""),
 
-      stockKg: stock,
-      precioBase: Number(prod.precioBase ?? prod.precio_base ?? 0),
-      precioVenta: Number(prod.precioVenta ?? prod.precio_venta ?? 0),
+      stockKg: Number(stock || 0),
+      precioBase: Number(p.precioBase ?? p.precio_base ?? 0),
+      // tu controller ya envía 'precio_venta' calculado
+      precioVenta: Number(p.precioVenta ?? p.precio_venta ?? 0),
       activo,
     };
   }
@@ -974,7 +1009,19 @@ export default function Inventario() {
 
   /* ===================== UI ===================== */
   return (
-    <div className="w-full px-4 bg-[#f9fafb]">
+    <div
+      className="w-screen px-4 bg-[#f9fafb]"
+      style={{
+        position: "absolute",
+        top: "165px",
+        left: 0,
+        right: 0,
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       {/* Sidebar */}
 
       <div className="mx-auto py-6 max-w-[1100px]">

@@ -1,211 +1,156 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
+import { getDescuentosAplicadosPorUsuario } from "./api/PromocionesApi";
 import "./descuentos_aplicados.css";
+const PAGE_SIZE = 8;
 
-const PageSize = 10;
+function mapApiToRow(p) {
+  const pedido = Array.isArray(p.pedidos) ? p.pedidos[0] : p.pedido || {};
+  const fecha =
+    pedido?.fecha ||
+    p.fecha_aplicacion ||
+    p.fecha_inicio ||
+    p.createdAt ||
+    p.updatedAt;
 
-const seed = Array.from({ length: 22 }).map((_, i) => ({
-  fecha: "2025-08-30",
-  producto: "Bananas",
-  categoria: "Fruta",
-  estado: "Entregado",
-  monto: 156,
-}));
+  // toma el monto del descuento según tus columnas reales
+  const descuento = p.monto_descuento ?? p.valor_descuento ?? p.descuento ?? 0;
 
-function formatoLempiras(n) {
-  return `L. ${new Intl.NumberFormat("es-HN", {
-    maximumFractionDigits: 0,
-  }).format(n)}`;
+  return {
+    fecha,
+    factura: pedido?.numero_factura || pedido?.factura || p.factura || "-",
+    descuento: Number(descuento) || 0,
+  };
 }
 
-export default function DescuentosAplicados() {
-  const [rows] = useState(seed);
-  const [page, setPage] = useState(1);
-  const [sort, setSort] = useState({ key: "fecha", dir: "desc" }); // asc | desc
+export default class CuponesTabla extends React.Component {
+  state = {
+    loading: true,
+    error: null,
+    rows: [],
+    page: 1,
+  };
 
-  const sorted = useMemo(() => {
-    const { key, dir } = sort;
-    return [...rows].sort((a, b) => {
-      const A = a[key],
-        B = b[key];
-      if (key === "monto") return dir === "asc" ? A - B : B - A;
-      const sa = String(A),
-        sb = String(B);
-      if (sa < sb) return dir === "asc" ? -1 : 1;
-      if (sa > sb) return dir === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [rows, sort]);
+  componentDidMount() {
+    this.load();
+  }
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PageSize));
-  const pageData = useMemo(() => {
-    const start = (page - 1) * PageSize;
-    return sorted.slice(start, start + PageSize);
-  }, [sorted, page]);
+  componentDidUpdate(prevProps) {
+    if (prevProps.userId !== this.props.userId) {
+      this.setState({ page: 1 }, this.load);
+    }
+  }
 
-  function toggleSort(key) {
-    setPage(1);
-    setSort((prev) =>
-      prev.key === key
-        ? { key, dir: prev.dir === "asc" ? "desc" : "asc" }
-        : { key, dir: "asc" }
+  load = async () => {
+    try {
+      const { userId } = this.props; // pásalo desde el padre
+      this.setState({ loading: true, error: null });
+      const { data } = await getDescuentosAplicadosPorUsuario(userId);
+
+      // Normaliza cada item a { fecha, factura, descuento }
+      const rows = Array.isArray(data) ? data.map(mapApiToRow) : [];
+      this.setState({ rows, loading: false });
+    } catch (err) {
+      console.error(err);
+      this.setState({ error: "No se pudo cargar descuentos", loading: false });
+    }
+  };
+
+  setPage = (next) => {
+    const totalPages = Math.max(
+      1,
+      Math.ceil(this.state.rows.length / PAGE_SIZE)
     );
-  }
+    const page = Math.min(Math.max(1, next), totalPages);
+    this.setState({ page });
+  };
 
-  function exportarPDF() {
-    alert("Exportar a PDF (conecta jsPDF/html2canvas cuando gustes).");
-  }
+  render() {
+    const { rows, loading, error, page } = this.state;
+    const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+    const start = (page - 1) * PAGE_SIZE;
+    const pageRows = rows.slice(start, start + PAGE_SIZE);
 
-  return (
-    <div className="discounts-page">
-      <header className="text-left">
-        <h1 className="text-4xl font-semibold tracking-wide text-[#d8572f]">
-          Descuentos Aplicados
-        </h1>
+    return (
+      <section className="cupones">
+        <h2 className="cupones__title">Descuentos</h2>
+        <div className="h-0.5 w-full bg-[#f0833e] mt-2" />
 
-        {/* Línea full-bleed estable */}
-        <div className="relative mt-2 h-0">
-          <div className="absolute left-1/2 -translate-x-1/2 w-[100svw] h-[2px] rounded-md bg-[#f0833e]" />
-        </div>
-      </header>
-
-      {/* card--bleed: rompe max-width de contenedores padres y usa todo el viewport */}
-      <section className="card card--bleed">
-        <div
-          className="table-wrap"
-          role="region"
-          aria-label="Tabla de descuentos aplicados"
-        >
-          <table className="table">
-            {/* Fija proporciones de columnas para que siempre quepan visualmente */}
+        {/* Línea solo sobre la tabla + tabla */}
+        <div className="cupones__tableWrap">
+          <table className="cupones__table">
             <colgroup>
-              <col style={{ width: "18%" }} /> {/* Fecha */}
-              <col style={{ width: "28%" }} /> {/* Producto */}
-              <col style={{ width: "20%" }} /> {/* Categoría */}
-              <col style={{ width: "22%" }} /> {/* Estado */}
-              <col style={{ width: "12%" }} /> {/* Monto */}
+              <col style={{ width: "36%" }} />
+              <col style={{ width: "34%" }} />
+              <col style={{ width: "30%" }} />
             </colgroup>
-
             <thead>
               <tr>
-                <th>
-                  <button
-                    className={`th-sort ${
-                      sort.key === "fecha" ? `is-${sort.dir}` : ""
-                    }`}
-                    onClick={() => toggleSort("fecha")}
-                  >
-                    Fecha <span className="caret" />
-                  </button>
-                </th>
-                <th>
-                  <button
-                    className={`th-sort ${
-                      sort.key === "producto" ? `is-${sort.dir}` : ""
-                    }`}
-                    onClick={() => toggleSort("producto")}
-                  >
-                    Producto <span className="caret" />
-                  </button>
-                </th>
-                <th>
-                  <button
-                    className={`th-sort ${
-                      sort.key === "categoria" ? `is-${sort.dir}` : ""
-                    }`}
-                    onClick={() => toggleSort("categoria")}
-                  >
-                    Categoría <span className="caret" />
-                  </button>
-                </th>
-                <th>
-                  <button
-                    className={`th-sort ${
-                      sort.key === "estado" ? `is-${sort.dir}` : ""
-                    }`}
-                    onClick={() => toggleSort("estado")}
-                  >
-                    Estado <span className="caret" />
-                  </button>
-                </th>
-                <th className="num">
-                  <button
-                    className={`th-sort ${
-                      sort.key === "monto" ? `is-${sort.dir}` : ""
-                    }`}
-                    onClick={() => toggleSort("monto")}
-                  >
-                    Monto <span className="caret" />
-                  </button>
-                </th>
+                <th>Fecha</th>
+                <th>#Factura</th>
+                <th className="num">Descuento</th>
               </tr>
             </thead>
-
             <tbody>
-              {pageData.map((r, i) => (
-                <tr key={i}>
-                  <td>{new Date(r.fecha).toLocaleDateString("es-HN")}</td>
-                  <td title={r.producto}>{r.producto}</td>
-                  <td className="mono">{r.categoria}</td>
-                  <td>{r.estado}</td>
-                  <td className="num">{formatoLempiras(r.monto)}</td>
-                </tr>
-              ))}
-              {pageData.length === 0 && (
+              {loading && (
                 <tr>
-                  <td colSpan={5} className="empty">
-                    No hay datos para mostrar.
+                  <td className="empty" colSpan={3}>
+                    Cargando…
                   </td>
                 </tr>
               )}
+              {error && !loading && (
+                <tr>
+                  <td className="empty" colSpan={3}>
+                    {error}
+                  </td>
+                </tr>
+              )}
+              {!loading && !error && pageRows.length === 0 && (
+                <tr>
+                  <td className="empty" colSpan={3}>
+                    Sin datos.
+                  </td>
+                </tr>
+              )}
+              {!loading &&
+                !error &&
+                pageRows.map((r, i) => (
+                  <tr key={i}>
+                    <td>{new Date(r.fecha).toLocaleDateString("es-HN")}</td>
+                    <td>{r.factura}</td>
+                    <td className="num">
+                      L.{" "}
+                      {r.descuento.toLocaleString("es-HN", {
+                        maximumFractionDigits: 0,
+                      })}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
 
-        <div className="card-footer">
-          <nav className="pagination" aria-label="Paginación">
-            <button
-              className="page-nav"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              ‹
-            </button>
-            {Array.from({ length: totalPages }).map((_, idx) => {
-              const n = idx + 1;
-              const show =
-                n === 1 ||
-                n === totalPages ||
-                Math.abs(n - page) <= 1 ||
-                totalPages <= 7;
-              if (!show)
-                return idx === 1 || idx === totalPages - 2 ? (
-                  <span key={idx}>…</span>
-                ) : null;
-              return (
-                <button
-                  key={n}
-                  className={`page ${n === page ? "current" : ""}`}
-                  onClick={() => setPage(n)}
-                  aria-current={n === page ? "page" : undefined}
-                >
-                  {n}
-                </button>
-              );
-            })}
-            <button
-              className="page-nav"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-            >
-              ›
-            </button>
-          </nav>
-
-          <button className="btn-export" onClick={exportarPDF}>
-            Exportar a PDF
+        {/* Paginación redonda */}
+        <nav className="cupones__pager" aria-label="Paginación">
+          <button
+            className="pager__btn"
+            onClick={() => this.setPage(page - 1)}
+            disabled={page === 1}
+            title="Anterior"
+          >
+            ‹
           </button>
-        </div>
+          <span className="pager__page is-active">{page}</span>
+          <button
+            className="pager__btn"
+            onClick={() => this.setPage(page + 1)}
+            disabled={page === totalPages}
+            title="Siguiente"
+          >
+            ›
+          </button>
+        </nav>
       </section>
-    </div>
-  );
+    );
+  }
 }
