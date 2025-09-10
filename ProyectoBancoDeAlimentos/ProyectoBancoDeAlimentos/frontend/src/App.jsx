@@ -41,6 +41,9 @@ import TablaUsuarios from "./reporteUsuarios.jsx";
 import SistemaValoracion from "./SistemaValoracion.jsx";
 import PersonalizacionReportes from "./PersonalizacionReportes.jsx";
 import DescuentosAplicados from "./descuentos_aplicados.jsx";
+import Categoria from "./categoria.jsx";
+import HistorialCompras from "./HistorialCompras.jsx";
+
 const HEADER_HEIGHT = 116; // px
 
 function App() {
@@ -127,6 +130,8 @@ function App() {
             />
 
             <Route path="*" element={<NotFoundpage />} />
+            <Route path="/categoria/:id" element={<Categoria />} />
+            <Route path="/historialCompras" element={<HistorialCompras />} />
           </Routes>
         </div>
       </div>
