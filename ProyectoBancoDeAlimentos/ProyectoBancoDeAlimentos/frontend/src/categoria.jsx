@@ -231,49 +231,82 @@ function Categoria() {
     }
 
     try {
-      let carritoActual = null;
-      let carritoVacio = false;
+      console.log("Agregando producto:", id_producto);
 
-      try {
-        carritoActual = await ViewCar();
-      } catch (error) {
-        if (error?.response?.status === 404) {
-          carritoVacio = true;
-        } else {
-          throw error;
-        }
-      }
+      // Obtener carrito actual
+      const carritoActual = await ViewCar();
+      const carritoDetalles = carritoActual.data.carrito_detalles ?? [];
 
-      let existe = false;
-      if (!carritoVacio && carritoActual?.data) {
-        const items = carritoActual.data.carrito_detalles || carritoActual.data;
-        existe = Array.isArray(items)
-          ? items.find((item) => item.id_producto === id_producto)
-          : false;
-      }
+      // Buscar si el producto ya existe
+      const productoExistente = carritoDetalles.find(
+        (item) => item.producto.id_producto === id_producto
+      );
 
-      let response;
+      if (productoExistente) {
+        const cantidadActual = productoExistente.cantidad_unidad_medida || 0;
+        const nuevaCantidad = cantidadActual + 1;
 
-      if (existe) {
-        response = await SumarItem(id_producto, 1);
-        alert(`Se aumentó la cantidad del producto`);
+        console.log(`Actualizando de ${cantidadActual} a ${nuevaCantidad}`);
+        alert(`Actualizando a ${nuevaCantidad}`);
+
+        // Actualizar en backend
+        await SumarItem(id_producto, nuevaCantidad);
+
+        // Actualizar estado local del carrito (si lo tienes)
+        setCarrito((prev) => {
+          if (Array.isArray(prev)) {
+            return prev.map((item) =>
+              item.producto.id_producto === id_producto
+                ? {
+                    ...item,
+                    cantidad_unidad_medida: nuevaCantidad,
+                    subtotal_detalle: item.producto.precio_base * nuevaCantidad,
+                  }
+                : item
+            );
+          }
+          return prev;
+        });
       } else {
-        response = await AddNewCarrito(id_producto, 1);
+        console.log("Producto nuevo, agregando al carrito");
+
+        // Agregar nuevo producto
+        await AddNewCarrito(id_producto, 1);
+
+        // Recargar carrito completo para obtener el nuevo producto
+        const carritoActualizado = await ViewCar();
+        const nuevosDetalles = carritoActualizado.data.carrito_detalles ?? [];
+        setCarrito(nuevosDetalles);
+
         alert(`Producto agregado al carrito`);
       }
-
-      try {
-        const actualizado = await ViewCar();
-        setCarrito(actualizado.data);
-      } catch (error) {}
     } catch (error) {
-      const errorMessage =
-        error?.response?.data?.msg ||
-        error?.response?.data?.message ||
-        error?.message ||
-        "No se pudo procesar el carrito";
+      console.error("Error:", error);
 
-      alert(errorMessage);
+      // Si el carrito está vacío, intentar crear uno nuevo
+      if (error?.response?.status === 404) {
+        try {
+          await AddNewCarrito(id_producto, 1);
+
+          // Recargar carrito
+          const carritoNuevo = await ViewCar();
+          const nuevosDetalles = carritoNuevo.data.carrito_detalles ?? [];
+          setCarrito(nuevosDetalles);
+
+          alert(`Producto agregado al carrito`);
+        } catch (err) {
+          console.error("Error creando carrito:", err);
+          alert("No se pudo agregar el producto al carrito");
+        }
+      } else {
+        const errorMessage =
+          error?.response?.data?.msg ||
+          error?.response?.data?.message ||
+          error?.message ||
+          "No se pudo procesar el carrito";
+
+        alert(errorMessage);
+      }
     }
   };
 

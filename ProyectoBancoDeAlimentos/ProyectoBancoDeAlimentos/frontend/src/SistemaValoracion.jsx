@@ -1,16 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import { Icon } from "@iconify/react";
 import {
   getTopProductosUsuario,
   getProductosRecomendados,
   getDiasCompra,
   getTotalAhorrado,
-} from "./api/reporteusuarioApi"; // ajusta ruta si tu archivo está en otra carpeta
+} from "./api/reporteusuarioApi"; 
 import "./SistemaValoracion.css";
-
-const USER_ID = 1; // 👈 reemplázalo con el id_usuario real de tu login
+import { UserContext } from "./components/userContext";
 
 export default function SistemaValoracion() {
+  const { user } = useContext(UserContext);
+  const USER_ID = user?.id_usuario ?? 12;
+
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
@@ -25,6 +27,7 @@ export default function SistemaValoracion() {
     let mounted = true;
     (async () => {
       try {
+        if (!user) return;
         const [top, recs, dias, ahorroResp] = await Promise.all([
           getTopProductosUsuario(USER_ID),
           getProductosRecomendados(USER_ID),
@@ -47,7 +50,7 @@ export default function SistemaValoracion() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [USER_ID, user]);
 
   // Mapear hábitos de compra a días de la semana
   const diasLabels = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -57,7 +60,7 @@ export default function SistemaValoracion() {
     );
     return Array.from({ length: 7 }, (_, i) => ({
       day: diasLabels[i],
-      value: map.get(i) || 0,
+      value: map.get(i+1) || 0,
     }));
   }, [diasCompra]);
   const maxValue = useMemo(
@@ -66,7 +69,7 @@ export default function SistemaValoracion() {
   );
 
   const currentProduct = recurrentes[currentProductIdx] || null;
-
+  
   return (
     <div className="supermarket-dashboard">
       <div className="dashboard-grid">
@@ -128,7 +131,18 @@ export default function SistemaValoracion() {
 
                 <div className="product-display">
                   <div className="product-image">
-                    <span className="product-emoji">🛒</span>
+                    
+    <span className="product-emoji">
+      <img
+        src={`/images/productos/${currentProduct?.producto?.imagen}`}
+        alt={currentProduct?.producto?.nombre ?? "Producto"}
+        onError={(e) => {
+          e.currentTarget.onerror = null;
+        }}
+        style={{ width: "22px", height: "22px", objectFit: "cover" }}
+        loading="lazy"
+      />
+    </span>
                   </div>
                   <div className="product-info">
                     <h3>

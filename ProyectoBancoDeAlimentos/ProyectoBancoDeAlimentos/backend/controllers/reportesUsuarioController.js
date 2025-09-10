@@ -124,6 +124,7 @@ exports.getTotalAhorrado = async (req, res) => {
       raw: true
     });
 
+    console.log("id "+ id_usuario+ " me queda un porciento: " + resultado.total_ahorrado);
     res.json({ total_ahorrado: resultado.total_ahorrado ?? 0 });
   } catch (error) {
     console.error("Error al calcular total ahorrado:", error);
