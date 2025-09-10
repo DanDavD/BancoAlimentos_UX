@@ -115,10 +115,7 @@ function App() {
                 path="/descuentos_aplicados"
                 element={<DescuentosAplicados />}
               />
-              <Route
-                path="/sistemaValoracion"
-                element={<SistemaValoracion />}
-              />
+              
             </Route>
 
             {/* ---------- CLIENTE LOGUEADO ---------- */}
@@ -131,10 +128,12 @@ function App() {
               }
             />
             <Route
-              path="/misPedidos"
+
+            
+              path="/SistemaValoracion"
               element={
                 <ProtectedRoute rolesPermitidos={["cliente"]}>
-                  <MisPedidos />
+                  <SistemaValoracion />
                 </ProtectedRoute>
               }
             />

@@ -215,7 +215,7 @@ const Headerr = ({ isAdminPage }) => {
                   </Link>
 
                   <Link
-                    to="/reportes/actividad"
+                    to="/SistemaValoracion"
                     style={styles.dropdownLink}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.backgroundColor = "#D8572F")
