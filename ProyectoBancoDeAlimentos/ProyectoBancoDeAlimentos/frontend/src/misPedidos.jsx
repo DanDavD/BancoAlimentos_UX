@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./misPedidos.css";
 import calendarIcon from "./images/calendar.png";
 import PedidoEmergente from "./components/pedidoEmergente";
 import PerfilSidebar from "./components/perfilSidebar";
+import { getHistorialComprasProductos } from "./api/PedidoApi"; // Asegúrate de que la ruta sea correcta
 
 const MisPedidos = () => {
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -10,20 +11,32 @@ const MisPedidos = () => {
   const [filtro, setFiltro] = useState("recientes");
   const [fechaExacta, setFechaExacta] = useState("");
   const [limite, setLimite] = useState(10);
+  const [pedidos, setPedidos] = useState([]); // Estado para los pedidos de la API
+  const [cargando, setCargando] = useState(true); // Estado de carga
+  const [error, setError] = useState(null); // Estado de error
 
-  const pedidos = [
-    { id: 123456, fecha: "2024-04-12", estado: "En curso", productos: [] },
-    { id: 123457, fecha: "2024-04-08", estado: "Entregado", productos: [] },
-    { id: 123458, fecha: "2024-04-06", estado: "Entregado", productos: [] },
-    { id: 123426, fecha: "2024-04-04", estado: "Entregado", productos: [] },
-    { id: 123436, fecha: "2024-04-02", estado: "Entregado", productos: [] },
-    { id: 123437, fecha: "2024-03-30", estado: "Entregado", productos: [] },
-    { id: 123438, fecha: "2024-03-25", estado: "Entregado", productos: [] },
-    { id: 123439, fecha: "2024-03-20", estado: "Entregado", productos: [] },
-    { id: 123440, fecha: "2024-03-15", estado: "Entregado", productos: [] },
-    { id: 123441, fecha: "2024-03-10", estado: "Entregado", productos: [] },
-    { id: 123442, fecha: "2024-03-05", estado: "Entregado", productos: [] },
-  ];
+  useEffect(() => {
+    // Llamada a la API al cargar el componente
+    const fetchPedidos = async () => {
+      try {
+        const response = await getHistorialComprasProductos();
+        // Mapea la data de la API para que coincida con la estructura del frontend
+        const pedidosFormateados = response.data.map(item => ({
+          id: item.id_pedido,
+          fecha: item.fecha_pedido.split('T')[0], // Formato YYYY-MM-DD
+          estado: item.estado_pedido, // Asume que la API devuelve 'En curso' o 'Entregado'
+          productos: [] // Los detalles de productos se obtendrán al abrir el modal
+        }));
+        setPedidos(pedidosFormateados);
+        setCargando(false);
+      } catch (err) {
+        setError("No se pudo cargar el historial de pedidos.");
+        setCargando(false);
+        console.error("Error al obtener pedidos:", err);
+      }
+    };
+    fetchPedidos();
+  }, []);
 
   // Aplicar filtro
   let pedidosFiltrados = [...pedidos];
@@ -63,7 +76,6 @@ const MisPedidos = () => {
           <div className="historial-box">
             <div className="historial-header">
               <h3>Historial de pedidos</h3>
-
               <select
                 className="filtro-fecha"
                 value={filtro}
@@ -73,7 +85,6 @@ const MisPedidos = () => {
                 <option value="antiguos">Más antiguos</option>
                 <option value="exacta">Fecha exacta</option>
               </select>
-
               {filtro === "exacta" && (
                 <input
                   type="date"
@@ -81,7 +92,6 @@ const MisPedidos = () => {
                   onChange={(e) => setFechaExacta(e.target.value)}
                 />
               )}
-
               <img
                 src={calendarIcon}
                 alt="Calendario"
@@ -90,7 +100,10 @@ const MisPedidos = () => {
             </div>
 
             <div className="historial-list">
-              {pedidosMostrados.map((pedido) => (
+              {cargando && <p>Cargando historial...</p>}
+              {error && <p className="error-message">{error}</p>}
+              {!cargando && !error && pedidosMostrados.length === 0 && <p>No se encontraron pedidos.</p>}
+              {!cargando && !error && pedidosMostrados.map((pedido) => (
                 <div key={pedido.id} className="pedido-item">
                   <div
                     className="pedido-info clickable"
@@ -110,7 +123,6 @@ const MisPedidos = () => {
               ))}
             </div>
 
-            {/* Botón ver más si hay más pedidos */}
             {limite < pedidosFiltrados.length && (
               <div className="ver-mas-container">
                 <button
@@ -125,7 +137,6 @@ const MisPedidos = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {modalAbierto && pedidoSeleccionado && (
         <PedidoEmergente
           pedido={pedidoSeleccionado}
