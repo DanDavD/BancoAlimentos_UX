@@ -302,8 +302,8 @@ export default function MiPerfil() {
                 onChange={(e) => setGenero(e.target.value)}
                 disabled={!editMode}
               >
-                <option>Masculino</option>
-                <option>Femenino</option>
+                <option>masculino</option>
+                <option>femenino</option>
                 <option>Otro</option>
               </select>
             </Field>
